@@ -3,58 +3,122 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>io.github.ukuz</groupId>
-    <artifactId>piccolo</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.0</version>
+
     <modules>
         <module>piccolo-server</module>
+        <module>piccolo-api</module>
     </modules>
 
 
-    <name>piccolo</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
+    <groupId>io.github.ukuz</groupId>
+    <artifactId>piccolo</artifactId>
+    <version>0.1.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!--  -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <junitVersion>5.3.1</junitVersion>
-        <nettyVersion>4.1.25.Final</nettyVersion>
-        <curatorVersion>4.2.0</curatorVersion>
+
+        <!-- lib -->
+        <junit_jupiter_version>5.3.1</junit_jupiter_version>
+        <netty_version>4.1.25.Final</netty_version>
+        <curator_version>4.2.0</curator_version>
+        <lombok_version>1.16.18</lombok_version>
+
+        <!-- Maven plugins -->
+        <maven_jacoco_version>0.8.2</maven_jacoco_version>
+
+        <!--<os_detected_classifier>linux-x86_64</os_detected_classifier>-->
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!--<dependency>-->
+                <!--<groupId>${project.groupId}</groupId>-->
+                <!--<artifactId>piccolo-api</artifactId>-->
+                <!--<version>${project.version}</version>-->
+            <!--</dependency>-->
+
+            <!-- lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok_version}</version>
+            </dependency>
+
+            <!-- netty -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport</artifactId>
+                <version>${netty_version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-epoll</artifactId>
+                <version>${netty_version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty_version}</version>
+            </dependency>
+
+            <!-- zookeeper client -->
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-x-discovery</artifactId>
+                <version>${curator_version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- junit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junitVersion}</version>
+            <version>${junit_jupiter_version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junitVersion}</version>
+            <version>${junit_jupiter_version}</version>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- netty -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-            <version>${nettyVersion}</version>
-        </dependency>
-
-        <!-- zookeeper client -->
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-x-discovery</artifactId>
-            <version>${curatorVersion}</version>
-        </dependency>
     </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${maven_jacoco_version}</version>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacocoArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>

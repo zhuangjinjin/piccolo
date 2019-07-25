@@ -1,0 +1,2 @@
+simple=io.github.ukuz.piccolo.api.spi.SimpleInput
+hello=io.github.ukuz.piccolo.api.spi.HelloInput
