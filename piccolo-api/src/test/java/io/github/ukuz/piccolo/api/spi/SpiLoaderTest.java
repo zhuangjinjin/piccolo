@@ -1,3 +1,18 @@
+/*
+ * Copyright 2019 ukuz90
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.ukuz.piccolo.api.spi;
 
 import io.github.ukuz.piccolo.api.common.DefaultOrderComparator;
@@ -42,6 +57,7 @@ class SpiLoaderTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @DisplayName("test_getLoader")
     @Test
     void testGetLoader() {
@@ -49,6 +65,7 @@ class SpiLoaderTest {
         assertNotNull(loader);
     }
 
+    @SuppressWarnings("unchecked")
     @DisplayName("test_getExtension_NotPrimaryKey")
     @Test
     void testGetExtensionNotPrimaryKey() {
@@ -61,6 +78,7 @@ class SpiLoaderTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @DisplayName("test_getExtension_PrimaryKeyNotMapping")
     @Test
     void testGetExtensionPrimaryKeyNotMapping() {
@@ -73,6 +91,7 @@ class SpiLoaderTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @DisplayName("test_getExtension")
     @Test
     void testGetExtensionWithPrimaryKey() {
@@ -81,6 +100,7 @@ class SpiLoaderTest {
         assertEquals(DefaultOrderComparator.class, comparator.getClass());
     }
 
+    @SuppressWarnings("unchecked")
     @DisplayName("test_getExtensionWithOrder")
     @Test
     void testGetExtensionWithOrder() {
@@ -100,6 +120,7 @@ class SpiLoaderTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @DisplayName("test_getExtension_WithKey")
     @Test
     void testGetExtensionWithKey() {

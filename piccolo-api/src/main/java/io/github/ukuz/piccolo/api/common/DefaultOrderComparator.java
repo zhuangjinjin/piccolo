@@ -42,7 +42,7 @@ public class DefaultOrderComparator<T extends Class> implements OrderComparator<
     }
 
     private Order getOrderAnnotation(Class<T> t) {
-        Order order = (Order) t.getAnnotation(Order.class);
+        Order order = t.getAnnotation(Order.class);
         if (order == null) {
             throw new IllegalArgumentException("Class " + t.getName() + " doesn't annotated with @Order");
         }
