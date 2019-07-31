@@ -43,7 +43,7 @@ public abstract class NettyServer extends AbstractService implements Server {
     @Override
     public final void init() throws ServiceException {
         if (!serverState.compareAndSet(State.Created, State.Initializing)) {
-            throw new IllegalStateServiceException("Server " + getId() + " start failed, current state: " + serverState.get());
+            throw new IllegalStateServiceException("Server " + getId() + " init failed, current state: " + serverState.get());
         }
 
         doInit();
@@ -86,11 +86,13 @@ public abstract class NettyServer extends AbstractService implements Server {
     }
 
     @Override
-    public final void destory() throws ServiceException {
-        if (serverState.compareAndSet(State.Started, State.Shutdown)) {
-            doDestory();
-            serverState.set(State.Terminated);
+    public final void destroy() throws ServiceException {
+        if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
+            throw new IllegalStateServiceException("Server " + getId() + " destroy failed, current state: " + serverState.get());
         }
+        doDestory();
+
+        serverState.set(State.Terminated);
     }
 
     protected void initOptions(ServerBootstrap server) {

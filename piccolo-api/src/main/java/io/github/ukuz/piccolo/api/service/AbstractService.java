@@ -67,7 +67,7 @@ public abstract class AbstractService implements Service {
         }
         if (isStarted.compareAndSet(true, false)) {
             try {
-                destory();
+                destroy();
                 serviceCallback.success();
             } catch (ServiceException e) {
                 serviceCallback.failure(e);

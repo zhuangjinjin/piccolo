@@ -92,7 +92,7 @@ class AbstractServiceTest {
     void testStopAsyncWithException() {
         AbstractService serviceStopWithException = new AbstractService() {
             @Override
-            public void destory() throws ServiceException {
+            public void destroy() throws ServiceException {
                 throw new ServiceException(new FileNotFoundException("Resource was not exist."));
             }
         };
@@ -127,7 +127,7 @@ class AbstractServiceTest {
     void stopWithException() {
         AbstractService serviceStopWithException = new AbstractService() {
             @Override
-            public void destory() throws ServiceException {
+            public void destroy() throws ServiceException {
                 throw new ServiceException(new FileNotFoundException("Resource was not exist."));
             }
         };

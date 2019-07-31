@@ -36,7 +36,7 @@ public interface Service {
 
     default void init() throws ServiceException {}
 
-    default void destory() throws ServiceException {}
+    default void destroy() throws ServiceException {}
 
     boolean isRunning();
 
