@@ -84,8 +84,7 @@ class AbstractServiceTest {
     @Test
     void testStartAsync() {
         CompletableFuture<Boolean> future = service.startAsync(new EmptyCallback());
-        future.join();
-        assertTrue(service.isRunning());
+        assertTrue(future.join());
     }
 
     @DisplayName("test_stopAsync_WithException")
@@ -112,18 +111,15 @@ class AbstractServiceTest {
     @Test
     void testStopAsync() {
         CompletableFuture<Boolean> startFuture = service.startAsync(new EmptyCallback());
-        startFuture.whenComplete((result, throwable) -> {
-            CompletableFuture<Boolean> stopFuture = service.stopAsync(new EmptyCallback());
-            stopFuture.join();
-        });
-        assertFalse(service.isRunning());
+        assertTrue(startFuture.join());
+        CompletableFuture<Boolean> stopFuture = service.stopAsync(new EmptyCallback());
+        assertFalse(stopFuture.join());
     }
 
     @DisplayName("test_start")
     @Test
     void testStart() {
-        service.start();
-        assertTrue(service.isRunning());
+        assertTrue(service.start());
     }
 
     @DisplayName("test_stop_WithException")
@@ -148,9 +144,8 @@ class AbstractServiceTest {
     @DisplayName("test_stop")
     @Test
     void stop() {
-        service.start();
-        service.stop();
-        assertFalse(service.isRunning());
+        assertTrue(service.start());
+        assertFalse(service.stop());
     }
 
     @Execution(value = ExecutionMode.CONCURRENT)

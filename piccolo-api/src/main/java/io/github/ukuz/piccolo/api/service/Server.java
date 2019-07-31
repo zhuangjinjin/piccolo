@@ -19,4 +19,6 @@ package io.github.ukuz.piccolo.api.service;
  * @author ukuz90
  */
 public interface Server extends Service {
+
+    String getId();
 }

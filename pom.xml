@@ -8,6 +8,7 @@
     <modules>
         <module>piccolo-server</module>
         <module>piccolo-api</module>
+        <module>piccolo-transport</module>
     </modules>
 
 
@@ -47,6 +48,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.github.ukuz</groupId>
+                <artifactId>piccolo-transport</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- lombok -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -68,6 +75,11 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-handler</artifactId>
+                <version>${netty_version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
                 <version>${netty_version}</version>
             </dependency>
 

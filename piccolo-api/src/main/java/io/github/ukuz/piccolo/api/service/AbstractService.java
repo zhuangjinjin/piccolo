@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.service;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,7 +43,11 @@ public abstract class AbstractService implements Service {
         if  (isStarted.compareAndSet(false, true)) {
             try {
                 init();
-                serviceCallback.success();
+                CompletableFuture future = doStartAsync();
+                future.whenCompleteAsync((result, throwable) -> {
+                    Optional.of(result).ifPresent(r-> serviceCallback.success());
+                    Optional.of(throwable).ifPresent(t->serviceCallback.failure(wrapServiceException((Throwable) t)));
+                });
             } catch (ServiceException e) {
                 serviceCallback.failure(e);
             }
@@ -54,10 +59,9 @@ public abstract class AbstractService implements Service {
     }
 
     @Override
-    public CompletableFuture<Boolean> stopAsync(Callback callback) {
+    public final CompletableFuture<Boolean> stopAsync(Callback callback) {
         ServiceCallback serviceCallback = wrapServiceCallback(callback);
-        boolean isRunning = isRunning();
-        if (!isRunning) {
+        if (!isStarted.get()) {
             serviceCallback.failure(new IllegalStateServiceException("Service " + this.getClass().getName() + " was not running."));
             return serviceCallback;
         }
@@ -76,35 +80,28 @@ public abstract class AbstractService implements Service {
     }
 
     @Override
-    public boolean start() throws ServiceException {
+    public final boolean start() throws ServiceException {
         try {
             return startAsync(null).join();
         } catch (CompletionException e) {
-            if (e.getCause() instanceof ServiceException) {
-                throw (ServiceException) e.getCause();
-            } else {
-                throw new ServiceException(e.getCause());
-            }
+            throw wrapServiceException(e.getCause());
         }
     }
 
     @Override
-    public boolean stop() throws ServiceException {
+    public final boolean stop() throws ServiceException {
         try {
             return stopAsync(null).join();
         } catch (CompletionException e) {
-            if (e.getCause() instanceof ServiceException) {
-                throw (ServiceException) e.getCause();
-            } else {
-                throw new ServiceException(e.getCause());
-            }
+            throw wrapServiceException(e.getCause());
         }
 
     }
 
-    @Override
-    public boolean isRunning() {
-        return isStarted.get();
+    protected CompletableFuture<Boolean> doStartAsync() {
+        CompletableFuture future = new CompletableFuture<>();
+        future.complete(true);
+        return future;
     }
 
     private ServiceCallback wrapServiceCallback(Callback callback) {
@@ -114,4 +111,15 @@ public abstract class AbstractService implements Service {
         return new ServiceCallback(isStarted, callback);
     }
 
+    protected ServiceException wrapServiceException(Throwable throwable) {
+        if (throwable instanceof ServiceException) {
+            return (ServiceException) throwable;
+        }
+        return new ServiceException(throwable);
+    }
+
+    @Override
+    public boolean isRunning() {
+        throw new UnsupportedOperationException();
+    }
 }
