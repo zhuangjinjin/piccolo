@@ -25,7 +25,7 @@
         <file_encoding>UTF-8</file_encoding>
 
         <!-- lib -->
-        <junit_jupiter_version>5.3.1</junit_jupiter_version>
+        <junit_jupiter_version>5.5.1</junit_jupiter_version>
         <netty_version>4.1.25.Final</netty_version>
         <curator_version>4.2.0</curator_version>
         <lombok_version>1.16.18</lombok_version>
@@ -90,6 +90,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit_jupiter_version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>${junit_jupiter_version}</version>
             <scope>test</scope>
         </dependency>
