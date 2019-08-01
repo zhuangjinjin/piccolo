@@ -5,17 +5,17 @@ jdk:
   - openjdk8
   - oraclejdk8
 
-before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
-
 cache:
   - directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+    - $HOME/.m2
+
+install: true
 
 script:
   - travis_wait 30 mvn clean install -DskipTests=false -Dmaven.javadoc.skip=true -Drat.skip=false
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+after_failure:
+  -
