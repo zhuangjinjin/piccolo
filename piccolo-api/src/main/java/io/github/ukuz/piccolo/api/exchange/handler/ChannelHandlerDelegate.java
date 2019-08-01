@@ -15,27 +15,16 @@
  */
 package io.github.ukuz.piccolo.api.exchange.handler;
 
-import io.github.ukuz.piccolo.api.exchange.ExchangeException;
-import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
-import io.netty.channel.Channel;
-
 /**
  * @author ukuz90
  */
-public class MultiMessageHandler extends ChannelHandlerDelegateAdapter {
+public interface ChannelHandlerDelegate extends ChannelHandler {
 
-    public MultiMessageHandler(ChannelHandler handler) {
-        super(handler);
-    }
-
-    @Override
-    public void received(Channel channel, Object message) throws ExchangeException {
-        if (message instanceof MultiMessage) {
-            ((MultiMessage) message).forEach(msg -> handler.received(channel, msg));
-        } else {
-            handler.received(channel, message);
-        }
-    }
-
+    /**
+     * decorate the channelHandler
+     *
+     * @return
+     */
+    ChannelHandler getChannelHandler();
 
 }

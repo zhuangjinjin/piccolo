@@ -1,0 +1,2 @@
+epoll=io.github.ukuz.piccolo.transport.eventloop.EpollEventLoopGroupFactory
+nio=io.github.ukuz.piccolo.transport.eventloop.NioEventLoopGroupFactory

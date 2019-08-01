@@ -15,10 +15,14 @@
  */
 package io.github.ukuz.piccolo.transport.server;
 
+import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.IllegalStateServiceException;
 import io.github.ukuz.piccolo.api.service.Server;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
+import io.github.ukuz.piccolo.transport.handler.ServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -35,8 +39,17 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class NettyServer extends AbstractService implements Server {
 
     private ServerBootstrap server;
-    private EventLoopGroup bossThreadPool;
-    private EventLoopGroup workerThreadPool;
+    private EventLoopGroupFactory eventLoopGroupFactory;
+    private ServerHandler serverHandler;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+
+    public NettyServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelHandler channelHandler) {
+        Assert.notNull(eventLoopGroupFactory, "eventLoopGroupFactory must not be null");
+        Assert.notNull(channelHandler, "channelHandler must not be null");
+        this.eventLoopGroupFactory = eventLoopGroupFactory;
+        this.serverHandler = new ServerHandler(channelHandler);
+    }
 
     private final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
 
@@ -58,10 +71,18 @@ public abstract class NettyServer extends AbstractService implements Server {
 
         CompletableFuture result = new CompletableFuture();
         server = new ServerBootstrap();
-        bossThreadPool = getBossThreadPool();
-        workerThreadPool = getWorkerThreadPool();
+        bossGroup = createBossThreadPool();
+        workerGroup = createWorkerThreadPool();
 
-        server.group(bossThreadPool, workerThreadPool);
+        if (bossGroup == null) {
+            bossGroup = NettyServer.this.createBossThreadPool();
+        }
+
+        if (workerGroup == null) {
+            workerGroup = NettyServer.this.createWorkerThreadPool();
+        }
+
+        server.group(bossGroup, workerGroup);
 
         initOptions(server);
 
@@ -103,7 +124,17 @@ public abstract class NettyServer extends AbstractService implements Server {
     protected void initPipeline(ChannelPipeline pipeline) {
         pipeline.addLast("decoder", getDecoder());
         pipeline.addLast("encoder", getEncoder());
-        pipeline.addLast("handler", getChannelHandler());
+        pipeline.addLast("handler", serverHandler);
+    }
+
+    private EventLoopGroup createBossThreadPool() {
+        return eventLoopGroupFactory.newEventLoopGroup(getBossThreadNum(),
+                getBossIORatio(), newBossThreadFactory());
+    }
+
+    private EventLoopGroup createWorkerThreadPool() {
+        return eventLoopGroupFactory.newEventLoopGroup(getWorkerThreadNum(),
+                getWorkerIORatio(), newWorkerThreadFactory());
     }
 
     @Override
@@ -111,11 +142,11 @@ public abstract class NettyServer extends AbstractService implements Server {
         return serverState.get() == State.Started;
     }
 
-    protected ThreadFactory getBossThreadFactory() {
+    protected ThreadFactory newBossThreadFactory() {
         return new DefaultThreadFactory(getBossThreadName());
     }
 
-    protected ThreadFactory getWorkerThreadFactory() {
+    protected ThreadFactory newWorkerThreadFactory() {
         return new DefaultThreadFactory(getWorkerThreadName());
     }
 
@@ -126,12 +157,6 @@ public abstract class NettyServer extends AbstractService implements Server {
     protected abstract void doInit();
 
     protected abstract void doDestory();
-
-    protected abstract EventLoopGroup getBossThreadPool();
-
-    protected abstract EventLoopGroup getWorkerThreadPool();
-
-    protected abstract ChannelHandler getChannelHandler();
 
     protected abstract InetSocketAddress getInetSocketAddress();
 
