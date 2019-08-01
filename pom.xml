@@ -25,6 +25,11 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <file_encoding>UTF-8</file_encoding>
 
+        <!-- Build args -->
+        <argline>-server -Xms256m -Xmx512m -Dfile.encoding=UTF-8
+            -Djava.net.preferIPv4Stack=true -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m
+        </argline>
+
         <!-- lib -->
         <junit_jupiter_version>5.5.1</junit_jupiter_version>
         <netty_version>4.1.25.Final</netty_version>
@@ -35,6 +40,8 @@
         <maven_compiler_version>3.6.0</maven_compiler_version>
         <maven_jacoco_version>0.8.2</maven_jacoco_version>
         <maven_apache_rat_version>0.12</maven_apache_rat_version>
+        <maven_surefire_verson>3.0.0-M3</maven_surefire_verson>
+        <maven_failsafe_version>3.0.0-M3</maven_failsafe_version>
 
         <!--<os_detected_classifier>linux-x86_64</os_detected_classifier>-->
     </properties>
@@ -144,9 +151,9 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
-                        <configuration>
-                            <propertyName>jacocoArgLine</propertyName>
-                        </configuration>
+                        <!--<configuration>-->
+                            <!--<propertyName>jacocoArgLine</propertyName>-->
+                        <!--</configuration>-->
                     </execution>
                     <execution>
                         <id>report-aggregate</id>
@@ -154,6 +161,24 @@
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>target/jacoco.exec</dataFile>
+                            <outputDirectory>target/jacoco.ut</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -181,6 +206,29 @@
                                 <exclude>README.md</exclude>
                             </excludes>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven_surefire_verson}</version>
+                <configuration>
+                    <useSystemClassLoader>true</useSystemClassLoader>
+                    <forkMode>once</forkMode>
+                    <argLine>${argline}</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven_failsafe_version}</version>
+                <executions>
+                    <execution>
+                        <id>default-integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

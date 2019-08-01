@@ -15,7 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.connection;
 
-import io.github.ukuz.piccolo.api.protocol.Packet;
+import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;

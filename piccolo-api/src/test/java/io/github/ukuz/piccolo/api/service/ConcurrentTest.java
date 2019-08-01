@@ -46,11 +46,10 @@ public class ConcurrentTest {
     @AfterEach
     void restore() {
 //        backup.clear();
-        System.setProperties(backup);
+//        System.setProperties(backup);
     }
 
     @Test
-    @RepeatedTest(2)
     @ResourceLock(value = SYSTEM_PROPERTIES, mode = READ)
     void testCustomPropertyIfNotSetByDefault() {
         assertNull(backup.getProperty("my.prop"));

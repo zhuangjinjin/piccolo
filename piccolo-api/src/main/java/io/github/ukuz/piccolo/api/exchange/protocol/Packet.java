@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.protocol;
+package io.github.ukuz.piccolo.api.exchange.protocol;
 
 import io.netty.buffer.Unpooled;
 import lombok.Data;
@@ -32,27 +32,27 @@ public class Packet {
     private static final int HEADER_LENGTH = 12;
 
     /**
-     * 魔数
+     * magic number
      */
     transient private short magic;
     /**
-     * 高5位存cmd，低3位存压缩类型（默认不压缩）
+     * high 5 bit was cmd, low 3 bit was compress type (no-compress type default)
      */
     private byte flag;
     /**
-     * 会话ID
+     * session ID
      */
     private int sessionId;
     /**
-     * 纵向冗余校验
+     * Longitudinal Redundancy Check
      */
     transient private byte lrc;
     /**
-     * payload长度
+     * payload's length
      */
     private int length;
     /**
-     *
+     * payload's body
      */
     private byte[] payload;
 

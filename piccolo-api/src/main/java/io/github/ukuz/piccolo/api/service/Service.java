@@ -19,25 +19,77 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * @author ukuz90
+ * @see AbstractService
+ * @see Callback
+ * @see ServiceCallback
  */
 public interface Service {
 
+    /**
+     * asynchronous start service.
+     *
+     * @return
+     */
     CompletableFuture<Boolean> startAsync();
 
+    /**
+     * asynchronous stop service.
+     *
+     * @return
+     */
     CompletableFuture<Boolean> stopAsync();
 
+    /**
+     * asynchronous start service with callback.
+     *
+     * @param callback
+     * @return
+     */
     CompletableFuture<Boolean> startAsync(Callback callback);
 
+    /**
+     * asynchronous start service with callback.
+     *
+     * @param callback
+     * @return
+     */
     CompletableFuture<Boolean> stopAsync(Callback callback);
 
+    /**
+     * synchronous start service.
+     *
+     * @return
+     * @throws ServiceException
+     */
     boolean start() throws ServiceException;
 
+    /**
+     * synchronous stop service.
+     *
+     * @return
+     * @throws ServiceException
+     */
     boolean stop() throws ServiceException;
 
+    /**
+     * synchronous init service.
+     *
+     * @throws ServiceException
+     */
     default void init() throws ServiceException {}
 
+    /**
+     * synchronous destroy service.
+     *
+     * @throws ServiceException
+     */
     default void destroy() throws ServiceException {}
 
+    /**
+     * is service running.
+     * 
+     * @return
+     */
     boolean isRunning();
 
 }

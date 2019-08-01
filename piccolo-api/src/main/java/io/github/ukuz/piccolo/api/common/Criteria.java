@@ -21,6 +21,7 @@ import java.util.Map;
 /**
  * @author ukuz90
  */
+@FunctionalInterface
 public interface Criteria extends Predicate<Map<String, Object>> {
 
     @Override

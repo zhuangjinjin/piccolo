@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.loadbalance;
-
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
-
-import java.util.List;
+package io.github.ukuz.piccolo.api.exchange;
 
 /**
  * @author ukuz90
  */
-public interface LoadBalancer {
+public class ExchangeException extends RuntimeException {
 
-    ServiceInstance choose(List<ServiceInstance> serviceInstances);
+    public ExchangeException(String message) {
+        super(message);
+    }
 
+    public ExchangeException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ExchangeException(Throwable cause) {
+        super(cause);
+    }
 }
