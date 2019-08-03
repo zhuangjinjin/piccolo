@@ -35,6 +35,7 @@
         <netty_version>4.1.25.Final</netty_version>
         <curator_version>4.2.0</curator_version>
         <lombok_version>1.16.18</lombok_version>
+        <mockito_version>2.28.2</mockito_version>
 
         <!-- Maven plugins -->
         <maven_compiler_version>3.6.0</maven_compiler_version>
@@ -122,10 +123,23 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit_jupiter_version}</version>
-            <scope>runtime</scope>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito_version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito_version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -212,10 +226,16 @@
                             <goal>integration-test</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>default-verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
-
 
 </project>

@@ -15,18 +15,19 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.List;
-
 /**
  * @author ukuz90
  */
-public interface Codec {
+public class PacketSizeLimitCodecException extends CodecException {
+    public PacketSizeLimitCodecException(String message) {
+        super(message);
+    }
 
-    void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException;
+    public PacketSizeLimitCodecException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    void decode(ChannelHandlerContext ctx, ByteBuf in, List out) throws CodecException;
-
+    public PacketSizeLimitCodecException(Throwable cause) {
+        super(cause);
+    }
 }

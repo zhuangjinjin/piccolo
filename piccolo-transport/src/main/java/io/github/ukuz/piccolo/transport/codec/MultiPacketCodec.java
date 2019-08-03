@@ -23,10 +23,22 @@ import java.util.List;
 /**
  * @author ukuz90
  */
-public interface Codec {
+public class MultiPacketCodec extends PacketCodec {
 
-    void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException;
-
-    void decode(ChannelHandlerContext ctx, ByteBuf in, List out) throws CodecException;
-
+    @Override
+    public void decode(ChannelHandlerContext ctx, ByteBuf in, List out) throws CodecException {
+        while (in.readableBytes() > 0) {
+            int readerIndex = in.readerIndex();
+            try {
+                super.decode(ctx, in, out);
+            } catch (CodecException e) {
+                in.readerIndex(readerIndex);
+                if (e instanceof PacketUnknownCodecException || e instanceof PacketSizeLimitCodecException) {
+                    throw e;
+                } else if (e instanceof PacketNotIntactCodecException) {
+                    break;
+                }
+            }
+        }
+    }
 }

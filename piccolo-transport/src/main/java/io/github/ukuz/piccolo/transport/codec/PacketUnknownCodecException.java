@@ -15,18 +15,20 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.List;
-
 /**
  * @author ukuz90
  */
-public interface Codec {
+public class PacketUnknownCodecException extends CodecException {
 
-    void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException;
+    public PacketUnknownCodecException(String message) {
+        super(message);
+    }
 
-    void decode(ChannelHandlerContext ctx, ByteBuf in, List out) throws CodecException;
+    public PacketUnknownCodecException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
+    public PacketUnknownCodecException(Throwable cause) {
+        super(cause);
+    }
 }
