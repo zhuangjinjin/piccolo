@@ -15,18 +15,40 @@
  */
 package io.github.ukuz.piccolo.api.annotation;
 
+import java.util.Objects;
+
 /**
  * @author ukuz90
  */
 public class AnnotationTypeFilter {
 
-    private final Class annotaionType;
+    private final Class annotationType;
 
-    public AnnotationTypeFilter(Class annotaionType) {
-        this.annotaionType = annotaionType;
+    public AnnotationTypeFilter(Class annotationType) {
+        this.annotationType = annotationType;
     }
 
     public boolean match(Class targetClass) {
-        return targetClass.isAnnotationPresent(annotaionType);
+        return targetClass.isAnnotationPresent(annotationType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(annotationType);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AnnotationTypeFilter)) {
+            return false;
+        }
+        return ((AnnotationTypeFilter)obj).annotationType == this.annotationType;
+    }
+
+    @Override
+    public String toString() {
+        return "AnnotationTypeFilter{" +
+                "annotationType=" + annotationType +
+                '}';
     }
 }

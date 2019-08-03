@@ -19,6 +19,7 @@ import io.github.ukuz.piccolo.api.annotation.AnnotationTypeFilter;
 import io.github.ukuz.piccolo.api.annotation.Order;
 import io.github.ukuz.piccolo.api.common.Holder;
 import io.github.ukuz.piccolo.api.common.OrderComparator;
+import io.github.ukuz.piccolo.api.common.utils.ClassUtils;
 import io.netty.util.internal.StringUtil;
 
 import java.util.List;
@@ -266,19 +267,7 @@ public class SpiLoader<T> {
     }
 
     private ClassLoader findClassLoader() {
-        ClassLoader classLoader = null;
-        try {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        } catch (Throwable e) {
-
-        }
-        if (classLoader == null) {
-            classLoader = this.getClass().getClassLoader();
-        }
-        if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
-        return classLoader;
+        return ClassUtils.getClassLoader(SpiLoader.class);
     }
 
 }
