@@ -55,7 +55,7 @@ public class SpiLoader<T> {
         primaryExtensionKey = spi.primary();
     }
 
-    public static SpiLoader getLoader(Class<?> type) {
+    public static <T> SpiLoader<T> getLoader(Class<T> type) {
         if (type == null) {
             throw new IllegalArgumentException("Spi type must not be null");
         }

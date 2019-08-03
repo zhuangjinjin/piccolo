@@ -82,7 +82,7 @@ class SpiLoaderTest {
     @DisplayName("test_getExtension_PrimaryKeyNotMapping")
     @Test
     void testGetExtensionPrimaryKeyNotMapping() {
-        SpiLoader<Input> loader = SpiLoader.getLoader(SpiPrimaryKeyNotMapping.class);
+        SpiLoader<SpiPrimaryKeyNotMapping> loader = SpiLoader.getLoader(SpiPrimaryKeyNotMapping.class);
         try {
             loader.getExtension();
             fail();
