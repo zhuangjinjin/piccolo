@@ -15,8 +15,86 @@
  */
 package io.github.ukuz.piccolo.core.server;
 
+import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
+import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
+import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
+import io.github.ukuz.piccolo.transport.server.NettyServer;
+import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelOutboundHandler;
+
+import java.net.InetSocketAddress;
+
 /**
  * @author ukuz90
  */
-public class GatewayServer {
+public class GatewayServer extends NettyServer {
+
+    private DuplexCodec codec;
+    private InetSocketAddress address;
+    private final String host;
+    private final int port;
+
+    public GatewayServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelHandler channelHandler,
+                         String host, int port) {
+        super(eventLoopGroupFactory, channelHandler);
+        this.host = host;
+        this.port = port;
+    }
+
+    @Override
+    protected ChannelOutboundHandler getEncoder() {
+        return codec.getEncoder();
+    }
+
+    @Override
+    protected ChannelInboundHandler getDecoder() {
+        return codec.getDecoder();
+    }
+
+    @Override
+    protected void doInit() {
+        codec = new DuplexCodec(new MultiPacketCodec());
+        address = new InetSocketAddress(host, port);
+    }
+
+    @Override
+    protected void doDestory() {
+
+    }
+
+    @Override
+    protected InetSocketAddress getInetSocketAddress() {
+        return address;
+    }
+
+    @Override
+    public int getWorkerIORatio() {
+        return 70;
+    }
+
+    @Override
+    public int getBossThreadNum() {
+        return 4;
+    }
+
+    @Override
+    public int getWorkerThreadNum() {
+        return 4;
+    }
+
+    @Override
+    public String getBossThreadName() {
+        return "piccolo-gateway-boss-pool";
+    }
+
+    @Override
+    public String getWorkerThreadName() {
+        return "piccolo-gateway-worker-pool";
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
 }

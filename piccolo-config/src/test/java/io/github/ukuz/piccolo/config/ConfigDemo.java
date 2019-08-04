@@ -15,8 +15,22 @@
  */
 package io.github.ukuz.piccolo.config;
 
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+
+import java.io.File;
+
 /**
  * @author ukuz90
  */
 public class ConfigDemo {
+
+    public static void main(String[] args) throws ConfigurationException {
+        Configurations configurations = new Configurations();
+        PropertiesConfiguration configuration = configurations.properties(new File("server.properties"));
+        String value = configuration.getString("piccolo.server.config.name");
+        System.out.println(value);
+    }
+
 }

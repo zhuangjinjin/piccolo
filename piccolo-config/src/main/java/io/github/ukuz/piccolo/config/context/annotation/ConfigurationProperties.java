@@ -15,8 +15,16 @@
  */
 package io.github.ukuz.piccolo.config.context.annotation;
 
+import java.lang.annotation.*;
+
 /**
  * @author ukuz90
  */
-public class ConfigurationProperties {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface ConfigurationProperties {
+
+    String prefix() default "";
+
 }

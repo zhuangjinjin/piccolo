@@ -15,8 +15,10 @@
  */
 package io.github.ukuz.piccolo.transport.handler;
 
+import io.netty.channel.ChannelDuplexHandler;
+
 /**
  * @author ukuz90
  */
-public class ClientHandler {
+public class ClientHandler extends ChannelDuplexHandler {
 }

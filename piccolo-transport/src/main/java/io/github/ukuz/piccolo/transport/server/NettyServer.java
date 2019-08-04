@@ -88,7 +88,7 @@ public abstract class NettyServer extends AbstractService implements Server {
 
         server.childHandler(new ChannelInitializer<Channel>() {
             @Override
-            protected void initChannel(Channel ch) throws Exception {
+            protected void initChannel(Channel ch) {
                 initPipeline(ch.pipeline());
             }
         });
@@ -111,6 +111,8 @@ public abstract class NettyServer extends AbstractService implements Server {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
             throw new IllegalStateServiceException("Server " + getId() + " destroy failed, current state: " + serverState.get());
         }
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
         doDestory();
 
         serverState.set(State.Terminated);

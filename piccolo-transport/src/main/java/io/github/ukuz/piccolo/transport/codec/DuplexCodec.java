@@ -48,7 +48,7 @@ public class DuplexCodec {
     private class Encoder extends MessageToByteEncoder {
 
         @Override
-        protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
+        protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) {
             codec.encode(ctx, msg, out);
         }
     }
@@ -56,7 +56,7 @@ public class DuplexCodec {
     private class Decoder extends ByteToMessageDecoder {
 
         @Override
-        protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
             codec.decode(ctx, in, out);
         }
     }

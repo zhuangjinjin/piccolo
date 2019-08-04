@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ClassPathScannerTest {
 
-    @DisplayName("test_ScanAmbiguity")
+    @DisplayName("test_scan_Ambiguity")
     @Test
     void testScanAmbiguity() {
         ClassPathScanner scanner = new ClassPathScanner();
@@ -42,7 +42,7 @@ class ClassPathScannerTest {
         }
     }
 
-    @DisplayName("test_Scan")
+    @DisplayName("test_scan")
     @Test
     void testScan() throws URISyntaxException, ClassNotFoundException {
         ClassPathScanner scanner = new ClassPathScanner();
@@ -51,5 +51,16 @@ class ClassPathScannerTest {
         Set<Class> candidate = scanner.scan(new String[]{"io.github.ukuz.piccolo.api.common"});
         assertEquals(1, candidate.size());
         assertEquals(ClassWithInclude.class, candidate.iterator().next());
+    }
+
+    @DisplayName("test_scan_WithoutInclude")
+    @Test
+    void testScanWithoutInclude() throws URISyntaxException, ClassNotFoundException {
+        ClassPathScanner scanner = new ClassPathScanner();
+        scanner.addExcludeFilter(new AnnotationTypeFilter(Exclude.class));
+        Set<Class> candidate = scanner.scan(new String[]{"io.github.ukuz.piccolo.api.common.sub"});
+        candidate.forEach(clazz -> System.out.println(clazz.getName()));
+        assertEquals(3
+                , candidate.size());
     }
 }

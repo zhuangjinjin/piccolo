@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>piccolo-api</artifactId>
+            <artifactId>piccolo-core</artifactId>
         </dependency>
     </dependencies>
 
