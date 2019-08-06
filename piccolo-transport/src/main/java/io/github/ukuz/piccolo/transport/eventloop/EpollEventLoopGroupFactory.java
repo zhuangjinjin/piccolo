@@ -15,7 +15,6 @@
  */
 package io.github.ukuz.piccolo.transport.eventloop;
 
-import io.github.ukuz.piccolo.api.common.Assert;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 

@@ -15,7 +15,9 @@
  */
 package io.github.ukuz.piccolo.client;
 
+import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.transport.client.NettyClient;
 import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
@@ -49,7 +51,7 @@ public class GatewayClient extends NettyClient {
     @Override
     public void init() throws ServiceException {
         socketAddress = new InetSocketAddress(host, port);
-        codec = new DuplexCodec(new MultiPacketCodec());
+        codec = new DuplexCodec(new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension()));
     }
 
     @Override

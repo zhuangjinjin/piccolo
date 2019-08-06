@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.github.ukuz.piccolo.api.common;
+package io.github.ukuz.piccolo.api.external.common;
 
 /**
  * From Dubbo 2.7.x

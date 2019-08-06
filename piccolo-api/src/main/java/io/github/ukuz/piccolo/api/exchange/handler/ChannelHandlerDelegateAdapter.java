@@ -15,7 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.exchange.handler;
 
-import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 

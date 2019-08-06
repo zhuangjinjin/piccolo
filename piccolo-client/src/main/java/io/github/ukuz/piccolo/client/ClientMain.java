@@ -18,7 +18,6 @@ package io.github.ukuz.piccolo.client;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.transport.channel.SocketChannelFactory;
 import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
-import io.github.ukuz.piccolo.transport.handler.ClientHandler;
 
 /**
  * @author ukuz90
@@ -30,7 +29,7 @@ public class ClientMain {
         SocketChannelFactory channelFactory = SpiLoader.getLoader(SocketChannelFactory.class).getExtension();
         String host = "localhost";
         int port = 8010;
-        GatewayClient client = new GatewayClient(eventLoopGroupFactory, channelFactory, new ClientHandler(), host, port);
+        GatewayClient client = new GatewayClient(eventLoopGroupFactory, channelFactory, null, host, port);
         client.start();
     }
 

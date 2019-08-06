@@ -19,8 +19,6 @@ import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.List;
-
 /**
  * @author ukuz90
  *
@@ -35,9 +33,7 @@ public class PacketCodec implements Codec {
     private final static byte MAGIC_NUM_L = (byte) MAGIC_NUM;
 
     @Override
-
     public void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException {
-
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
             out.writeByte(MAGIC_NUM_H);
@@ -48,14 +44,12 @@ public class PacketCodec implements Codec {
             out.writeInt(packet.getLength());
             out.writeBytes(packet.getPayload());
         } else {
-            //TODO
+            throw new MessageUnknownCodecException("packet unknown, msg: " + msg.getClass());
         }
-
     }
 
     @Override
-    public void decode(ChannelHandlerContext ctx, ByteBuf in, List out) throws CodecException {
-
+    public Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException {
         byte mh = in.readByte();
         byte ml = in.readByte();
         if (mh != MAGIC_NUM_H || ml != MAGIC_NUM_L) {
@@ -91,6 +85,6 @@ public class PacketCodec implements Codec {
         packet.setLength(length);
         packet.setPayload(payload);
 
-        out.add(packet);
+        return packet;
     }
 }

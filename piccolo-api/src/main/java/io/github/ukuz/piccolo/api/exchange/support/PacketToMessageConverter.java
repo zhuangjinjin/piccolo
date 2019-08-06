@@ -13,47 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.connection;
+package io.github.ukuz.piccolo.api.exchange.support;
 
+import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
+import io.github.ukuz.piccolo.api.spi.Spi;
 import io.netty.channel.Channel;
 
 /**
  * @author ukuz90
  */
-public interface ConnectionManager {
+@Spi(primary = "default")
+public interface PacketToMessageConverter {
 
     /**
-     * get connection by channel
-     *
+     * packet to message
+     * @param packet
      * @param channel
      * @return
      */
-    Connection getConnection(Channel channel);
-
-    /**
-     * add connection
-     *
-     * @param connection
-     */
-    void add(Connection connection);
-
-    /**
-     * remove connection
-     *
-     * @param channel
-     * @return
-     */
-    Connection removeConnection(Channel channel);
-
-    /**
-     * get connection num
-     *
-     * @return
-     */
-    int getConnectionNum();
-
-    void init();
-
-    void destroy();
+    BaseMessage convert(Packet packet, Channel channel);
 
 }

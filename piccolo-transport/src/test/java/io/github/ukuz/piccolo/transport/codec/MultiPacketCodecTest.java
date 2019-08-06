@@ -17,6 +17,7 @@
 package io.github.ukuz.piccolo.transport.codec;
 
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
+import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
@@ -55,9 +56,8 @@ class MultiPacketCodecTest {
         out.writeByte(0);
         out.writeInt(1);
 
-        List<Object> list = new ArrayList<>();
-        codec.decode(context, out, list);
-        assertEquals(0, list.size());
+        MultiMessage msg = (MultiMessage) codec.decode(context, out);
+        assertNull(msg);
     }
 
     @DisplayName("test_decode_WithHugePacket")
@@ -72,8 +72,7 @@ class MultiPacketCodecTest {
         out.writeInt(10 * 1024 * 1024 + 1);
 
         try {
-            List<Object> list = new ArrayList<>();
-            codec.decode(context, out, list);
+            codec.decode(context, out);
             fail();
         } catch (CodecException e) {
             assertEquals(PacketSizeLimitCodecException.class, e.getClass());
@@ -92,8 +91,7 @@ class MultiPacketCodecTest {
         out.writeInt(0);
 
         try {
-            List<Object> list = new ArrayList<>();
-            codec.decode(context, out, list);
+            codec.decode(context, out);
             fail();
         } catch (CodecException e) {
             assertEquals(PacketUnknownCodecException.class, e.getClass());
@@ -120,11 +118,10 @@ class MultiPacketCodecTest {
         out.writeInt(4);
         out.writeBytes("HaHa".getBytes());
 
-        List<Object> list = new ArrayList<>();
-        codec.decode(context, out, list);
+        MultiMessage msg = (MultiMessage) codec.decode(context, out);
 
-        assertEquals(2, list.size());
-        assertEquals("Hello,World!", new String(((Packet)list.get(0)).getPayload()));
-        assertEquals("HaHa", new String(((Packet)list.get(1)).getPayload()));
+        assertEquals(2, msg.size());
+        assertEquals("Hello,World!", new String(((Packet)msg.get(0)).getPayload()));
+        assertEquals("HaHa", new String(((Packet)msg.get(1)).getPayload()));
     }
 }

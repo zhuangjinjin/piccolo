@@ -15,7 +15,7 @@
  */
 package io.github.ukuz.piccolo.transport.handler;
 
-import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
@@ -23,12 +23,15 @@ import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ukuz90
  */
 public class ServerHandler extends ChannelDuplexHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerHandler.class);
     private ConnectionManager cxnxManager;
 
     private ChannelHandler handler;
@@ -45,30 +48,35 @@ public class ServerHandler extends ChannelDuplexHandler {
         Connection connection = new NettyConnection();
         connection.init(ctx.channel(), true);
         cxnxManager.add(connection);
+        LOGGER.info("handler active ctx: {} connection:{}", ctx, connection);
         handler.connected(connection);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        Connection connection = cxnxManager.removeAndClose(ctx.channel());
+        Connection connection = cxnxManager.removeConnection(ctx.channel());
+        LOGGER.info("handler inactive ctx: {} connection:{}", ctx, connection);
         handler.disconnected(connection);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Connection connection = cxnxManager.getConnection(ctx.channel());
+        LOGGER.info("handler received ctx: {} connection:{} msg:{}", ctx, connection, msg);
         handler.received(connection, msg);
     }
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
         Connection connection = cxnxManager.getConnection(ctx.channel());
+        LOGGER.info("handler write ctx: {} connection:{} msg:{}", ctx, connection, msg);
         handler.sent(connection, msg);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        Connection connection = cxnxManager.getConnection(ctx.channel());
+        Connection connection = cxnxManager.removeConnection(ctx.channel());
+        LOGGER.error("handler occupy exception, ctx: {} connection:{} cause: {}", ctx, connection, cause.getMessage());
         handler.caught(connection, cause);
     }
 }

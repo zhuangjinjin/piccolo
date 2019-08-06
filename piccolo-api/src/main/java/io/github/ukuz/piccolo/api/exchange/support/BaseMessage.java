@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.transport.codec;
+package io.github.ukuz.piccolo.api.exchange.support;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.List;
+import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 
 /**
  * @author ukuz90
  */
-public interface Codec {
+@Msg
+public interface BaseMessage {
 
-    void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException;
+    void decodeBody(Packet packet);
 
-    Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException;
+    Packet encodeBody();
 
 }

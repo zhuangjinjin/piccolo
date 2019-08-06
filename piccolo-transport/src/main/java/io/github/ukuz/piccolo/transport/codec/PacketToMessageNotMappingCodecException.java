@@ -15,18 +15,21 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.List;
-
 /**
  * @author ukuz90
  */
-public interface Codec {
+public class PacketToMessageNotMappingCodecException extends CodecException {
 
-    void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException;
 
-    Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException;
+    public PacketToMessageNotMappingCodecException(String message) {
+        super(message);
+    }
 
+    public PacketToMessageNotMappingCodecException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public PacketToMessageNotMappingCodecException(Throwable cause) {
+        super(cause);
+    }
 }

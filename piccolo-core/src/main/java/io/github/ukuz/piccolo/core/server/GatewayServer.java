@@ -17,6 +17,8 @@ package io.github.ukuz.piccolo.core.server;
 
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
@@ -53,7 +55,7 @@ public class GatewayServer extends NettyServer {
 
     @Override
     protected Codec newCodec() {
-        return new MultiPacketCodec();
+        return new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension());
     }
 
     @Override

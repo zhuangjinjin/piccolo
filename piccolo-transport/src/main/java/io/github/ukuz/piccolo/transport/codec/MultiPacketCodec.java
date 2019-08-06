@@ -15,27 +15,44 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
+import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
+import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-
-import java.util.List;
 
 /**
  * @author ukuz90
  */
-public class MultiPacketCodec extends PacketCodec {
+public class MultiPacketCodec extends MessageToPacketCodec {
 
-    @Override
-    public void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException {
-        
+    public MultiPacketCodec() {
+        this(null);
+    }
+
+    public MultiPacketCodec(PacketToMessageConverter converter) {
+        super(converter);
     }
 
     @Override
-    public void decode(ChannelHandlerContext ctx, ByteBuf in, List out) throws CodecException {
+    public void encode(ChannelHandlerContext ctx, Object message, ByteBuf out) throws CodecException {
+        if (message instanceof MultiMessage) {
+            ((MultiMessage) message).forEach(msg -> super.encode(ctx, message, out));
+        } else {
+            super.encode(ctx, message, out);
+        }
+    }
+
+    @Override
+    public Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException {
+        MultiMessage multiMessage = null;
         while (in.readableBytes() > 0) {
             int readerIndex = in.readerIndex();
             try {
-                super.decode(ctx, in, out);
+                Object msg = super.decode(ctx, in);
+                if (multiMessage == null) {
+                    multiMessage = MultiMessage.create();
+                }
+                multiMessage.addMessage(msg);
             } catch (CodecException e) {
                 in.readerIndex(readerIndex);
                 if (e instanceof PacketUnknownCodecException || e instanceof PacketSizeLimitCodecException) {
@@ -45,5 +62,6 @@ public class MultiPacketCodec extends PacketCodec {
                 }
             }
         }
+        return multiMessage;
     }
 }

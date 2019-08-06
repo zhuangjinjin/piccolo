@@ -13,20 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.transport.codec;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.List;
+package io.github.ukuz.piccolo.common.constants;
 
 /**
  * @author ukuz90
  */
-public interface Codec {
+public enum CommandType {
 
-    void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException;
+    HANDSHAKE(1),
+    UNKNOWN(-1);
 
-    Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException;
+    private final int cmd;
 
+    CommandType(int cmd) {
+        this.cmd = cmd;
+    }
+
+
+
+    public static CommandType toCMD(byte cmd) {
+        CommandType[] values = values();
+        if (cmd > 0 && cmd < values.length) {
+            return values[cmd - 1];
+        }
+        return UNKNOWN;
+    }
 }

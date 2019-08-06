@@ -15,7 +15,7 @@
  */
 package io.github.ukuz.piccolo.transport.client;
 
-import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.Service;
 import io.github.ukuz.piccolo.api.service.ServiceException;

@@ -15,7 +15,7 @@
  */
 package io.github.ukuz.piccolo.transport.server;
 
-import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.service.AbstractService;
@@ -30,7 +30,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -70,4 +70,12 @@ public class Packet {
         return lrc;
     }
 
+    public byte getCommandType() {
+        return (byte) (flag >> 3);
+    }
+
+    public byte getCompressType() {
+        return (byte) (flag & 0x07);
+    }
+
 }

@@ -15,10 +15,60 @@
  */
 package io.github.ukuz.piccolo.transport.handler;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
+import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 
 /**
  * @author ukuz90
  */
 public class ClientHandler extends ChannelDuplexHandler {
+
+    private ConnectionManager cxnxManager;
+
+    private ChannelHandler handler;
+
+    public ClientHandler(ConnectionManager cxnxManager, ChannelHandler handler) {
+        Assert.notNull(handler, "handler must not be null");
+        Assert.notNull(cxnxManager, "cxnxManager must not be null");
+        this.cxnxManager = cxnxManager;
+        this.handler = handler;
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        NettyConnection connection = new NettyConnection();
+        connection.init(ctx.channel(), false);
+        cxnxManager.add(connection);
+        handler.connected(connection);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        Connection connection = cxnxManager.removeConnection(ctx.channel());
+        handler.disconnected(connection);
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        Connection connection = cxnxManager.getConnection(ctx.channel());
+        handler.received(connection, msg);
+    }
+
+    @Override
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        Connection connection = cxnxManager.getConnection(ctx.channel());
+        handler.sent(connection, msg);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        Connection connection = cxnxManager.removeConnection(ctx.channel());
+        handler.caught(connection, cause);
+    }
 }

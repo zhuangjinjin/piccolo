@@ -18,29 +18,36 @@ package io.github.ukuz.piccolo.transport.connection;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelId;
+import io.netty.util.internal.PlatformDependent;
+
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author ukuz90
  */
 public class NettyConnectionManager implements ConnectionManager {
+
+    private final ConcurrentMap<ChannelId, Connection> CONNECTION_MAP = PlatformDependent.newConcurrentHashMap();
+
     @Override
     public Connection getConnection(Channel channel) {
-        return null;
+        return CONNECTION_MAP.get(channel.id());
     }
 
     @Override
     public void add(Connection connection) {
-
+        CONNECTION_MAP.putIfAbsent(connection.getChannel().id(), connection);
     }
 
     @Override
-    public Connection removeAndClose(Channel channel) {
-        return null;
+    public Connection removeConnection(Channel channel) {
+        return CONNECTION_MAP.remove(channel);
     }
 
     @Override
     public int getConnectionNum() {
-        return 0;
+        return CONNECTION_MAP.size();
     }
 
     @Override
@@ -50,6 +57,7 @@ public class NettyConnectionManager implements ConnectionManager {
 
     @Override
     public void destroy() {
-
+        CONNECTION_MAP.values().forEach(Connection::close);
+        CONNECTION_MAP.clear();
     }
 }
