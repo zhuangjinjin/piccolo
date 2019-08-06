@@ -26,6 +26,11 @@ import java.util.List;
 public class MultiPacketCodec extends PacketCodec {
 
     @Override
+    public void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException {
+        
+    }
+
+    @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List out) throws CodecException {
         while (in.readableBytes() > 0) {
             int readerIndex = in.readerIndex();

@@ -15,13 +15,15 @@
  */
 package io.github.ukuz.piccolo.core.server;
 
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
-import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
+import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
+import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
+import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
-import io.netty.channel.ChannelInboundHandler;
-import io.netty.channel.ChannelOutboundHandler;
+import io.netty.channel.ChannelFactory;
 
 import java.net.InetSocketAddress;
 
@@ -30,32 +32,34 @@ import java.net.InetSocketAddress;
  */
 public class GatewayServer extends NettyServer {
 
-    private DuplexCodec codec;
     private InetSocketAddress address;
     private final String host;
     private final int port;
+    private final ConnectionManager cxnxManager;
 
-    public GatewayServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelHandler channelHandler,
+    public GatewayServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, String host, int port) {
+        this(eventLoopGroupFactory, channelFactory, ChannelHandlers.newChannelHandler(null), new NettyConnectionManager(), host, port);
+    }
+
+    public GatewayServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory,
+                         ChannelHandler channelHandler, ConnectionManager cxnxManager,
                          String host, int port) {
-        super(eventLoopGroupFactory, channelHandler);
+        super(eventLoopGroupFactory, channelFactory, channelHandler,
+                cxnxManager);
+        this.cxnxManager = cxnxManager;
         this.host = host;
         this.port = port;
     }
 
     @Override
-    protected ChannelOutboundHandler getEncoder() {
-        return codec.getEncoder();
-    }
-
-    @Override
-    protected ChannelInboundHandler getDecoder() {
-        return codec.getDecoder();
+    protected Codec newCodec() {
+        return new MultiPacketCodec();
     }
 
     @Override
     protected void doInit() {
-        codec = new DuplexCodec(new MultiPacketCodec());
         address = new InetSocketAddress(host, port);
+
     }
 
     @Override

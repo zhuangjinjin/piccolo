@@ -16,17 +16,24 @@
 package io.github.ukuz.piccolo.transport.server;
 
 import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.IllegalStateServiceException;
 import io.github.ukuz.piccolo.api.service.Server;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.transport.codec.Codec;
+import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
 import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
 import io.github.ukuz.piccolo.transport.handler.ServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
@@ -38,20 +45,26 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class NettyServer extends AbstractService implements Server {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private ServerBootstrap server;
     private EventLoopGroupFactory eventLoopGroupFactory;
+    private ChannelFactory<ServerSocketChannel> channelFactory;
     private ServerHandler serverHandler;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    public NettyServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelHandler channelHandler) {
-        Assert.notNull(eventLoopGroupFactory, "eventLoopGroupFactory must not be null");
-        Assert.notNull(channelHandler, "channelHandler must not be null");
-        this.eventLoopGroupFactory = eventLoopGroupFactory;
-        this.serverHandler = new ServerHandler(channelHandler);
-    }
-
     private final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
+
+    public NettyServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, ChannelHandler channelHandler, ConnectionManager cxnxManager) {
+        Assert.notNull(eventLoopGroupFactory, "eventLoopGroupFactory must not be null");
+        Assert.notNull(channelFactory, "channelFactory must not be null");
+        Assert.notNull(channelHandler, "channelHandler must not be null");
+        Assert.notNull(channelHandler, "cxnxManager must not be null");
+        this.eventLoopGroupFactory = eventLoopGroupFactory;
+        this.channelFactory = channelFactory;
+        this.serverHandler = new ServerHandler(cxnxManager, channelHandler);
+    }
 
     @Override
     public final void init() throws ServiceException {
@@ -59,8 +72,10 @@ public abstract class NettyServer extends AbstractService implements Server {
             throw new IllegalStateServiceException("Server " + getId() + " init failed, current state: " + serverState.get());
         }
 
+        logger.info("server start init...");
         doInit();
         serverState.set(State.Initialized);
+        logger.info("server finish init...");
     }
 
     @Override
@@ -69,6 +84,7 @@ public abstract class NettyServer extends AbstractService implements Server {
             throw new IllegalStateServiceException("Server " + getId() + " start failed, current state: " + serverState.get());
         }
 
+        logger.info("server start async...");
         CompletableFuture result = new CompletableFuture();
         server = new ServerBootstrap();
         bossGroup = createBossThreadPool();
@@ -82,6 +98,7 @@ public abstract class NettyServer extends AbstractService implements Server {
             workerGroup = NettyServer.this.createWorkerThreadPool();
         }
 
+        server.channelFactory(channelFactory);
         server.group(bossGroup, workerGroup);
 
         initOptions(server);
@@ -96,9 +113,12 @@ public abstract class NettyServer extends AbstractService implements Server {
         ChannelFuture channelFuture = server.bind(getInetSocketAddress());
         channelFuture.addListener( future ->  {
             if (future.isSuccess()) {
+
                 serverState.set(State.Started);
+                logger.info("server start async success: {}", channelFuture.channel().localAddress().toString().replace("/",""));
                 result.complete(true);
             } else {
+                logger.error("server start failure: {}", future.cause().getMessage());
                 result.completeExceptionally(new ServiceException(future.cause()));
             }
         });
@@ -124,8 +144,9 @@ public abstract class NettyServer extends AbstractService implements Server {
     }
 
     protected void initPipeline(ChannelPipeline pipeline) {
-        pipeline.addLast("decoder", getDecoder());
-        pipeline.addLast("encoder", getEncoder());
+        DuplexCodec codec = new DuplexCodec(newCodec());
+        pipeline.addLast("decoder", codec.getDecoder());
+        pipeline.addLast("encoder", codec.getEncoder());
         pipeline.addLast("handler", serverHandler);
     }
 
@@ -152,9 +173,11 @@ public abstract class NettyServer extends AbstractService implements Server {
         return new DefaultThreadFactory(getWorkerThreadName());
     }
 
-    protected abstract ChannelOutboundHandler getEncoder();
+//    protected abstract ChannelOutboundHandler getEncoder();
+//
+//    protected abstract ChannelInboundHandler getDecoder();
 
-    protected abstract ChannelInboundHandler getDecoder();
+    protected abstract Codec newCodec();
 
     protected abstract void doInit();
 

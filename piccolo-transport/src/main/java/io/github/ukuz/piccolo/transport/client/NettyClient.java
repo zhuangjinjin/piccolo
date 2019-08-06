@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.transport.client;
 
+import io.github.ukuz.piccolo.api.common.Assert;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.Service;
 import io.github.ukuz.piccolo.api.service.ServiceException;
@@ -24,6 +25,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
@@ -34,18 +37,26 @@ import java.util.concurrent.ThreadFactory;
  */
 public abstract class NettyClient extends AbstractService implements Service {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private Bootstrap bootstrap;
     private EventLoopGroupFactory eventLoopGroupFactory;
+    private ChannelFactory channelFactory;
     private ClientHandler handler;
     private EventLoopGroup workerGroup;
 
-    public NettyClient(EventLoopGroupFactory eventLoopGroupFactory, ClientHandler handler) {
+    public NettyClient(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, ClientHandler handler) {
+        Assert.notNull(eventLoopGroupFactory, "eventLoopGroupFactory must not be null");
+        Assert.notNull(channelFactory, "channelFactory must not be null");
+        Assert.notNull(handler, "handler must not be null");
         this.eventLoopGroupFactory = eventLoopGroupFactory;
+        this.channelFactory = channelFactory;
         this.handler = handler;
     }
 
     @Override
     protected CompletableFuture<Boolean> doStartAsync() {
+        logger.info("client start async...");
         CompletableFuture result = new CompletableFuture();
         bootstrap = new Bootstrap();
         workerGroup = eventLoopGroupFactory.newEventLoopGroup(1, 50, newWorkerThreadFactory());
@@ -58,13 +69,16 @@ public abstract class NettyClient extends AbstractService implements Service {
                 initPipeline(ch.pipeline());
             }
         });
+        bootstrap.channelFactory(channelFactory);
         initOptions(bootstrap);
 
         ChannelFuture channelFuture = bootstrap.connect(getInetSocketAddress());
         channelFuture.addListener(future -> {
             if (future.isSuccess()) {
+                logger.info("client start async success: {}", channelFuture.channel().localAddress().toString().replace("/", ""));
                 result.complete(true);
             } else {
+                logger.error("client start async failure: {}", future.cause().getMessage());
                 result.completeExceptionally(new ServiceException(future.cause()));
             }
         });

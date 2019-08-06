@@ -12,6 +12,7 @@
         <module>piccolo-core</module>
         <module>piccolo-client</module>
         <module>piccolo-config</module>
+        <module>piccolo-common</module>
     </modules>
 
 
@@ -41,6 +42,8 @@
         <mockito_version>2.28.2</mockito_version>
         <commons_configuration_version>2.5</commons_configuration_version>
         <commons_beanutils_version>1.9.3</commons_beanutils_version>
+        <slf4j_version>1.7.25</slf4j_version>
+        <logback_version>1.2.2</logback_version>
 
         <!-- Maven plugins -->
         <maven_compiler_version>3.6.0</maven_compiler_version>
@@ -73,6 +76,11 @@
             <dependency>
                 <groupId>io.github.ukuz</groupId>
                 <artifactId>piccolo-config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.ukuz</groupId>
+                <artifactId>piccolo-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -165,6 +173,17 @@
             <version>${mockito_version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- log -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback_version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -226,6 +245,7 @@
                                 <exclude>.gitignore</exclude>
                                 <exclude>.travis.yml</exclude>
                                 <exclude>README.md</exclude>
+                                <exclude>**/logback.xml</exclude>
                             </excludes>
                         </configuration>
                     </execution>

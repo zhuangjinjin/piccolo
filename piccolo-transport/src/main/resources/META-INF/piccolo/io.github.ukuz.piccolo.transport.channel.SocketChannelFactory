@@ -1,0 +1,2 @@
+epoll=io.github.ukuz.piccolo.transport.channel.EpollSocketChannelFactory
+nio=io.github.ukuz.piccolo.transport.channel.NioSocketChannelFactory

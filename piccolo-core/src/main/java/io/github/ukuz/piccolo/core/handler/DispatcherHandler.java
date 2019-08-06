@@ -13,28 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.exchange.handler;
+package io.github.ukuz.piccolo.core.handler;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
-import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
+import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 
 /**
  * @author ukuz90
  */
-public class MultiMessageHandler extends ChannelHandlerDelegateAdapter {
+public class DispatcherHandler implements ChannelHandler {
 
-    public MultiMessageHandler(ChannelHandler handler) {
-        super(handler);
+    private ChannelHandler channelHandler;
+
+    public DispatcherHandler(ChannelHandler channelHandler) {
+        this.channelHandler = channelHandler;
+    }
+
+
+    @Override
+    public void connected(Connection connection) throws ExchangeException {
+        
+    }
+
+    @Override
+    public void disconnected(Connection connection) throws ExchangeException {
+
+    }
+
+    @Override
+    public void sent(Connection connection, Object message) throws ExchangeException {
+
     }
 
     @Override
     public void received(Connection connection, Object message) throws ExchangeException {
-        if (message instanceof MultiMessage) {
-            ((MultiMessage) message).forEach(msg -> handler.received(connection, msg));
-        } else {
-            handler.received(connection, message);
-        }
+
     }
 
+    @Override
+    public void caught(Connection connection, Throwable exception) throws ExchangeException {
+
+    }
 }

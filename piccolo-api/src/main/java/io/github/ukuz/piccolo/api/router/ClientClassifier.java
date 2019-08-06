@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
+package io.github.ukuz.piccolo.api.router;
+
+import io.github.ukuz.piccolo.api.spi.Spi;
 
 /**
  * @author ukuz90
  */
-public interface BootProcessChain {
+@Spi(primary = "default")
+public interface ClientClassifier {
 
-    void start();
-
-    void stop();
-
-    BootProcessChain addLast(BootJob bootJob);
-
-    BootProcessChain addFirst(BootJob bootJob);
+    byte getClientType(String osName);
 
 }

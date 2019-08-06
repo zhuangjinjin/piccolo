@@ -58,7 +58,8 @@ class ClassPathScannerTest {
     void testScanWithoutInclude() throws URISyntaxException, ClassNotFoundException {
         ClassPathScanner scanner = new ClassPathScanner();
         scanner.addExcludeFilter(new AnnotationTypeFilter(Exclude.class));
-        Set<Class> candidate = scanner.scan(new String[]{"io.github.ukuz.piccolo.api.common.sub"});
+        Set<Class> candidate
+                = scanner.scan(new String[]{"io.github.ukuz.piccolo.api.common.sub"});
         candidate.forEach(clazz -> System.out.println(clazz.getName()));
         assertEquals(3
                 , candidate.size());

@@ -15,17 +15,25 @@
  */
 package io.github.ukuz.piccolo.server.boot;
 
+import io.github.ukuz.piccolo.transport.server.NettyServer;
+
 /**
  * @author ukuz90
  */
-public interface BootProcessChain {
+public class ServerBoot implements BootJob {
+    private NettyServer server;
 
-    void start();
+    public ServerBoot(NettyServer server) {
+        this.server = server;
+    }
 
-    void stop();
+    @Override
+    public void start() {
+        this.server.startAsync();
+    }
 
-    BootProcessChain addLast(BootJob bootJob);
-
-    BootProcessChain addFirst(BootJob bootJob);
-
+    @Override
+    public void stop() {
+        this.server.stopAsync();
+    }
 }

@@ -15,12 +15,12 @@
  */
 package io.github.ukuz.piccolo.api.connection;
 
-import lombok.Data;
+import io.github.ukuz.piccolo.api.router.ClientClassifier;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 
 /**
  * @author ukuz90
  */
-@Data
 public class SessionContext {
 
     private String osName;
@@ -29,7 +29,73 @@ public class SessionContext {
     private String userId;
     private String deviceId;
     private String tags;
+    private int heartbeat = 10000;
+    private byte clientType;
 
+    public String getOsName() {
+        return osName;
+    }
 
+    public void setOsName(String osName) {
+        this.osName = osName;
+    }
 
+    public String getOsVersion() {
+        return osVersion;
+    }
+
+    public void setOsVersion(String osVersion) {
+        this.osVersion = osVersion;
+    }
+
+    public String getClientVersion() {
+        return clientVersion;
+    }
+
+    public void setClientVersion(String clientVersion) {
+        this.clientVersion = clientVersion;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public int getHeartbeat() {
+        return heartbeat;
+    }
+
+    public void setHeartbeat(int heartbeat) {
+        this.heartbeat = heartbeat;
+    }
+
+    public byte getClientType() {
+        if (clientType == 0) {
+            clientType = SpiLoader.getLoader(ClientClassifier.class).getExtension().getClientType(osName);
+        }
+        return clientType;
+    }
+
+    public void setClientType(byte clientType) {
+        this.clientType = clientType;
+    }
 }

@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
+package io.github.ukuz.piccolo.core.handler;
+
+import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
 
 /**
  * @author ukuz90
  */
-public interface BootProcessChain {
+public class ChannelHandlers {
 
-    void start();
+    private ChannelHandlers() {}
 
-    void stop();
-
-    BootProcessChain addLast(BootJob bootJob);
-
-    BootProcessChain addFirst(BootJob bootJob);
+    public static ChannelHandler newChannelHandler(ChannelHandler handler) {
+        return new MultiMessageHandler(new DispatcherHandler(handler));
+    }
 
 }

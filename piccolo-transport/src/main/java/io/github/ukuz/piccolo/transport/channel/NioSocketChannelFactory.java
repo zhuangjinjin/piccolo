@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
+package io.github.ukuz.piccolo.transport.channel;
+
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
  * @author ukuz90
  */
-public interface BootProcessChain {
-
-    void start();
-
-    void stop();
-
-    BootProcessChain addLast(BootJob bootJob);
-
-    BootProcessChain addFirst(BootJob bootJob);
-
+public class NioSocketChannelFactory implements SocketChannelFactory {
+    @Override
+    public SocketChannel newChannel() {
+        return new NioSocketChannel();
+    }
 }

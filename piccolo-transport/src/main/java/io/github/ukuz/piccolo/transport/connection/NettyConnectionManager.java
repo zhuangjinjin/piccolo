@@ -13,28 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.exchange.handler;
+package io.github.ukuz.piccolo.transport.connection;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
-import io.github.ukuz.piccolo.api.exchange.ExchangeException;
-import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
+import io.netty.channel.Channel;
 
 /**
  * @author ukuz90
  */
-public class MultiMessageHandler extends ChannelHandlerDelegateAdapter {
-
-    public MultiMessageHandler(ChannelHandler handler) {
-        super(handler);
+public class NettyConnectionManager implements ConnectionManager {
+    @Override
+    public Connection getConnection(Channel channel) {
+        return null;
     }
 
     @Override
-    public void received(Connection connection, Object message) throws ExchangeException {
-        if (message instanceof MultiMessage) {
-            ((MultiMessage) message).forEach(msg -> handler.received(connection, msg));
-        } else {
-            handler.received(connection, message);
-        }
+    public void add(Connection connection) {
+
     }
 
+    @Override
+    public Connection removeAndClose(Channel channel) {
+        return null;
+    }
+
+    @Override
+    public int getConnectionNum() {
+        return 0;
+    }
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public void destroy() {
+
+    }
 }

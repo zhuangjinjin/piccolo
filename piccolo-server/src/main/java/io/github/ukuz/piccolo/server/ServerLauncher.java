@@ -15,8 +15,16 @@
  */
 package io.github.ukuz.piccolo.server;
 
+import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.core.server.GatewayServer;
 import io.github.ukuz.piccolo.server.boot.BootProcessChain;
 import io.github.ukuz.piccolo.server.boot.DefaultBootProcessChain;
+import io.github.ukuz.piccolo.server.boot.ServerBoot;
+import io.github.ukuz.piccolo.transport.channel.ServerSocketChannelFactory;
+import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
+import io.github.ukuz.piccolo.transport.handler.ServerHandler;
+import io.netty.channel.EventLoopGroup;
 
 /**
  * @author ukuz90
@@ -30,7 +38,14 @@ public class ServerLauncher {
     }
 
     public void init() {
+        EventLoopGroupFactory eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension();
+        ServerSocketChannelFactory channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension();
+        String host = "localhost";
+        int port = 8010;
         processChain = newBootProcessChain();
+
+        processChain.addLast(new ServerBoot(new GatewayServer(eventLoopGroupFactory, channelFactory
+                , host, port)));
     }
 
     void start() {

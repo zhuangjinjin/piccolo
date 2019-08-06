@@ -25,6 +25,10 @@ import io.netty.channel.ChannelFutureListener;
  */
 public interface Connection {
 
+    int STATE_NEW = 0;
+    int STATE_CONNECTED = 1;
+    int STATE_CLOSED = 2;
+
     void init(Channel channel, boolean isSecurity);
 
     Channel getChannel();
@@ -50,5 +54,7 @@ public interface Connection {
     void updateLastReadTime();
 
     void updateLastWriteTime();
+
+    String getId();
 
 }

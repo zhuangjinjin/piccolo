@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.exchange.handler;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.netty.channel.Channel;
 
@@ -26,39 +27,44 @@ public interface ChannelHandler {
     /**
      * on channel connected.
      *
-     * @param channel channel.
+     * @param connection channel.
+     * @throws ExchangeException
      */
-    void connected(Channel channel) throws ExchangeException;
+    void connected(Connection connection) throws ExchangeException;
 
     /**
      * on channel disconnected.
      *
-     * @param channel channel.
+     * @param connection connection.
+     * @throws ExchangeException
      */
-    void disconnected(Channel channel) throws ExchangeException;
+    void disconnected(Connection connection) throws ExchangeException;
 
     /**
      * on message sent.
      *
-     * @param channel channel.
+     * @param connection connection.
      * @param message message.
+     * @throws ExchangeException
      */
-    void sent(Channel channel, Object message) throws ExchangeException;
+    void sent(Connection connection, Object message) throws ExchangeException;
 
     /**
      * on message received.
      *
-     * @param channel channel.
+     * @param connection connection.
      * @param message message.
+     * @throws ExchangeException
      */
-    void received(Channel channel, Object message) throws ExchangeException;
+    void received(Connection connection, Object message) throws ExchangeException;
 
     /**
      * on exception caught.
      *
-     * @param channel   channel.
+     * @param connection   connection.
      * @param exception exception.
+     * @throws ExchangeException
      */
-    void caught(Channel channel, Throwable exception) throws ExchangeException;
+    void caught(Connection connection, Throwable exception) throws ExchangeException;
 
 }

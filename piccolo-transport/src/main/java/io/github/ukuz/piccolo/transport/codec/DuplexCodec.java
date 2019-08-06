@@ -16,6 +16,7 @@
 package io.github.ukuz.piccolo.transport.codec;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -45,6 +46,7 @@ public class DuplexCodec {
         return decoder;
     }
 
+//    @ChannelHandler.Sharable
     private class Encoder extends MessageToByteEncoder {
 
         @Override

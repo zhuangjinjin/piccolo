@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
+package io.github.ukuz.piccolo.api.connection;
+
+import io.netty.channel.Channel;
 
 /**
  * @author ukuz90
  */
-public interface BootProcessChain {
+public interface ConnectionManager {
 
-    void start();
+    Connection getConnection(Channel channel);
 
-    void stop();
+    void add(Connection connection);
 
-    BootProcessChain addLast(BootJob bootJob);
+    Connection removeAndClose(Channel channel);
 
-    BootProcessChain addFirst(BootJob bootJob);
+    int getConnectionNum();
+
+    void init();
+
+    void destroy();
 
 }

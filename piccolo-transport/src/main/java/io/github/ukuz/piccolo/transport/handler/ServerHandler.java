@@ -16,7 +16,10 @@
 package io.github.ukuz.piccolo.transport.handler;
 
 import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -26,35 +29,46 @@ import io.netty.channel.ChannelPromise;
  */
 public class ServerHandler extends ChannelDuplexHandler {
 
+    private ConnectionManager cxnxManager;
+
     private ChannelHandler handler;
 
-    public ServerHandler(ChannelHandler handler) {
+    public ServerHandler(ConnectionManager cxnxManager, ChannelHandler handler) {
         Assert.notNull(handler, "handler must not be null");
+        Assert.notNull(cxnxManager, "cxnxManager must not be null");
+        this.cxnxManager = cxnxManager;
         this.handler = handler;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        handler.connected(ctx.channel());
+        Connection connection = new NettyConnection();
+        connection.init(ctx.channel(), true);
+        cxnxManager.add(connection);
+        handler.connected(connection);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        handler.disconnected(ctx.channel());
+        Connection connection = cxnxManager.removeAndClose(ctx.channel());
+        handler.disconnected(connection);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        handler.received(ctx.channel(), msg);
+        Connection connection = cxnxManager.getConnection(ctx.channel());
+        handler.received(connection, msg);
     }
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-        handler.sent(ctx.channel(), msg);
+        Connection connection = cxnxManager.getConnection(ctx.channel());
+        handler.sent(connection, msg);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        handler.caught(ctx.channel(), cause);
+        Connection connection = cxnxManager.getConnection(ctx.channel());
+        handler.caught(connection, cause);
     }
 }

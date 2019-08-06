@@ -16,8 +16,8 @@
 package io.github.ukuz.piccolo.api.exchange.handler;
 
 import io.github.ukuz.piccolo.api.common.Assert;
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
-import io.netty.channel.Channel;
 
 /**
  * @author ukuz90
@@ -32,30 +32,6 @@ public class ChannelHandlerDelegateAdapter implements ChannelHandlerDelegate {
         this.handler = handler;
     }
 
-    @Override
-    public void connected(Channel channel) throws ExchangeException {
-        handler.connected(channel);
-    }
-
-    @Override
-    public void disconnected(Channel channel) throws ExchangeException {
-        handler.disconnected(channel);
-    }
-
-    @Override
-    public void sent(Channel channel, Object message) throws ExchangeException {
-        handler.sent(channel, message);
-    }
-
-    @Override
-    public void received(Channel channel, Object message) throws ExchangeException {
-        handler.received(channel, message);
-    }
-
-    @Override
-    public void caught(Channel channel, Throwable exception) throws ExchangeException {
-        handler.caught(channel, exception);
-    }
 
     @Override
     public ChannelHandler getChannelHandler() {
@@ -63,5 +39,30 @@ public class ChannelHandlerDelegateAdapter implements ChannelHandlerDelegate {
             return ((ChannelHandlerDelegate) handler).getChannelHandler();
         }
         return handler;
+    }
+
+    @Override
+    public void connected(Connection connection) throws ExchangeException {
+
+    }
+
+    @Override
+    public void disconnected(Connection connection) throws ExchangeException {
+
+    }
+
+    @Override
+    public void sent(Connection connection, Object message) throws ExchangeException {
+
+    }
+
+    @Override
+    public void received(Connection connection, Object message) throws ExchangeException {
+
+    }
+
+    @Override
+    public void caught(Connection connection, Throwable exception) throws ExchangeException {
+
     }
 }

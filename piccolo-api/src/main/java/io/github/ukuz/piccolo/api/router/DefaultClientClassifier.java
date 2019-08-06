@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
+package io.github.ukuz.piccolo.api.router;
 
 /**
  * @author ukuz90
  */
-public interface BootProcessChain {
-
-    void start();
-
-    void stop();
-
-    BootProcessChain addLast(BootJob bootJob);
-
-    BootProcessChain addFirst(BootJob bootJob);
-
+public class DefaultClientClassifier implements ClientClassifier {
+    @Override
+    public byte getClientType(String osName) {
+        return (byte) ClientType.find(osName).type;
+    }
 }
