@@ -15,7 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.service.discovery;
 
-import com.sun.tools.javac.util.List;
+import java.util.List;
 
 /**
  * @author ukuz90
