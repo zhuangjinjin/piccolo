@@ -16,7 +16,7 @@
 package io.github.ukuz.piccolo.api.common;
 
 import io.github.ukuz.piccolo.api.annotation.AnnotationTypeFilter;
-import io.github.ukuz.piccolo.api.common.utils.ClassUtils;
+import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
 
 import java.io.File;
 import java.net.URISyntaxException;

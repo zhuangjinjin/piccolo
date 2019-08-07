@@ -41,9 +41,12 @@
         <lombok_version>1.16.18</lombok_version>
         <mockito_version>2.28.2</mockito_version>
         <commons_configuration_version>2.5</commons_configuration_version>
+        <commons_crypto_version>1.0.0</commons_crypto_version>
         <commons_beanutils_version>1.9.3</commons_beanutils_version>
+        <commons_codec_version>1.13</commons_codec_version>
         <slf4j_version>1.7.25</slf4j_version>
         <logback_version>1.2.2</logback_version>
+        <guava_version>28.0-jre</guava_version>
 
         <!-- Maven plugins -->
         <maven_compiler_version>3.6.0</maven_compiler_version>
@@ -125,6 +128,13 @@
                 <version>${curator_version}</version>
             </dependency>
 
+            <!-- guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava_version}</version>
+            </dependency>
+
             <!-- apache commons -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -132,10 +142,22 @@
                 <version>${commons_configuration_version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-crypto</artifactId>
+                <version>${commons_crypto_version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>${commons_beanutils_version}</version>
             </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons_codec_version}</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 

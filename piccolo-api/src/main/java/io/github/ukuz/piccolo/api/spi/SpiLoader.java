@@ -19,7 +19,7 @@ import io.github.ukuz.piccolo.api.annotation.AnnotationTypeFilter;
 import io.github.ukuz.piccolo.api.annotation.Order;
 import io.github.ukuz.piccolo.api.common.Holder;
 import io.github.ukuz.piccolo.api.common.OrderComparator;
-import io.github.ukuz.piccolo.api.common.utils.ClassUtils;
+import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
 import io.netty.util.internal.StringUtil;
 
 import java.util.List;

@@ -31,6 +31,11 @@ public class SessionContext {
     private String tags;
     private int heartbeat = 10000;
     private byte clientType;
+    private Cipher cipher;
+
+    public void changeCipher(Cipher cipher) {
+        this.cipher = cipher;
+    }
 
     public String getOsName() {
         return osName;
@@ -93,6 +98,14 @@ public class SessionContext {
             clientType = SpiLoader.getLoader(ClientClassifier.class).getExtension().getClientType(osName);
         }
         return clientType;
+    }
+
+    public boolean isSecurity() {
+        return cipher != null;
+    }
+
+    public Cipher getCipher() {
+        return cipher;
     }
 
     public void setClientType(byte clientType) {

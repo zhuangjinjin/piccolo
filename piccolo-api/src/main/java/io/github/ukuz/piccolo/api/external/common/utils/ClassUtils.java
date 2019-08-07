@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.common.utils;
+package io.github.ukuz.piccolo.api.external.common.utils;
 
 
 import java.lang.reflect.Array;
