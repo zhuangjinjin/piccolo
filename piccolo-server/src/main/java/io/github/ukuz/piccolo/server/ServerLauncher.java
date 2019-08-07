@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.server;
 
 import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.core.PiccoloServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
 import io.github.ukuz.piccolo.server.boot.BootProcessChain;
 import io.github.ukuz.piccolo.server.boot.DefaultBootProcessChain;
@@ -32,17 +33,25 @@ import io.netty.channel.EventLoopGroup;
 public class ServerLauncher {
 
     private BootProcessChain processChain;
+    private PiccoloServer server;
 
     public ServerLauncher() {
 
     }
 
     public void init() {
+        if (server == null) {
+            server = new PiccoloServer();
+        }
+
+        if (processChain == null) {
+            processChain = newBootProcessChain();
+        }
+
         EventLoopGroupFactory eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension();
         ServerSocketChannelFactory channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension();
         String host = "localhost";
         int port = 8010;
-        processChain = newBootProcessChain();
 
         processChain.addLast(new ServerBoot(new GatewayServer(eventLoopGroupFactory, channelFactory
                 , host, port)));

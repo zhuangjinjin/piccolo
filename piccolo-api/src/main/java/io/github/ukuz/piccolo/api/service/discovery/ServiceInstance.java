@@ -20,12 +20,70 @@ package io.github.ukuz.piccolo.api.service.discovery;
  */
 public interface ServiceInstance {
 
-    String serviceId();
+    /**
+     * service name
+     *
+     * @return
+     */
+    String getServiceId();
 
+    /**
+     * instance id
+     *
+     * @return
+     */
+    String getInstanceId();
+
+    /**
+     * service instance's host
+     *
+     * @return
+     */
     String getHost();
 
-    int port();
+    /**
+     * service instance expose port
+     *
+     * @return
+     */
+    int getPort();
 
-    boolean isSecure();
+    /**
+     * get metadata by key
+     *
+     * @param key
+     * @param <T>
+     * @return
+     */
+    default <T> T getMetaData(String key) {
+        return null;
+    }
+
+    /**
+     * is serivce instance persistent
+     *
+     * @return
+     */
+    default boolean isPersistent() {
+        return false;
+    }
+
+    /**
+     * host and port
+     *
+     * @return
+     */
+    default String getHostAndPort() {
+        return getHost() + ":" + getPort();
+    }
+
+    /**
+     * service path
+     *
+     * @return
+     */
+    default String getServicePath() {
+        return getServiceId() + "/" + getInstanceId();
+    }
 
 }

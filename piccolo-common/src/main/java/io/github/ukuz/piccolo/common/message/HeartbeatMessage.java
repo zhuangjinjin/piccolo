@@ -13,34 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.constants;
+package io.github.ukuz.piccolo.common.message;
+
+import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
+import static io.github.ukuz.piccolo.common.constants.CommandType.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 
 /**
  * @author ukuz90
  */
-public enum CommandType {
+public class HeartbeatMessage extends ByteBufMessage {
 
-    ERROR(1),
-    HANDSHAKE(2),
-    HEARTBEAT(3),
-
-    UNKNOWN(-1);
-
-    private final int cmd;
-
-    CommandType(int cmd) {
-        this.cmd = cmd;
+    public HeartbeatMessage(Channel channel) {
+        super(channel, HEARTBEAT.getCmd());
     }
 
-    public static CommandType toCMD(byte cmd) {
-        CommandType[] values = values();
-        if (cmd > 0 && cmd < values.length) {
-            return values[cmd - 1];
-        }
-        return UNKNOWN;
+    @Override
+    protected void decodeBody0(ByteBuf buf) {
+
     }
 
-    public byte getCmd() {
-        return (byte) cmd;
+    @Override
+    protected void encodeBody0(ByteBuf buf) {
+
     }
 }

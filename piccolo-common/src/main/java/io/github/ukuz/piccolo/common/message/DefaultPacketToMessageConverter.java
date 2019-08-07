@@ -31,8 +31,12 @@ public class DefaultPacketToMessageConverter implements PacketToMessageConverter
     public BaseMessage convert(Packet packet, Channel channel) {
         CommandType cmd = CommandType.toCMD(packet.getCommandType());
         switch (cmd) {
+            case ERROR:
+                return new ErrorMessage(channel);
             case HANDSHAKE:
                 return new HandshakeMessage(channel);
+            case HEARTBEAT:
+                return new HeartbeatMessage(channel);
             default:
                 return null;
         }

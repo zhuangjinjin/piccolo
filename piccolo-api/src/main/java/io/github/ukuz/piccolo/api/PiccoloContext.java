@@ -13,34 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.constants;
+package io.github.ukuz.piccolo.api;
+
+import io.github.ukuz.piccolo.api.cache.CacheManager;
+import io.github.ukuz.piccolo.api.common.Monitor;
+import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
+import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 
 /**
  * @author ukuz90
  */
-public enum CommandType {
+public interface PiccoloContext {
 
-    ERROR(1),
-    HANDSHAKE(2),
-    HEARTBEAT(3),
+    Monitor getMonitor();
 
-    UNKNOWN(-1);
+    ServiceRegistry getServiceRegistry();
 
-    private final int cmd;
+    ServiceDiscovery getServiceDiscovery();
 
-    CommandType(int cmd) {
-        this.cmd = cmd;
-    }
+    CacheManager getCacheManager();
 
-    public static CommandType toCMD(byte cmd) {
-        CommandType[] values = values();
-        if (cmd > 0 && cmd < values.length) {
-            return values[cmd - 1];
-        }
-        return UNKNOWN;
-    }
+    MQClient getMQClient();
 
-    public byte getCmd() {
-        return (byte) cmd;
-    }
 }

@@ -46,7 +46,7 @@ public class ServerHandler extends ChannelDuplexHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Connection connection = new NettyConnection();
-        connection.init(ctx.channel(), true);
+        connection.init(ctx.channel(), false);
         cxnxManager.add(connection);
         LOGGER.info("handler active ctx: {} connection:{}", ctx, connection);
         handler.connected(connection);

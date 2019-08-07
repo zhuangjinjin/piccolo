@@ -16,6 +16,7 @@
 package  io.github.ukuz.piccolo.common.message;
 
 import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
+import static io.github.ukuz.piccolo.common.constants.CommandType.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 
@@ -37,7 +38,7 @@ public class HandshakeMessage extends ByteBufMessage {
     public long timestamp;
 
     public HandshakeMessage(Channel channel) {
-        super(channel);
+        super(channel, HANDSHAKE.getCmd());
     }
 
     @Override

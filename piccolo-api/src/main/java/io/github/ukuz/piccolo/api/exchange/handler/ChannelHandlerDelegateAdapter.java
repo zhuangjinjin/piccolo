@@ -26,12 +26,10 @@ public class ChannelHandlerDelegateAdapter implements ChannelHandlerDelegate {
 
     protected ChannelHandler handler;
 
-
     public ChannelHandlerDelegateAdapter(ChannelHandler handler) {
         Assert.notNull(handler, "Handler must not null");
         this.handler = handler;
     }
-
 
     @Override
     public ChannelHandler getChannelHandler() {
@@ -43,26 +41,26 @@ public class ChannelHandlerDelegateAdapter implements ChannelHandlerDelegate {
 
     @Override
     public void connected(Connection connection) throws ExchangeException {
-
+        handler.connected(connection);
     }
 
     @Override
     public void disconnected(Connection connection) throws ExchangeException {
-
+        handler.disconnected(connection);
     }
 
     @Override
     public void sent(Connection connection, Object message) throws ExchangeException {
-
+        handler.sent(connection, message);
     }
 
     @Override
     public void received(Connection connection, Object message) throws ExchangeException {
-
+        handler.received(connection, message);
     }
 
     @Override
     public void caught(Connection connection, Throwable exception) throws ExchangeException {
-
+        handler.caught(connection, exception);
     }
 }

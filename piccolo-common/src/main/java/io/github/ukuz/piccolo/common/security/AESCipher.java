@@ -41,6 +41,11 @@ public class AESCipher implements Cipher {
 
     public static final int KEY_SIZE = 1024;
 
+    public AESCipher(byte[] key, byte[] iv) {
+        this.key = new SecretKeySpec(key, KEY_ALGORITHM);
+        this.iv = new IvParameterSpec(iv);
+    }
+
     public AESCipher(String key, String iv) {
         Assert.notEmptyString(key, "key must not empty");
         Assert.notEmptyString(iv, "iv must not empty");

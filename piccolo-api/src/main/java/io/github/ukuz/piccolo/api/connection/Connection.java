@@ -15,7 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.connection;
 
-import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
+import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -33,11 +33,11 @@ public interface Connection {
 
     Channel getChannel();
 
-    boolean sendSync(Packet packet);
+    boolean sendSync(BaseMessage message);
 
-    ChannelFuture sendAsync(Packet packet);
+    ChannelFuture sendAsync(BaseMessage message);
 
-    ChannelFuture sendAsync(Packet packet, ChannelFutureListener listener);
+    ChannelFuture sendAsync(BaseMessage message, ChannelFutureListener listener);
 
     SessionContext getSessionContext();
 

@@ -17,8 +17,6 @@ package io.github.ukuz.piccolo.common.security;
 
 import io.github.ukuz.piccolo.api.connection.Cipher;
 import io.github.ukuz.piccolo.api.external.common.Assert;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 import java.nio.charset.StandardCharsets;
 import java.security.*;

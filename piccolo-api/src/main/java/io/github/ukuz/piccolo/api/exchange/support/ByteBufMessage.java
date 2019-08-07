@@ -33,8 +33,9 @@ public abstract class ByteBufMessage implements BaseMessage {
     private int sessionId;
     private Channel channel;
 
-    public ByteBufMessage(Channel channel) {
+    public ByteBufMessage(Channel channel, byte commandType) {
         this.channel = channel;
+        this.commandType = commandType;
     }
 
     @Override

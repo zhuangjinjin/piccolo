@@ -17,7 +17,8 @@ package io.github.ukuz.piccolo.transport.connection;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
-import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
+import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
+import io.github.ukuz.piccolo.common.security.RSACipher;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -47,6 +48,9 @@ public class NettyConnection implements Connection, ChannelFutureListener {
             throw new IllegalArgumentException("channel is not active, state: {}");
         }
         this.channel = channel;
+        if (isSecurity) {
+            this.context.changeCipher(new RSACipher("", ""));
+        }
     }
 
     @Override
@@ -55,9 +59,9 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     }
 
     @Override
-    public boolean sendSync(Packet packet) {
+    public boolean sendSync(BaseMessage message) {
         try {
-            channel.writeAndFlush(packet).addListener(this).sync();
+            channel.writeAndFlush(message).addListener(this).sync();
             return true;
         } catch (InterruptedException e) {
             return false;
@@ -65,14 +69,14 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     }
 
     @Override
-    public ChannelFuture sendAsync(Packet packet) {
-        return sendAsync(packet, null);
+    public ChannelFuture sendAsync(BaseMessage message) {
+        return sendAsync(message, null);
     }
 
     @Override
-    public ChannelFuture sendAsync(Packet packet, ChannelFutureListener listener) {
+    public ChannelFuture sendAsync(BaseMessage message, ChannelFutureListener listener) {
         if (channel.isActive()) {
-            ChannelFuture future = channel.write(packet).addListener(this);
+            ChannelFuture future = channel.write(message).addListener(this);
 
             if (listener != null) {
                 future.addListener(listener);

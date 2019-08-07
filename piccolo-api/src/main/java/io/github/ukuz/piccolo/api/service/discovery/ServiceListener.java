@@ -13,34 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.constants;
+package io.github.ukuz.piccolo.api.service.discovery;
 
 /**
  * @author ukuz90
  */
-public enum CommandType {
+public interface ServiceListener<S extends ServiceInstance> {
 
-    ERROR(1),
-    HANDSHAKE(2),
-    HEARTBEAT(3),
+    void onServiceAdded(S serviceInstance);
 
-    UNKNOWN(-1);
+    void onServiceUpdated(S serviceInstance);
 
-    private final int cmd;
+    void onServiceDeleted(S serviceInstance);
 
-    CommandType(int cmd) {
-        this.cmd = cmd;
-    }
-
-    public static CommandType toCMD(byte cmd) {
-        CommandType[] values = values();
-        if (cmd > 0 && cmd < values.length) {
-            return values[cmd - 1];
-        }
-        return UNKNOWN;
-    }
-
-    public byte getCmd() {
-        return (byte) cmd;
-    }
 }
