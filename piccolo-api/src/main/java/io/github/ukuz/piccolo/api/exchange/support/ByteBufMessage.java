@@ -15,11 +15,12 @@
  */
 package io.github.ukuz.piccolo.api.exchange.support;
 
+import io.github.ukuz.piccolo.api.connection.Cipher;
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 
 import java.nio.charset.StandardCharsets;
 
@@ -31,16 +32,21 @@ public abstract class ByteBufMessage implements BaseMessage {
     private byte commandType;
     private byte compressType;
     private int sessionId;
-    private Channel channel;
+    private Connection connection;
 
-    public ByteBufMessage(Channel channel, byte commandType) {
-        this.channel = channel;
+    public ByteBufMessage(Connection connection, byte commandType) {
+        this.connection = connection;
         this.commandType = commandType;
     }
 
     @Override
     public void decodeBody(Packet packet) {
-        ByteBuf buf = Unpooled.wrappedBuffer(packet.getPayload());
+        byte[] payload = packet.getPayload();
+        // 解密
+        if (getCipher() != null) {
+            payload = getCipher().decrypt(payload);
+        }
+        ByteBuf buf = Unpooled.wrappedBuffer(payload);
         decodeBody0(buf);
     }
 
@@ -52,10 +58,14 @@ public abstract class ByteBufMessage implements BaseMessage {
         packet.setSessionId(sessionId);
 
 //        ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer();
-        ByteBuf buf = channel.alloc().buffer();
+        ByteBuf buf = connection.getChannel().alloc().buffer();
         encodeBody0(buf);
         byte[] payload = new byte[buf.readableBytes()];
         buf.readBytes(payload);
+        // 加密
+        if (getCipher() != null) {
+            payload = getCipher().encrypt(payload);
+        }
 
         packet.setPayload(payload);
         packet.setLength(payload.length);
@@ -177,4 +187,13 @@ public abstract class ByteBufMessage implements BaseMessage {
     public void setSessionId(int sessionId) {
         this.sessionId = sessionId;
     }
+
+    public Cipher getCipher() {
+        return connection.getSessionContext().getCipher();
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
 }

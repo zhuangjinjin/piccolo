@@ -66,6 +66,7 @@ public class ServerHandler extends ChannelDuplexHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Connection connection = cxnxManager.getConnection(ctx.channel());
+        connection.updateLastReadTime();
         LOGGER.info("handler received ctx: {} connection:{} msg:{}", ctx, connection, msg);
         handler.received(connection, msg);
     }
@@ -74,6 +75,7 @@ public class ServerHandler extends ChannelDuplexHandler {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
         Connection connection = cxnxManager.getConnection(ctx.channel());
         LOGGER.info("handler write ctx: {} connection:{} msg:{}", ctx, connection, msg);
+        connection.updateLastWriteTime();
         handler.sent(connection, msg);
     }
 

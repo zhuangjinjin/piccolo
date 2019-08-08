@@ -15,10 +15,10 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author ukuz90
@@ -34,21 +34,21 @@ public class MultiPacketCodec extends MessageToPacketCodec {
     }
 
     @Override
-    public void encode(ChannelHandlerContext ctx, Object message, ByteBuf out) throws CodecException {
+    public void encode(Connection connection, Object message, ByteBuf out) throws CodecException {
         if (message instanceof MultiMessage) {
-            ((MultiMessage) message).forEach(msg -> super.encode(ctx, message, out));
+            ((MultiMessage) message).forEach(msg -> super.encode(connection, message, out));
         } else {
-            super.encode(ctx, message, out);
+            super.encode(connection, message, out);
         }
     }
 
     @Override
-    public Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException {
+    public Object decode(Connection connection, ByteBuf in) throws CodecException {
         MultiMessage multiMessage = null;
         while (in.readableBytes() > 0) {
             int readerIndex = in.readerIndex();
             try {
-                Object msg = super.decode(ctx, in);
+                Object msg = super.decode(connection, in);
                 if (multiMessage == null) {
                     multiMessage = MultiMessage.create();
                 }

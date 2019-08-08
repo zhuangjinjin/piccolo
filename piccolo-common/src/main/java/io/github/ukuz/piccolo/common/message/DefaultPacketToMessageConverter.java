@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.common.message;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
@@ -28,15 +29,15 @@ import io.netty.channel.Channel;
  */
 public class DefaultPacketToMessageConverter implements PacketToMessageConverter {
     @Override
-    public BaseMessage convert(Packet packet, Channel channel) {
+    public BaseMessage convert(Packet packet, Connection connection) {
         CommandType cmd = CommandType.toCMD(packet.getCommandType());
         switch (cmd) {
             case ERROR:
-                return new ErrorMessage(channel);
+                return new ErrorMessage(connection);
             case HANDSHAKE:
-                return new HandshakeMessage(channel);
+                return new HandshakeMessage(connection);
             case HEARTBEAT:
-                return new HeartbeatMessage(channel);
+                return new HeartbeatMessage(connection);
             default:
                 return null;
         }

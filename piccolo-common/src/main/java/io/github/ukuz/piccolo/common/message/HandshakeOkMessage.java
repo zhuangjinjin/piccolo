@@ -18,60 +18,60 @@ package io.github.ukuz.piccolo.common.message;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
 import static io.github.ukuz.piccolo.common.constants.CommandType.*;
-
-import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.netty.buffer.ByteBuf;
-import lombok.Data;
 
 /**
  * @author ukuz90
  */
-@Data
-public class ErrorMessage extends ByteBufMessage {
+public class HandshakeOkMessage extends ByteBufMessage {
 
-    private byte cmd;
-    private byte code;
-    private String reason;
-    private String data;
+    public int heartbeat;
+    public long expireTime;
+    public byte[] serverKey;
+    public String sessionId;
 
-    public ErrorMessage(Connection connection) {
-        super(connection, ERROR.getCmd());
+    public HandshakeOkMessage(Connection connection) {
+        super(connection, HANDSHAKE.getCmd());
     }
 
     @Override
     protected void decodeBody0(ByteBuf buf) {
-        cmd = readByte(buf);
-        code = readByte(buf);
-        reason = readString(buf);
-        data = readString(buf);
+        heartbeat = readInt(buf);
+        expireTime = readLong(buf);
+        serverKey = readBytes(buf);
+        sessionId = readString(buf);
     }
 
     @Override
     protected void encodeBody0(ByteBuf buf) {
-        writeByte(buf, cmd);
-        writeByte(buf, code);
-        writeString(buf, reason);
-        writeString(buf, data);
+        writeInt(buf, heartbeat);
+        writeLong(buf, expireTime);
+        writeBytes(buf, serverKey);
+        writeString(buf, sessionId);
     }
 
-    private ErrorMessage cmd(byte cmd) {
-        this.cmd = cmd;
+    public static HandshakeOkMessage build(Connection connection) {
+        return new HandshakeOkMessage(connection);
+    }
+
+    public HandshakeOkMessage heartbeat(int heartbeat) {
+        this.heartbeat = heartbeat;
         return this;
     }
 
-    public ErrorMessage code(byte code) {
-        this.code = code;
+    public HandshakeOkMessage expireTime(long expireTime) {
+        this.expireTime = expireTime;
         return this;
     }
 
-    public ErrorMessage reason(String reason) {
-        this.reason = reason;
+    public HandshakeOkMessage serverKey(byte[] serverKey) {
+        this.serverKey = serverKey;
         return this;
     }
 
-    public static ErrorMessage build(ByteBufMessage message) {
-        Assert.notNull(message, "message must not null");
-        return new ErrorMessage(message.getConnection()).cmd(message.getCommandType());
+    public HandshakeOkMessage sessionId(String sessionId) {
+        this.sessionId = sessionId;
+        return this;
     }
 
 }

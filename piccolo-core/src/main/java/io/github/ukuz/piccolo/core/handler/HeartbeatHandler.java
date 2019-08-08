@@ -35,7 +35,8 @@ public class HeartbeatHandler extends ChannelHandlerDelegateAdapter {
     @Override
     public void received(Connection connection, Object message) throws ExchangeException {
         if (message instanceof HeartbeatMessage) {
-            connection.sendAsync(new HeartbeatMessage(connection.getChannel()));
+            connection.sendAsync((HeartbeatMessage)message);
+//            connection.sendAsync(new HeartbeatMessage(connection));
         }
         super.received(connection, message);
     }

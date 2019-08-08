@@ -41,56 +41,63 @@ public class SessionContext {
         return osName;
     }
 
-    public void setOsName(String osName) {
+    public SessionContext setOsName(String osName) {
         this.osName = osName;
+        return this;
     }
 
     public String getOsVersion() {
         return osVersion;
     }
 
-    public void setOsVersion(String osVersion) {
+    public SessionContext setOsVersion(String osVersion) {
         this.osVersion = osVersion;
+        return this;
     }
 
     public String getClientVersion() {
         return clientVersion;
     }
 
-    public void setClientVersion(String clientVersion) {
+    public SessionContext setClientVersion(String clientVersion) {
         this.clientVersion = clientVersion;
+        return this;
     }
 
     public String getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public SessionContext setUserId(String userId) {
         this.userId = userId;
+        return this;
     }
 
     public String getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(String deviceId) {
+    public SessionContext setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+        return this;
     }
 
     public String getTags() {
         return tags;
     }
 
-    public void setTags(String tags) {
+    public SessionContext setTags(String tags) {
         this.tags = tags;
+        return this;
     }
 
     public int getHeartbeat() {
         return heartbeat;
     }
 
-    public void setHeartbeat(int heartbeat) {
+    public SessionContext setHeartbeat(int heartbeat) {
         this.heartbeat = heartbeat;
+        return this;
     }
 
     public byte getClientType() {
@@ -106,9 +113,5 @@ public class SessionContext {
 
     public Cipher getCipher() {
         return cipher;
-    }
-
-    public void setClientType(byte clientType) {
-        this.clientType = clientType;
     }
 }

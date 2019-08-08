@@ -15,10 +15,8 @@
  */
 package io.github.ukuz.piccolo.common.security;
 
-import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Cipher;
 import io.github.ukuz.piccolo.api.external.common.Assert;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.properties.SecurityProperties;
 import org.apache.commons.crypto.cipher.CryptoCipher;
 import org.apache.commons.crypto.utils.Utils;
@@ -44,25 +42,29 @@ public class AESCipher implements Cipher {
     private static final int AES_KEY_LENGTH = 1024;
 
     public final int keyLength;
-
-    public AESCipher(SecurityProperties security, byte[] key, byte[] iv) {
-        Assert.notNull(key, "key must not empty");
-        Assert.notNull(iv, "iv must not empty");
-        this.key = new SecretKeySpec(key, KEY_ALGORITHM);
-        this.iv = new IvParameterSpec(iv);
-        if (security != null) {
-            keyLength = security.getAesKeyLength();
-        } else {
-            keyLength = AES_KEY_LENGTH;
-        }
-    }
+    public final byte[] keyB;
+    public final byte[] ivB;
 
     public AESCipher(String key, String iv) {
-        Assert.notEmptyString(key, "key must not empty");
-        Assert.notEmptyString(iv, "iv must not empty");
-        this.key = new SecretKeySpec(getUTF8Bytes(key), KEY_ALGORITHM);
-        this.iv = new IvParameterSpec(getUTF8Bytes(iv));
-        keyLength = AES_KEY_LENGTH;
+        this(0, getUTF8Bytes(key), getUTF8Bytes(iv));
+    }
+
+    public AESCipher(SecurityProperties security, byte[] key, byte[] iv) {
+        this(security.getAesKeyLength(), key, iv);
+    }
+
+    public AESCipher(int keyLength, byte[] key, byte[] iv) {
+        Assert.notNull(key, "key must not empty");
+        Assert.notNull(iv, "iv must not empty");
+        this.keyB = key;
+        this.ivB = iv;
+        this.key = new SecretKeySpec(key, KEY_ALGORITHM);
+        this.iv = new IvParameterSpec(iv);
+        if (keyLength <= 0) {
+            this.keyLength = AES_KEY_LENGTH;
+        } else {
+            this.keyLength = keyLength;
+        }
     }
 
     @Override
@@ -125,7 +127,35 @@ public class AESCipher implements Cipher {
 
     }
 
-    private byte[] getUTF8Bytes(String content) {
+    @Override
+    public String toString() {
+        return toString(keyB) + "," + toString(ivB) + "," + String.valueOf(keyLength);
+    }
+
+    private String toString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            if (i != 0) {
+                sb.append('|');
+            }
+            sb.append(bytes[i]);
+        }
+        return sb.toString();
+    }
+
+    public static byte[] toArray(String str, int keyLength) {
+        String[] arr = str.split("|");
+        if (arr.length != keyLength) {
+            return null;
+        }
+        byte[] bytes = new byte[arr.length];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = Byte.parseByte(arr[i]);
+        }
+        return bytes;
+    }
+
+    private static byte[] getUTF8Bytes(String content) {
         return content.getBytes(StandardCharsets.UTF_8);
     }
 

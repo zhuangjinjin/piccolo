@@ -57,6 +57,7 @@ public abstract class NettyServer extends AbstractService implements Server {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     protected PiccoloContext piccoloContext;
+    protected ConnectionManager cxnxManager;
 
     private final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
 
@@ -65,6 +66,7 @@ public abstract class NettyServer extends AbstractService implements Server {
         Assert.notNull(channelHandler, "channelHandler must not be null");
         Assert.notNull(channelHandler, "cxnxManager must not be null");
         this.piccoloContext = piccoloContext;
+        this.cxnxManager = cxnxManager;
         CoreProperties core = piccoloContext.getProperties(CoreProperties.class);
         if (core.isUseNettyEpoll()) {
             this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("epoll");
@@ -154,7 +156,7 @@ public abstract class NettyServer extends AbstractService implements Server {
     }
 
     protected void initPipeline(ChannelPipeline pipeline) {
-        DuplexCodec codec = new DuplexCodec(newCodec());
+        DuplexCodec codec = new DuplexCodec(cxnxManager, newCodec());
         pipeline.addLast("decoder", codec.getDecoder());
         pipeline.addLast("encoder", codec.getEncoder());
         pipeline.addLast("handler", serverHandler);

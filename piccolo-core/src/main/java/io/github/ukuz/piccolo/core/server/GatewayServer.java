@@ -20,7 +20,9 @@ import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
+import io.github.ukuz.piccolo.core.PiccoloServer;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.transport.codec.Codec;
@@ -41,6 +43,12 @@ public class GatewayServer extends NettyServer {
     private final String host;
     private final int port;
     private final ConnectionManager cxnxManager;
+
+    public GatewayServer(PiccoloContext piccoloContext) {
+        this(piccoloContext,
+                piccoloContext.getProperties(NetProperties.class).getGatewayServer().getBindIp(),
+                piccoloContext.getProperties(NetProperties.class).getGatewayServer().getBindPort());
+    }
 
     public GatewayServer(PiccoloContext piccoloContext, String host, int port) {
         this(piccoloContext, ChannelHandlers.newGatewayChannelHandler(piccoloContext), new NettyConnectionManager(), host, port);

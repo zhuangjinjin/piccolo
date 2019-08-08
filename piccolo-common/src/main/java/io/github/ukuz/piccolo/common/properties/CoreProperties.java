@@ -34,6 +34,7 @@ public class CoreProperties implements Properties {
     private int minHeartbeatTime;
     private int maxPacketSize;
     private int maxHbTimeoutMs;
+    private int sessionExpireTime;
 
     public boolean isUseNettyEpoll() {
         if (!"netty".equals(epollProvider)) {

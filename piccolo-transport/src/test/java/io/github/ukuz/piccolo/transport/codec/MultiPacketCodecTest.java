@@ -16,6 +16,7 @@
 
 package io.github.ukuz.piccolo.transport.codec;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
 import io.netty.buffer.ByteBuf;
@@ -38,7 +39,7 @@ class MultiPacketCodecTest {
     private MultiPacketCodec codec;
 
     @Mock
-    private ChannelHandlerContext context;
+    private Connection connection;
 
     @BeforeEach
     void setUp() {
@@ -56,7 +57,7 @@ class MultiPacketCodecTest {
         out.writeByte(0);
         out.writeInt(1);
 
-        MultiMessage msg = (MultiMessage) codec.decode(context, out);
+        MultiMessage msg = (MultiMessage) codec.decode(connection, out);
         assertNull(msg);
     }
 
@@ -72,7 +73,7 @@ class MultiPacketCodecTest {
         out.writeInt(10 * 1024 * 1024 + 1);
 
         try {
-            codec.decode(context, out);
+            codec.decode(connection, out);
             fail();
         } catch (CodecException e) {
             assertEquals(PacketSizeLimitCodecException.class, e.getClass());
@@ -91,7 +92,7 @@ class MultiPacketCodecTest {
         out.writeInt(0);
 
         try {
-            codec.decode(context, out);
+            codec.decode(connection, out);
             fail();
         } catch (CodecException e) {
             assertEquals(PacketUnknownCodecException.class, e.getClass());
@@ -118,7 +119,7 @@ class MultiPacketCodecTest {
         out.writeInt(4);
         out.writeBytes("HaHa".getBytes());
 
-        MultiMessage msg = (MultiMessage) codec.decode(context, out);
+        MultiMessage msg = (MultiMessage) codec.decode(connection, out);
 
         assertEquals(2, msg.size());
         assertEquals("Hello,World!", new String(((Packet)msg.get(0)).getPayload()));

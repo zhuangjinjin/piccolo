@@ -15,10 +15,10 @@
  */
 package  io.github.ukuz.piccolo.common.message;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
 import static io.github.ukuz.piccolo.common.constants.CommandType.*;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 import java.util.Arrays;
 
@@ -37,8 +37,8 @@ public class HandshakeMessage extends ByteBufMessage {
     public int maxHeartbeat;
     public long timestamp;
 
-    public HandshakeMessage(Channel channel) {
-        super(channel, HANDSHAKE.getCmd());
+    public HandshakeMessage(Connection connection) {
+        super(connection, HANDSHAKE.getCmd());
     }
 
     @Override

@@ -24,18 +24,19 @@ import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
-import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.core.server.ConnectServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
+import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
 
 /**
  * @author ukuz90
  */
 public class PiccoloServer implements PiccoloContext {
 
-    private Environment environment;
-    private GatewayServer gatewayServer;
-    private ConnectServer connectServer;
+    private final Environment environment;
+    private final GatewayServer gatewayServer;
+    private final ConnectServer connectServer;
+    private final ReusableSessionManager reusableSessionManager;
 
     public PiccoloServer() {
         //initialize config
@@ -43,13 +44,10 @@ public class PiccoloServer implements PiccoloContext {
         environment.scanAllProperties();
         environment.load();
 
-        NetProperties net = environment.getProperties(NetProperties.class);
 
-        gatewayServer = new GatewayServer(this,
-                net.getGatewayServer().getBindIp(), net.getGatewayServer().getBindPort());
-
-        connectServer = new ConnectServer(this,
-                net.getConnectServer().getBindIp(), net.getConnectServer().getBindPort());
+        reusableSessionManager = new ReusableSessionManager(this);
+        gatewayServer = new GatewayServer(this);
+        connectServer = new ConnectServer(this);
     }
 
     @Override
@@ -93,5 +91,9 @@ public class PiccoloServer implements PiccoloContext {
 
     public ConnectServer getConnectServer() {
         return connectServer;
+    }
+
+    public ReusableSessionManager getReusableSessionManager() {
+        return reusableSessionManager;
     }
 }

@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -25,8 +26,8 @@ import java.util.List;
  */
 public interface Codec {
 
-    void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException;
+    void encode(Connection connection, Object msg, ByteBuf out) throws CodecException;
 
-    Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException;
+    Object decode(Connection connection, ByteBuf in) throws CodecException;
 
 }

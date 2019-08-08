@@ -15,9 +15,9 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author ukuz90
@@ -33,7 +33,7 @@ public class PacketCodec implements Codec {
     private final static byte MAGIC_NUM_L = (byte) MAGIC_NUM;
 
     @Override
-    public void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException {
+    public void encode(Connection connection, Object msg, ByteBuf out) throws CodecException {
         if (msg instanceof Packet) {
             Packet packet = (Packet) msg;
             out.writeByte(MAGIC_NUM_H);
@@ -49,7 +49,7 @@ public class PacketCodec implements Codec {
     }
 
     @Override
-    public Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException {
+    public Object decode(Connection connection, ByteBuf in) throws CodecException {
         byte mh = in.readByte();
         byte ml = in.readByte();
         if (mh != MAGIC_NUM_H || ml != MAGIC_NUM_L) {

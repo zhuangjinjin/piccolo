@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.exchange.support;
-
-import io.github.ukuz.piccolo.api.connection.Connection;
-import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
-import io.github.ukuz.piccolo.api.spi.Spi;
-import io.netty.channel.Channel;
+package io.github.ukuz.piccolo.common.cache;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "default")
-public interface PacketToMessageConverter {
+public final class CacheKeys {
 
-    /**
-     * packet to message
-     * @param packet
-     * @param connection
-     * @return
-     */
-    BaseMessage convert(Packet packet, Connection connection);
+    private static final String SESSION_PREFIX = "piccolo:rs:";//可复用session
+
+    public static String getSessionKey(String sessionId) {
+        return SESSION_PREFIX + sessionId;
+    }
 
 }

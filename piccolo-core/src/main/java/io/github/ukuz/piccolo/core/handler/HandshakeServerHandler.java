@@ -21,11 +21,17 @@ import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandlerDelegateAdapter;
+import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import io.github.ukuz.piccolo.common.message.HandshakeMessage;
+import io.github.ukuz.piccolo.common.message.HandshakeOkMessage;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
 import io.github.ukuz.piccolo.common.properties.SecurityProperties;
 import io.github.ukuz.piccolo.common.security.AESCipher;
 import io.github.ukuz.piccolo.common.security.CipherBox;
 import io.github.ukuz.piccolo.common.security.RSACipher;
+import io.github.ukuz.piccolo.core.PiccoloServer;
+import io.github.ukuz.piccolo.core.session.ReusableSession;
+import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
 import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +73,7 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
                 || msg.clientKey.length != CipherBox.I.getAesKeyLength()) {
 
                 //TODO send error msg and close
-
+                ErrorMessage errMsg = ErrorMessage.build(msg).reason("param invalid");
                 logger.error("handshake failure, invalid, message: {}, conn: {}", msg, connection);
                 return;
             }
@@ -82,16 +88,45 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
                 return;
             }
 
-            //3. 更换为对称加密算法 RSA=>AES
+            //3. 更换为对称加密算法 RSA=>AES(clientKey)
             SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
             context.changeCipher(new AESCipher(security, clientKey, iv));
 
             //4. 生成可复用的session, 用于快速重连
+            ReusableSessionManager reusableSessionManager = ((PiccoloServer)piccoloContext).getReusableSessionManager();
+            ReusableSession session = reusableSessionManager.genSession(context);
 
             //5. 计算心跳时间
+            CoreProperties core = piccoloContext.getProperties(CoreProperties.class);
+            int heartbeat = Math.max(core.getMinHeartbeatTime(), Math.min(msg.maxHeartbeat, core.getMaxHeartbeatTime()));
 
             //6. 响应握手成功信息
+            HandshakeOkMessage okMessage = HandshakeOkMessage.build(connection)
+                    .sessionId(session.getSessionId())
+                    .expireTime(session.getExpireTime())
+                    .serverKey(serverKey)
+                    .heartbeat(heartbeat);
 
+            connection.sendAsync(okMessage, future -> {
+                if (future.isSuccess()) {
+                    //7. 更换为对称加密算法 RSA=>AES(sessionKey)
+                    context.changeCipher(new AESCipher(security, sessionKey, iv));
+                    //8. 保存当前信息到SessionContext中
+                    connection.getSessionContext()
+                            .setDeviceId(msg.deviceId)
+                            .setClientVersion(msg.clientVersion)
+                            .setOsVersion(msg.osVersion)
+                            .setOsVersion(msg.osVersion)
+                            .setHeartbeat(heartbeat);
+
+                    //9. 保存当前session到缓存中，用来快速重连
+                    reusableSessionManager.cacheSession(session);
+
+                    logger.info("handshake success, conn: {}", connection);
+                } else {
+                    logger.info("handshake failure, conn: {}, cause: {}", connection, future.cause());
+                }
+            });
 
         }
 

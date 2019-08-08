@@ -15,12 +15,14 @@
  */
 package io.github.ukuz.piccolo.client;
 
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.transport.client.NettyClient;
 import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
+import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
 import io.github.ukuz.piccolo.transport.handler.ClientHandler;
 import io.netty.channel.ChannelFactory;
@@ -40,6 +42,7 @@ public class GatewayClient extends NettyClient {
     private DuplexCodec codec;
 
     private InetSocketAddress socketAddress;
+    private ConnectionManager cxnxManager;
 
     public GatewayClient(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, ClientHandler handler, String host, int port) {
         super(eventLoopGroupFactory, channelFactory, handler);
@@ -51,7 +54,8 @@ public class GatewayClient extends NettyClient {
     @Override
     public void init() throws ServiceException {
         socketAddress = new InetSocketAddress(host, port);
-        codec = new DuplexCodec(new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension()));
+        cxnxManager = new NettyConnectionManager();
+        codec = new DuplexCodec(cxnxManager, new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension()));
     }
 
     @Override

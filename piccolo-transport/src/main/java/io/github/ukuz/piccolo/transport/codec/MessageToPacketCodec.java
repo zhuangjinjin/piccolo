@@ -15,11 +15,11 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author ukuz90
@@ -33,20 +33,20 @@ public class MessageToPacketCodec extends PacketCodec {
     }
 
     @Override
-    public void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws CodecException {
+    public void encode(Connection connection, Object msg, ByteBuf out) throws CodecException {
         if (msg instanceof BaseMessage) {
             Packet packet = ((BaseMessage) msg).encodeBody();
-            super.encode(ctx, packet, out);
+            super.encode(connection, packet, out);
         } else {
-            super.encode(ctx, msg, out);
+            super.encode(connection, msg, out);
         }
     }
 
     @Override
-    public Object decode(ChannelHandlerContext ctx, ByteBuf in) throws CodecException {
-        Packet packet = (Packet) super.decode(ctx, in);
+    public Object decode(Connection connection, ByteBuf in) throws CodecException {
+        Packet packet = (Packet) super.decode(connection, in);
         if (converter != null) {
-            BaseMessage message = converter.convert(packet, ctx.channel());
+            BaseMessage message = converter.convert(packet, connection);
             if (message == null) {
                 throw new PacketToMessageNotMappingCodecException("packet not mapping message, cmd: " + packet.getCommandType());
             }

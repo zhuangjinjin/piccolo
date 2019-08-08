@@ -17,6 +17,8 @@ package io.github.ukuz.piccolo.api.connection;
 
 /**
  * @author ukuz90
+ *
+ * @see io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage
  */
 public interface Cipher {
 

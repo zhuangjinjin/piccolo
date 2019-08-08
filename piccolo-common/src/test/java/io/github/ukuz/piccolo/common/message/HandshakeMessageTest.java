@@ -16,6 +16,8 @@
 
 package io.github.ukuz.piccolo.common.message;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -33,18 +35,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class HandshakeMessageTest {
 
     @Mock
+    private Connection connection;
+
+    @Mock
     private Channel channel;
 
-    @BeforeEach
-    void setUp() {
-        when(channel.alloc()).thenReturn(PooledByteBufAllocator.DEFAULT);
-    }
+    @Mock
+    private SessionContext sessionContext;
 
     @DisplayName("test_decode")
     @Test
     void testDecode() {
-        System.out.println(channel.alloc());
-        HandshakeMessage out = new HandshakeMessage(channel);
+        when(connection.getChannel()).thenReturn(channel);
+        when(connection.getChannel().alloc()).thenReturn(PooledByteBufAllocator.DEFAULT);
+        when(connection.getSessionContext()).thenReturn(sessionContext);
+        when(connection.getSessionContext().getCipher()).thenReturn(null);
+
+        HandshakeMessage out = new HandshakeMessage(connection);
         out.timestamp = System.currentTimeMillis();
         out.osName = "Android";
         out.osVersion = "11";
@@ -53,7 +60,7 @@ class HandshakeMessageTest {
         Packet packet = out.encodeBody();
         System.out.println(packet.getPayload().length);
 
-        HandshakeMessage in = new HandshakeMessage(channel);
+        HandshakeMessage in = new HandshakeMessage(connection);
         in.decodeBody(packet);
         assertEquals("Android", in.osName);
         assertEquals("11", in.osVersion);

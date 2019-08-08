@@ -41,6 +41,12 @@ public class ConnectServer extends NettyServer {
     private final int port;
     private final ConnectionManager cxnxManager;
 
+    public ConnectServer(PiccoloContext piccoloContext) {
+        this(piccoloContext,
+                piccoloContext.getProperties(NetProperties.class).getConnectServer().getBindIp(),
+                piccoloContext.getProperties(NetProperties.class).getConnectServer().getBindPort());
+    }
+
     public ConnectServer(PiccoloContext piccoloContext, String host, int port) {
         this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager(), host, port);
     }

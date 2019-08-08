@@ -15,18 +15,18 @@
  */
 package io.github.ukuz.piccolo.common.message;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
 import static io.github.ukuz.piccolo.common.constants.CommandType.*;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 
 /**
  * @author ukuz90
  */
 public class HeartbeatMessage extends ByteBufMessage {
 
-    public HeartbeatMessage(Channel channel) {
-        super(channel, HEARTBEAT.getCmd());
+    public HeartbeatMessage(Connection connection) {
+        super(connection, HEARTBEAT.getCmd());
     }
 
     @Override

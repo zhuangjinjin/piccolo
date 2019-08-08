@@ -15,6 +15,8 @@
  */
 package io.github.ukuz.piccolo.transport.codec;
 
+import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -29,11 +31,13 @@ import java.util.List;
 public class DuplexCodec {
 
     private Codec codec;
+    private final ConnectionManager cxnxManager;
 
     private final Encoder encoder = new Encoder();
     private final Decoder decoder = new Decoder();
 
-    public DuplexCodec(Codec codec) {
+    public DuplexCodec(ConnectionManager cxnxManager, Codec codec) {
+        this.cxnxManager = cxnxManager;
         this.codec = codec;
     }
 
@@ -50,7 +54,8 @@ public class DuplexCodec {
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) {
-            codec.encode(ctx, msg, out);
+            Connection connection = cxnxManager.getConnection(ctx.channel());
+            codec.encode(connection, msg, out);
         }
     }
 
@@ -58,7 +63,8 @@ public class DuplexCodec {
 
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-            Object msg = codec.decode(ctx, in);
+            Connection connection = cxnxManager.getConnection(ctx.channel());
+            Object msg = codec.decode(connection, in);
             if (msg != null) {
                 out.add(msg);
             }
