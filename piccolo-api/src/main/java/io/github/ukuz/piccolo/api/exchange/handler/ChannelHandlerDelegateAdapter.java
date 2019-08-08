@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.exchange.handler;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
@@ -25,9 +26,12 @@ import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 public class ChannelHandlerDelegateAdapter implements ChannelHandlerDelegate {
 
     protected ChannelHandler handler;
+    protected PiccoloContext piccoloContext;
 
-    public ChannelHandlerDelegateAdapter(ChannelHandler handler) {
-        Assert.notNull(handler, "Handler must not null");
+    public ChannelHandlerDelegateAdapter(PiccoloContext piccoloContext, ChannelHandler handler) {
+        Assert.notNull(handler, "handler must not null");
+        Assert.notNull(handler, "piccoloContext must not null");
+        this.piccoloContext = piccoloContext;
         this.handler = handler;
     }
 

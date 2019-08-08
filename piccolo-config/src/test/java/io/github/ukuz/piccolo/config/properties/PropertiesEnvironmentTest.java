@@ -46,5 +46,6 @@ class PropertiesEnvironmentTest {
 //        assertEquals(100, redisProperties.getProp1());
 //        assertEquals(1.1, redisProperties.getProp3());
 //        assertEquals(1, redisProperties.getProp4());
+//        assertTrue(redisProperties.getJedisPoolConfig().isTestWhileIdle());
     }
 }

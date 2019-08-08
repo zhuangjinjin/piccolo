@@ -15,9 +15,11 @@
  */
 package io.github.ukuz.piccolo.common.security;
 
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Cipher;
 import io.github.ukuz.piccolo.api.external.common.Assert;
-import io.netty.buffer.PooledByteBufAllocator;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.properties.SecurityProperties;
 import org.apache.commons.crypto.cipher.CryptoCipher;
 import org.apache.commons.crypto.utils.Utils;
 import sun.nio.ch.DirectBuffer;
@@ -39,11 +41,20 @@ public class AESCipher implements Cipher {
     public static final String KEY_ALGORITHM = "AES";
     public static final String KEY_ALGORITHM_TRANSFORM = "AES/CBC/PKCS5Padding";
 
-    public static final int KEY_SIZE = 1024;
+    private static final int AES_KEY_LENGTH = 1024;
 
-    public AESCipher(byte[] key, byte[] iv) {
+    public final int keyLength;
+
+    public AESCipher(SecurityProperties security, byte[] key, byte[] iv) {
+        Assert.notNull(key, "key must not empty");
+        Assert.notNull(iv, "iv must not empty");
         this.key = new SecretKeySpec(key, KEY_ALGORITHM);
         this.iv = new IvParameterSpec(iv);
+        if (security != null) {
+            keyLength = security.getAesKeyLength();
+        } else {
+            keyLength = AES_KEY_LENGTH;
+        }
     }
 
     public AESCipher(String key, String iv) {
@@ -51,6 +62,7 @@ public class AESCipher implements Cipher {
         Assert.notEmptyString(iv, "iv must not empty");
         this.key = new SecretKeySpec(getUTF8Bytes(key), KEY_ALGORITHM);
         this.iv = new IvParameterSpec(getUTF8Bytes(iv));
+        keyLength = AES_KEY_LENGTH;
     }
 
     @Override
@@ -59,9 +71,9 @@ public class AESCipher implements Cipher {
         ByteBuffer in = null;
         ByteBuffer out = null;
         try (CryptoCipher decipher = Utils.getCipherInstance(KEY_ALGORITHM_TRANSFORM, properties)) {
-            out = ByteBuffer.allocateDirect(KEY_SIZE);
+            out = ByteBuffer.allocateDirect(keyLength);
             in = ByteBuffer.allocateDirect(encryptData.length);
-//            out = PooledByteBufAllocator.DEFAULT.directBuffer(KEY_SIZE).nioBuffer();
+//            out = PooledByteBufAllocator.DEFAULT.directBuffer(keyLength).nioBuffer();
 
             in.put(encryptData);
             in.flip();
@@ -90,8 +102,8 @@ public class AESCipher implements Cipher {
         ByteBuffer in = null;
         ByteBuffer out = null;
         try (CryptoCipher encipher = Utils.getCipherInstance(KEY_ALGORITHM_TRANSFORM, properties)) {
-            in = ByteBuffer.allocateDirect(KEY_SIZE);
-            out = ByteBuffer.allocateDirect(KEY_SIZE);
+            in = ByteBuffer.allocateDirect(keyLength);
+            out = ByteBuffer.allocateDirect(keyLength);
 
             in.put(originData);
             in.flip();

@@ -18,16 +18,33 @@ package io.github.ukuz.piccolo.core;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.properties.NetProperties;
+import io.github.ukuz.piccolo.core.server.GatewayServer;
 
 /**
  * @author ukuz90
  */
 public class PiccoloServer implements PiccoloContext {
 
-    
+    private Environment environment;
+    private GatewayServer gatewayServer;
+
+    public PiccoloServer() {
+        //initialize config
+        environment = SpiLoader.getLoader(Environment.class).getExtension();
+        environment.scanAllProperties();
+        environment.load();
+
+        NetProperties net = environment.getProperties(NetProperties.class);
+
+        gatewayServer = new GatewayServer(this,
+                net.getGatewayServer().getBindIp(), net.getGatewayServer().getBindPort());
+    }
 
     @Override
     public Monitor getMonitor() {
@@ -52,5 +69,18 @@ public class PiccoloServer implements PiccoloContext {
     @Override
     public MQClient getMQClient() {
         return null;
+    }
+
+    @Override
+    public Environment getEvironment() {
+        return environment;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public GatewayServer getGatewayServer() {
+        return gatewayServer;
     }
 }

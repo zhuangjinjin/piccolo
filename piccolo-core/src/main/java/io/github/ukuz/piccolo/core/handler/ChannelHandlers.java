@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.core.handler;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
 
@@ -25,8 +26,8 @@ public class ChannelHandlers {
 
     private ChannelHandlers() {}
 
-    public static ChannelHandler newChannelHandler(ChannelHandler handler) {
-        return new MultiMessageHandler(new DispatcherHandler(handler));
+    public static ChannelHandler newChannelHandler(PiccoloContext piccoloContext, ChannelHandler handler) {
+        return new MultiMessageHandler(piccoloContext, new DispatcherHandler(handler));
     }
 
 }

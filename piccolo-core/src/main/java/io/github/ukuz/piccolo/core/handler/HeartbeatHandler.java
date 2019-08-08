@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.core.handler;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
@@ -26,8 +27,9 @@ import io.github.ukuz.piccolo.common.message.HeartbeatMessage;
  */
 public class HeartbeatHandler extends ChannelHandlerDelegateAdapter {
 
-    public HeartbeatHandler(ChannelHandler handler) {
-        super(handler);
+
+    public HeartbeatHandler(PiccoloContext piccoloContext, ChannelHandler handler) {
+        super(piccoloContext, handler);
     }
 
     @Override

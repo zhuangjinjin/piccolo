@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.core.server;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
@@ -39,15 +40,14 @@ public class GatewayServer extends NettyServer {
     private final int port;
     private final ConnectionManager cxnxManager;
 
-    public GatewayServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, String host, int port) {
-        this(eventLoopGroupFactory, channelFactory, ChannelHandlers.newChannelHandler(null), new NettyConnectionManager(), host, port);
+    public GatewayServer(PiccoloContext piccoloContext, String host, int port) {
+        this(piccoloContext, ChannelHandlers.newChannelHandler(piccoloContext,null), new NettyConnectionManager(), host, port);
     }
 
-    public GatewayServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory,
+    public GatewayServer(PiccoloContext piccoloContext,
                          ChannelHandler channelHandler, ConnectionManager cxnxManager,
                          String host, int port) {
-        super(eventLoopGroupFactory, channelFactory, channelHandler,
-                cxnxManager);
+        super(piccoloContext, channelHandler, cxnxManager);
         this.cxnxManager = cxnxManager;
         this.host = host;
         this.port = port;

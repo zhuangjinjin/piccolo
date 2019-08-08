@@ -15,12 +15,12 @@
  */
 package io.github.ukuz.piccolo.config.properties;
 
-import io.github.ukuz.piccolo.config.common.AbstractConfigurationPropertiesProccessor;
+import io.github.ukuz.piccolo.config.common.AbstractConfigurationPropertiesProcessor;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 
 /**
  * @author ukuz90
  */
-public class PropertiesConfigurationPropertiesProcessor extends AbstractConfigurationPropertiesProccessor<PropertiesConfiguration> {
+public class PropertiesConfigurationPropertiesProcessor extends AbstractConfigurationPropertiesProcessor<PropertiesConfiguration> {
 
 }

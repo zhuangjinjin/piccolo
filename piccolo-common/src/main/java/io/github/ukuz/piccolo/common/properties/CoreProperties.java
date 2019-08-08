@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.config.properties;
+package io.github.ukuz.piccolo.common.properties;
 
 import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
 import io.github.ukuz.piccolo.api.config.Properties;
@@ -22,27 +22,24 @@ import lombok.Data;
 /**
  * @author ukuz90
  */
-@ConfigurationProperties(prefix = "piccolo.redis")
+@ConfigurationProperties(prefix = "piccolo.core")
 @Data
-public class RedisProperties implements Properties {
+public class CoreProperties implements Properties {
 
-    private String mode;
-    private int maxConnNum;
-    private boolean enabled;
-    private long timeBetweenEvictionRunsMillis;
-    private short prop1;
-    private float prop2;
-    private double prop3;
-    private byte prop4;
+    /**
+     * netty, nio
+     */
+    private String epollProvider;
+    private int maxHeartbeatTime;
+    private int minHeartbeatTime;
+    private int maxPacketSize;
+    private int maxHbTimeoutMs;
 
-    private JedisPoolConfig jedisPoolConfig;
-
-    @Data
-    class JedisPoolConfig implements Properties {
-
-        boolean testWhileIdle;
-
-
+    public boolean isUseNettyEpoll() {
+        if (!"netty".equals(epollProvider)) {
+            return false;
+        }
+        String osName = System.getProperty("os.name").toLowerCase();
+        return osName.startsWith("linux");
     }
-
 }

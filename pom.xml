@@ -281,7 +281,7 @@
                     <useSystemClassLoader>true</useSystemClassLoader>
                     <forkCount>1.5C</forkCount>
                     <!--<forkMode>once</forkMode>-->
-                    <argLine>${argline} @{jacocoArgLine}</argLine>
+                    <argLine>${argline} ${jacocoArgLine}</argLine>
                 </configuration>
             </plugin>
             <plugin>

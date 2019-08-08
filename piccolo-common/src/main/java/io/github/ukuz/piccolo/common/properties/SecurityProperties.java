@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.config;
+package io.github.ukuz.piccolo.common.properties;
 
-import io.github.ukuz.piccolo.api.spi.Spi;
+import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
+import io.github.ukuz.piccolo.api.config.Properties;
+import lombok.Data;
 
 /**
  * @author ukuz90
- *
  */
-@Spi
-public interface Properties {
+@ConfigurationProperties(prefix = "piccolo.security")
+@Data
+public class SecurityProperties implements Properties {
+
+    private String publicKey;
+    private String privateKey;
+    private int aesKeyLength;
+
 }

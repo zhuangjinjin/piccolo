@@ -20,6 +20,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>piccolo-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>piccolo-common</artifactId>
+        </dependency>
     </dependencies>
 
 

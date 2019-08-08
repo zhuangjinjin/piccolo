@@ -15,6 +15,8 @@
  */
 package io.github.ukuz.piccolo.transport.server;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
@@ -22,6 +24,9 @@ import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.IllegalStateServiceException;
 import io.github.ukuz.piccolo.api.service.Server;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
+import io.github.ukuz.piccolo.transport.channel.ServerSocketChannelFactory;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
 import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
@@ -52,16 +57,24 @@ public abstract class NettyServer extends AbstractService implements Server {
     private ServerHandler serverHandler;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+    private PiccoloContext piccoloContext;
 
     private final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
 
-    public NettyServer(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, ChannelHandler channelHandler, ConnectionManager cxnxManager) {
-        Assert.notNull(eventLoopGroupFactory, "eventLoopGroupFactory must not be null");
-        Assert.notNull(channelFactory, "channelFactory must not be null");
+    public NettyServer(PiccoloContext piccoloContext, ChannelHandler channelHandler, ConnectionManager cxnxManager) {
+        Assert.notNull(piccoloContext, "piccoloContext must not be null");
         Assert.notNull(channelHandler, "channelHandler must not be null");
         Assert.notNull(channelHandler, "cxnxManager must not be null");
-        this.eventLoopGroupFactory = eventLoopGroupFactory;
-        this.channelFactory = channelFactory;
+        this.piccoloContext = piccoloContext;
+        Environment environment = piccoloContext.getEvironment();
+        CoreProperties core = environment.getProperties(CoreProperties.class);
+        if (core.isUseNettyEpoll()) {
+            this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("epoll");
+            this.channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension("epoll");
+        } else {
+            this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("nio");
+            this.channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension("nio");
+        }
         this.serverHandler = new ServerHandler(cxnxManager, channelHandler);
     }
 

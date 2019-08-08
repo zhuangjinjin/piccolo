@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.exchange.handler;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
@@ -24,8 +25,8 @@ import io.github.ukuz.piccolo.api.exchange.support.MultiMessage;
  */
 public class MultiMessageHandler extends ChannelHandlerDelegateAdapter {
 
-    public MultiMessageHandler(ChannelHandler handler) {
-        super(handler);
+    public MultiMessageHandler(PiccoloContext piccoloContext, ChannelHandler handler) {
+        super(piccoloContext, handler);
     }
 
     @Override

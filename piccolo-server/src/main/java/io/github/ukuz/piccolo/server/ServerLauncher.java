@@ -15,18 +15,13 @@
  */
 package io.github.ukuz.piccolo.server;
 
-import io.github.ukuz.piccolo.api.config.Environment;
-import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.core.PiccoloServer;
-import io.github.ukuz.piccolo.core.server.GatewayServer;
+import io.github.ukuz.piccolo.server.boot.BootJob;
 import io.github.ukuz.piccolo.server.boot.BootProcessChain;
 import io.github.ukuz.piccolo.server.boot.DefaultBootProcessChain;
 import io.github.ukuz.piccolo.server.boot.ServerBoot;
-import io.github.ukuz.piccolo.transport.channel.ServerSocketChannelFactory;
-import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
-import io.github.ukuz.piccolo.transport.handler.ServerHandler;
-import io.netty.channel.EventLoopGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ukuz90
@@ -35,19 +30,20 @@ public class ServerLauncher {
 
     private BootProcessChain processChain;
     private PiccoloServer server;
-    private Environment environment;
+    private final Logger logger = LoggerFactory.getLogger(ServerLauncher.class);
+
+    private BootJob lastJob = new BootJob() {
+        @Override
+        public void start() {
+            logger.info("server launch success!!!");
+        }
+    };
 
     public ServerLauncher() {
 
     }
 
     public void init() {
-        if (environment == null) {
-            environment = SpiLoader.getLoader(Environment.class).getExtension();
-            environment.scanAllProperties();
-            environment.load();
-        }
-
         if (server == null) {
             server = new PiccoloServer();
         }
@@ -56,13 +52,8 @@ public class ServerLauncher {
             processChain = newBootProcessChain();
         }
 
-        EventLoopGroupFactory eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension();
-        ServerSocketChannelFactory channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension();
-        String host = "localhost";
-        int port = 8010;
-
-        processChain.addLast(new ServerBoot(new GatewayServer(eventLoopGroupFactory, channelFactory
-                , host, port)));
+        processChain.addLast(new ServerBoot(server.getGatewayServer()));
+        processChain.addLast(lastJob);
     }
 
     void start() {
@@ -76,5 +67,7 @@ public class ServerLauncher {
     private BootProcessChain newBootProcessChain() {
         return new DefaultBootProcessChain();
     }
+
+
 
 }

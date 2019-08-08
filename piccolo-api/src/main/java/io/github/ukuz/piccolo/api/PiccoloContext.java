@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.api;
 
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
@@ -35,5 +36,7 @@ public interface PiccoloContext {
     CacheManager getCacheManager();
 
     MQClient getMQClient();
+
+    Environment getEvironment();
 
 }

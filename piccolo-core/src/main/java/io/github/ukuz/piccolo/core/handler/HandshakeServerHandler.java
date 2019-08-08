@@ -15,12 +15,14 @@
  */
 package io.github.ukuz.piccolo.core.handler;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandlerDelegateAdapter;
 import io.github.ukuz.piccolo.common.message.HandshakeMessage;
+import io.github.ukuz.piccolo.common.properties.SecurityProperties;
 import io.github.ukuz.piccolo.common.security.AESCipher;
 import io.github.ukuz.piccolo.common.security.CipherBox;
 import io.github.ukuz.piccolo.common.security.RSACipher;
@@ -35,8 +37,8 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(HandshakeServerHandler.class);
 
-    public HandshakeServerHandler(ChannelHandler handler) {
-        super(handler);
+    public HandshakeServerHandler(PiccoloContext piccoloContext, ChannelHandler handler) {
+        super(piccoloContext, handler);
     }
 
     @Override
@@ -80,7 +82,8 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
             }
 
             //3. 更换为对称加密算法 RSA=>AES
-            context.changeCipher(new AESCipher(clientKey, iv));
+            SecurityProperties security = piccoloContext.getEvironment().getProperties(SecurityProperties.class);
+            context.changeCipher(new AESCipher(security, clientKey, iv));
 
             //4. 生成可复用的session, 用于快速重连
 
