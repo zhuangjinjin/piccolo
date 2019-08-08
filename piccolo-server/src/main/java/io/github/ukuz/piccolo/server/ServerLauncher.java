@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.server;
 
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.core.PiccoloServer;
@@ -34,12 +35,19 @@ public class ServerLauncher {
 
     private BootProcessChain processChain;
     private PiccoloServer server;
+    private Environment environment;
 
     public ServerLauncher() {
 
     }
 
     public void init() {
+        if (environment == null) {
+            environment = SpiLoader.getLoader(Environment.class).getExtension();
+            environment.scanAllProperties();
+            environment.load();
+        }
+
         if (server == null) {
             server = new PiccoloServer();
         }
