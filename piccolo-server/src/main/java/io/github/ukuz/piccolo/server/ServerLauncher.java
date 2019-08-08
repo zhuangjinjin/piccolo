@@ -16,10 +16,7 @@
 package io.github.ukuz.piccolo.server;
 
 import io.github.ukuz.piccolo.core.PiccoloServer;
-import io.github.ukuz.piccolo.server.boot.BootJob;
-import io.github.ukuz.piccolo.server.boot.BootProcessChain;
-import io.github.ukuz.piccolo.server.boot.DefaultBootProcessChain;
-import io.github.ukuz.piccolo.server.boot.ServerBoot;
+import io.github.ukuz.piccolo.server.boot.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +37,6 @@ public class ServerLauncher {
     };
 
     public ServerLauncher() {
-
     }
 
     public void init() {
@@ -53,6 +49,7 @@ public class ServerLauncher {
         }
 
         processChain.addLast(new ServerBoot(server.getGatewayServer()));
+        processChain.addLast(new ServerBoot(server.getConnectServer()));
         processChain.addLast(lastJob);
     }
 

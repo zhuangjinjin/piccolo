@@ -16,7 +16,6 @@
 package io.github.ukuz.piccolo.transport.server;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
-import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
@@ -57,7 +56,7 @@ public abstract class NettyServer extends AbstractService implements Server {
     private ServerHandler serverHandler;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private PiccoloContext piccoloContext;
+    protected PiccoloContext piccoloContext;
 
     private final AtomicReference<State> serverState = new AtomicReference<>(State.Created);
 
@@ -66,8 +65,7 @@ public abstract class NettyServer extends AbstractService implements Server {
         Assert.notNull(channelHandler, "channelHandler must not be null");
         Assert.notNull(channelHandler, "cxnxManager must not be null");
         this.piccoloContext = piccoloContext;
-        Environment environment = piccoloContext.getEvironment();
-        CoreProperties core = environment.getProperties(CoreProperties.class);
+        CoreProperties core = piccoloContext.getProperties(CoreProperties.class);
         if (core.isUseNettyEpoll()) {
             this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("epoll");
             this.channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension("epoll");
@@ -75,7 +73,7 @@ public abstract class NettyServer extends AbstractService implements Server {
             this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("nio");
             this.channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension("nio");
         }
-        this.serverHandler = new ServerHandler(cxnxManager, channelHandler);
+        this.serverHandler = new ServerHandler(piccoloContext, cxnxManager, channelHandler);
     }
 
     @Override

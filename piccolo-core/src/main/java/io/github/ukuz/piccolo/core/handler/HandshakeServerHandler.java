@@ -43,7 +43,8 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
 
     @Override
     public void connected(Connection connection) throws ExchangeException {
-        connection.getSessionContext().changeCipher(new RSACipher("", ""));
+        SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
+        connection.getSessionContext().changeCipher(new RSACipher(security.getPublicKey(), security.getPrivateKey()));
         super.connected(connection);
     }
 
@@ -82,7 +83,7 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
             }
 
             //3. 更换为对称加密算法 RSA=>AES
-            SecurityProperties security = piccoloContext.getEvironment().getProperties(SecurityProperties.class);
+            SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
             context.changeCipher(new AESCipher(security, clientKey, iv));
 
             //4. 生成可复用的session, 用于快速重连

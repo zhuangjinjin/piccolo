@@ -20,33 +20,32 @@ import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
-import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
-import io.netty.channel.ChannelFactory;
 
 import java.net.InetSocketAddress;
 
 /**
  * @author ukuz90
  */
-public class GatewayServer extends NettyServer {
+public class ConnectServer extends NettyServer {
 
     private InetSocketAddress address;
     private final String host;
     private final int port;
     private final ConnectionManager cxnxManager;
 
-    public GatewayServer(PiccoloContext piccoloContext, String host, int port) {
-        this(piccoloContext, ChannelHandlers.newGatewayChannelHandler(piccoloContext), new NettyConnectionManager(), host, port);
+    public ConnectServer(PiccoloContext piccoloContext, String host, int port) {
+        this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager(), host, port);
     }
 
-    public GatewayServer(PiccoloContext piccoloContext,
+    public ConnectServer(PiccoloContext piccoloContext,
                          ChannelHandler channelHandler, ConnectionManager cxnxManager,
                          String host, int port) {
         super(piccoloContext, channelHandler, cxnxManager);
@@ -62,8 +61,7 @@ public class GatewayServer extends NettyServer {
 
     @Override
     protected void doInit() {
-        address = new InetSocketAddress(host, port);
-
+        this.address = new InetSocketAddress(this.host, this.port);
     }
 
     @Override
@@ -78,7 +76,7 @@ public class GatewayServer extends NettyServer {
 
     @Override
     public int getWorkerIORatio() {
-        return 100;
+        return 70;
     }
 
     @Override
@@ -88,21 +86,22 @@ public class GatewayServer extends NettyServer {
 
     @Override
     public int getWorkerThreadNum() {
-        return piccoloContext.getProperties(ThreadProperties.class).getGatewayWorkerThreadNum();
+        return piccoloContext.getProperties(ThreadProperties.class).getConnectWorkerThreadNum();
     }
 
     @Override
     public String getBossThreadName() {
-        return ThreadNames.T_GATEWAY_BOSS;
+        return ThreadNames.T_CONN_BOSS;
     }
 
     @Override
     public String getWorkerThreadName() {
-        return ThreadNames.T_GATEWAY_WORKER;
+        return ThreadNames.T_CONN_WORKER;
     }
 
     @Override
     public String getId() {
         return null;
     }
+
 }

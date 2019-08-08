@@ -19,11 +19,13 @@ import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
 import io.github.ukuz.piccolo.api.config.Environment;
+import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
+import io.github.ukuz.piccolo.core.server.ConnectServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
 
 /**
@@ -33,6 +35,7 @@ public class PiccoloServer implements PiccoloContext {
 
     private Environment environment;
     private GatewayServer gatewayServer;
+    private ConnectServer connectServer;
 
     public PiccoloServer() {
         //initialize config
@@ -44,6 +47,9 @@ public class PiccoloServer implements PiccoloContext {
 
         gatewayServer = new GatewayServer(this,
                 net.getGatewayServer().getBindIp(), net.getGatewayServer().getBindPort());
+
+        connectServer = new ConnectServer(this,
+                net.getConnectServer().getBindIp(), net.getConnectServer().getBindPort());
     }
 
     @Override
@@ -72,15 +78,20 @@ public class PiccoloServer implements PiccoloContext {
     }
 
     @Override
-    public Environment getEvironment() {
-        return environment;
-    }
-
     public Environment getEnvironment() {
         return environment;
     }
 
+    @Override
+    public <T extends Properties> T getProperties(Class<T> clazz) {
+        return environment.getProperties(clazz);
+    }
+
     public GatewayServer getGatewayServer() {
         return gatewayServer;
+    }
+
+    public ConnectServer getConnectServer() {
+        return connectServer;
     }
 }

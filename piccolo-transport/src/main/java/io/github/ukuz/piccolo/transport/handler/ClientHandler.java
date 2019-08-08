@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.transport.handler;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.external.common.Assert;
@@ -32,17 +33,20 @@ public class ClientHandler extends ChannelDuplexHandler {
     private ConnectionManager cxnxManager;
 
     private ChannelHandler handler;
+    private PiccoloContext piccoloContext;
 
-    public ClientHandler(ConnectionManager cxnxManager, ChannelHandler handler) {
+    public ClientHandler(PiccoloContext piccoloContext, ConnectionManager cxnxManager, ChannelHandler handler) {
         Assert.notNull(handler, "handler must not be null");
         Assert.notNull(cxnxManager, "cxnxManager must not be null");
+        Assert.notNull(piccoloContext, "piccoloContext must not be null");
+        this.piccoloContext = piccoloContext;
         this.cxnxManager = cxnxManager;
         this.handler = handler;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        NettyConnection connection = new NettyConnection();
+        NettyConnection connection = new NettyConnection(piccoloContext);
         connection.init(ctx.channel(), false);
         cxnxManager.add(connection);
         handler.connected(connection);

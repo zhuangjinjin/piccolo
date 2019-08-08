@@ -15,10 +15,10 @@
  */
 package io.github.ukuz.piccolo.transport.connection;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.properties.SecurityProperties;
 import io.github.ukuz.piccolo.common.security.RSACipher;
 import io.netty.channel.Channel;
@@ -39,8 +39,11 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     private long lastReadTime;
     private SessionContext context;
     private byte state = STATE_NEW;
+    private PiccoloContext piccoloContext;
 
-    public NettyConnection() {
+
+    public NettyConnection(PiccoloContext piccoloContext) {
+        this.piccoloContext = piccoloContext;
         this.context = new SessionContext();
     }
 
@@ -51,7 +54,8 @@ public class NettyConnection implements Connection, ChannelFutureListener {
         }
         this.channel = channel;
         if (isSecurity) {
-            this.context.changeCipher(new RSACipher("", ""));
+            SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
+            this.context.changeCipher(new RSACipher(security.getPublicKey(), security.getPrivateKey()));
         }
     }
 
