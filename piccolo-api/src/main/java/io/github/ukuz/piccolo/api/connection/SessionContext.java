@@ -114,4 +114,19 @@ public class SessionContext {
     public Cipher getCipher() {
         return cipher;
     }
+
+    @Override
+    public String toString() {
+        return "SessionContext{" +
+                "osName='" + osName + '\'' +
+                ", osVersion='" + osVersion + '\'' +
+                ", clientVersion='" + clientVersion + '\'' +
+                ", userId='" + userId + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                ", tags='" + tags + '\'' +
+                ", heartbeat=" + heartbeat +
+                ", clientType=" + clientType +
+                ", cipher=" + cipher +
+                '}';
+    }
 }

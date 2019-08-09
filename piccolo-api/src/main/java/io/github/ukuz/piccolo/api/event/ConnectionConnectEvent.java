@@ -13,36 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.config;
+package io.github.ukuz.piccolo.api.event;
 
-import io.github.ukuz.piccolo.api.spi.Spi;
+import io.github.ukuz.piccolo.api.connection.Connection;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "properties")
-public interface Environment {
+public class ConnectionConnectEvent implements ApplicationEvent {
 
-    /**
-     * scan all properties
-     *
-     */
-    void scanAllProperties();
+    private final Connection connection;
 
-    /**
-     * load from config file or config center
-     *
-     * @param configFileName
-     * @throws EnvironmentException
-     */
-    void load(String configFileName) throws EnvironmentException;
+    public ConnectionConnectEvent(Connection connection) {
+        this.connection = connection;
+    }
 
-    /**
-     * get Properties
-     *
-     * @param clazz
-     * @return
-     */
-    <T extends Properties> T getProperties(Class<T> clazz);
-
+    public Connection getConnection() {
+        return connection;
+    }
 }

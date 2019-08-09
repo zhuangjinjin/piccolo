@@ -13,23 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.cache;
+package io.github.ukuz.piccolo.common;
 
 /**
  * @author ukuz90
  */
-public final class CacheKeys {
+public enum ErrorCode {
+    REPEAT_HANDSHAKE(102, "repeat handshake"),
+    SESSION_EXPIRED(103, "session expired"),
+    INVALID_DEVICE(104, "invalid device"),
+    UNKNOWN(-1, "unknown"),
+    ;
 
-    private static final String SESSION_PREFIX = "piccolo:rs:";//可复用session
-
-    private static final String FAST_CONNECTION_DEVICE_PREFIX = "piccolo:fcd:";
-
-    public static String getSessionKey(String sessionId) {
-        return SESSION_PREFIX + sessionId;
+    ErrorCode(int code, String msg) {
+        this.errorCode = (byte)code;
+        this.msg = msg;
     }
 
-    public static String getDeviceIdKey(String deviceId) {
-        return FAST_CONNECTION_DEVICE_PREFIX + deviceId;
+    public final byte errorCode;
+    public final String msg;
+
+    public static ErrorCode toEnum(byte code) {
+        for (ErrorCode errorCode : values()) {
+            if (errorCode.errorCode == code) {
+                return errorCode;
+            }
+        }
+        return UNKNOWN;
     }
 
 }

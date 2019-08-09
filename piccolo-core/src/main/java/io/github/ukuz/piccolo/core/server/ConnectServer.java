@@ -19,6 +19,7 @@ import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
@@ -39,7 +40,6 @@ public class ConnectServer extends NettyServer {
     private InetSocketAddress address;
     private final String host;
     private final int port;
-    private final ConnectionManager cxnxManager;
 
     public ConnectServer(PiccoloContext piccoloContext) {
         this(piccoloContext,
@@ -55,7 +55,8 @@ public class ConnectServer extends NettyServer {
                          ChannelHandler channelHandler, ConnectionManager cxnxManager,
                          String host, int port) {
         super(piccoloContext, channelHandler, cxnxManager);
-        this.cxnxManager = cxnxManager;
+        Assert.notEmptyString(host, "host must not be empty");
+        Assert.isTrue(port >= 0, "port was invalid port: " + port);
         this.host = host;
         this.port = port;
     }

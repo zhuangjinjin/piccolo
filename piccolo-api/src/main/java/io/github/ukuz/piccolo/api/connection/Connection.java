@@ -37,9 +37,18 @@ public interface Connection {
 
     ChannelFuture sendAsync(BaseMessage message);
 
+    /**
+     * send async and close when send success
+     * @param message
+     * @return
+     */
+    ChannelFuture sendAsyncAndClose(BaseMessage message);
+
     ChannelFuture sendAsync(BaseMessage message, ChannelFutureListener listener);
 
     SessionContext getSessionContext();
+
+    void setSessionContext(SessionContext sessionContext);
 
     ChannelFuture close();
 

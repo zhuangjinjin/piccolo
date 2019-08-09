@@ -21,6 +21,7 @@ import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandlerDelegateAdapter;
+import io.github.ukuz.piccolo.common.ErrorCode;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import io.github.ukuz.piccolo.common.message.HandshakeMessage;
 import io.github.ukuz.piccolo.common.message.HandshakeOkMessage;
@@ -72,8 +73,8 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
                 || msg.iv.length != CipherBox.I.getAesKeyLength()
                 || msg.clientKey.length != CipherBox.I.getAesKeyLength()) {
 
-                //TODO send error msg and close
-                ErrorMessage errMsg = ErrorMessage.build(msg).reason("param invalid");
+                //send error msg and close
+                connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("param invalid"));
                 logger.error("handshake failure, invalid, message: {}, conn: {}", msg, connection);
                 return;
             }
@@ -82,7 +83,8 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
             SessionContext context = connection.getSessionContext();
             if (msg.deviceId.equals(context.getDeviceId())) {
 
-                //TODO send error msg
+                //send error msg
+                connection.sendAsync(ErrorMessage.build(msg).code(ErrorCode.REPEAT_HANDSHAKE));
 
                 logger.warn("handshake failure, repeat handshake, message: {}, conn: {}", msg, connection);
                 return;
@@ -129,8 +131,6 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
             });
 
         }
-
-
 
         super.received(connection, message);
     }

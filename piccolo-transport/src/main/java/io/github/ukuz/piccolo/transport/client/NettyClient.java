@@ -15,10 +15,18 @@
  */
 package io.github.ukuz.piccolo.transport.client;
 
+import io.github.ukuz.piccolo.api.config.Environment;
+import io.github.ukuz.piccolo.api.connection.ConnectionManager;
+import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.Service;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
+import io.github.ukuz.piccolo.transport.channel.SocketChannelFactory;
+import io.github.ukuz.piccolo.transport.codec.Codec;
+import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
 import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
 import io.github.ukuz.piccolo.transport.handler.ClientHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -44,14 +52,24 @@ public abstract class NettyClient extends AbstractService implements Service {
     private ChannelFactory channelFactory;
     private ClientHandler handler;
     private EventLoopGroup workerGroup;
+    protected Environment environment;
+    protected ConnectionManager cxnxManager;
 
-    public NettyClient(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, ClientHandler handler) {
-        Assert.notNull(eventLoopGroupFactory, "eventLoopGroupFactory must not be null");
-        Assert.notNull(channelFactory, "channelFactory must not be null");
+    public NettyClient(Environment environment, ConnectionManager cxnxManager, ChannelHandler handler) {
+        Assert.notNull(environment, "environment must not be null");
+        Assert.notNull(cxnxManager, "cxnxManager must not be null");
         Assert.notNull(handler, "handler must not be null");
-        this.eventLoopGroupFactory = eventLoopGroupFactory;
-        this.channelFactory = channelFactory;
-        this.handler = handler;
+        this.environment = environment;
+        this.cxnxManager = cxnxManager;
+        CoreProperties core = environment.getProperties(CoreProperties.class);
+        if (core.isUseNettyEpoll()) {
+            this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("epoll");
+            this.channelFactory = SpiLoader.getLoader(SocketChannelFactory.class).getExtension("epoll");
+        } else {
+            this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("nio");
+            this.channelFactory = SpiLoader.getLoader(SocketChannelFactory.class).getExtension("nio");
+        }
+        this.handler = new ClientHandler(environment, cxnxManager, handler);
     }
 
     @Override
@@ -87,8 +105,9 @@ public abstract class NettyClient extends AbstractService implements Service {
     }
 
     protected void initPipeline(ChannelPipeline pipeline) {
-        pipeline.addLast("decoder", getDecoder());
-        pipeline.addLast("encoder", getEncoder());
+        DuplexCodec codec = new DuplexCodec(cxnxManager, newCodec());
+        pipeline.addLast("decoder", codec.getDecoder());
+        pipeline.addLast("encoder", codec.getEncoder());
         pipeline.addLast("handler", handler);
 
     }
@@ -111,8 +130,6 @@ public abstract class NettyClient extends AbstractService implements Service {
 
     protected abstract String getWorkerThreadName();
 
-    protected abstract ChannelOutboundHandler getEncoder();
-
-    protected abstract ChannelInboundHandler getDecoder();
+    protected abstract Codec newCodec();
 
 }

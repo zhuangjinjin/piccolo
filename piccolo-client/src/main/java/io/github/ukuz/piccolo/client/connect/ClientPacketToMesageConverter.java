@@ -13,35 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.message;
+package io.github.ukuz.piccolo.client.connect;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
-
 import io.github.ukuz.piccolo.common.constants.CommandType;
-import io.netty.channel.Channel;
-
+import io.github.ukuz.piccolo.common.message.ErrorMessage;
+import io.github.ukuz.piccolo.common.message.HandshakeOkMessage;
 
 /**
  * @author ukuz90
  */
-public class DefaultPacketToMessageConverter implements PacketToMessageConverter {
+public class ClientPacketToMesageConverter implements PacketToMessageConverter {
+
     @Override
     public BaseMessage convert(Packet packet, Connection connection) {
         CommandType cmd = CommandType.toCMD(packet.getCommandType());
         switch (cmd) {
+            case HANDSHAKE:
+                return new HandshakeOkMessage(connection);
             case ERROR:
                 return new ErrorMessage(connection);
-            case HANDSHAKE:
-                return new HandshakeMessage(connection);
-            case HEARTBEAT:
-                return new HeartbeatMessage(connection);
-            case FAST_CONNECT:
-                return new FastConnectMessage(connection);
             default:
-                return null;
+                break;
         }
+        return null;
     }
 }

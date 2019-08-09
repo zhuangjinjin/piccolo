@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.event;
-
+package io.github.ukuz.piccolo.common.event;
 
 /**
  * @author ukuz90
  */
-public interface ApplicationListener {
+public class EventException extends RuntimeException {
+    public EventException(String message) {
+        super(message);
+    }
 
-    void fireEvent(ApplicationEvent event);
+    public EventException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
+    public EventException(Throwable cause) {
+        super(cause);
+    }
 }

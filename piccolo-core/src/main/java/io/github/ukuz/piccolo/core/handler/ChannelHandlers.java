@@ -28,7 +28,10 @@ public class ChannelHandlers {
     private ChannelHandlers() {}
 
     public static ChannelHandler newConnectChannelHandler(PiccoloContext piccoloContext) {
-        return new MultiMessageHandler(piccoloContext, new HandshakeServerHandler(piccoloContext, new DispatcherHandler(null)));
+        DispatcherHandler dispatcherHandler = new DispatcherHandler(null);
+        FastConnectHandler fastConnectHandler = new FastConnectHandler(piccoloContext, dispatcherHandler);
+        HandshakeServerHandler handshakeServerHandler = new HandshakeServerHandler(piccoloContext, fastConnectHandler);
+        return new MultiMessageHandler(piccoloContext, handshakeServerHandler);
     }
 
     public static ChannelHandler newGatewayChannelHandler(PiccoloContext piccoloContext) {

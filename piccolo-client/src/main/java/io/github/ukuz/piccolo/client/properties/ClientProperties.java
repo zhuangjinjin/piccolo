@@ -13,36 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.config;
+package io.github.ukuz.piccolo.client.properties;
 
-import io.github.ukuz.piccolo.api.spi.Spi;
+import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
+import io.github.ukuz.piccolo.api.config.Properties;
+import lombok.Data;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "properties")
-public interface Environment {
+@ConfigurationProperties(prefix = "piccolo.client")
+@Data
+public class ClientProperties implements Properties {
 
-    /**
-     * scan all properties
-     *
-     */
-    void scanAllProperties();
+     private String connectServerHost;
+     private int connectServerPort;
 
-    /**
-     * load from config file or config center
-     *
-     * @param configFileName
-     * @throws EnvironmentException
-     */
-    void load(String configFileName) throws EnvironmentException;
+     private String gatewayServerHost;
+     private int gatewayServerPort;
 
-    /**
-     * get Properties
-     *
-     * @param clazz
-     * @return
-     */
-    <T extends Properties> T getProperties(Class<T> clazz);
+     private String serverPublicKey;
+     private String clientPrivateKey;
+
+     private int aesKeyLength;
 
 }

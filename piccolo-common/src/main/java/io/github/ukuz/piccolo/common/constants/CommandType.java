@@ -23,6 +23,7 @@ public enum CommandType {
     ERROR(1),
     HANDSHAKE(2),
     HEARTBEAT(3),
+    FAST_CONNECT(4),
 
     UNKNOWN(-1);
 

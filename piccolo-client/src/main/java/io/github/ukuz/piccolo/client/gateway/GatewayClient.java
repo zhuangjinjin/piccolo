@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client;
+package io.github.ukuz.piccolo.client.gateway;
 
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
-import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
+import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.ServiceException;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.client.ChannelHandlers;
+import io.github.ukuz.piccolo.client.properties.ClientProperties;
+import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.transport.client.NettyClient;
-import io.github.ukuz.piccolo.transport.codec.DuplexCodec;
+import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
-import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
-import io.github.ukuz.piccolo.transport.handler.ClientHandler;
-import io.netty.channel.ChannelFactory;
-import io.netty.channel.ChannelInboundHandler;
-import io.netty.channel.ChannelOutboundHandler;
 
 import java.net.InetSocketAddress;
 
@@ -38,15 +37,22 @@ public class GatewayClient extends NettyClient {
 
     private final String host;
     private final int port;
-
-    private DuplexCodec codec;
-
     private InetSocketAddress socketAddress;
-    private ConnectionManager cxnxManager;
 
-    public GatewayClient(EventLoopGroupFactory eventLoopGroupFactory, ChannelFactory channelFactory, ClientHandler handler, String host, int port) {
-        super(eventLoopGroupFactory, channelFactory, handler);
+    public GatewayClient(Environment environment) {
+        this(environment,
+                environment.getProperties(ClientProperties.class).getGatewayServerHost(),
+                environment.getProperties(ClientProperties.class).getConnectServerPort());
+    }
 
+    public GatewayClient(Environment environment, String host, int port) {
+        this(environment, new NettyConnectionManager(), ChannelHandlers.newGatewayClientHandler(environment), host, port);
+    }
+
+    public GatewayClient(Environment environment, ConnectionManager cxnxManager, ChannelHandler handler, String host, int port) {
+        super(environment, cxnxManager, handler);
+        Assert.notEmptyString(host, "host must not be empty");
+        Assert.isTrue(port >= 0, "port was invalid port: " + port);
         this.host = host;
         this.port = port;
     }
@@ -54,8 +60,6 @@ public class GatewayClient extends NettyClient {
     @Override
     public void init() throws ServiceException {
         socketAddress = new InetSocketAddress(host, port);
-        cxnxManager = new NettyConnectionManager();
-        codec = new DuplexCodec(cxnxManager, new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension()));
     }
 
     @Override
@@ -65,16 +69,11 @@ public class GatewayClient extends NettyClient {
 
     @Override
     protected String getWorkerThreadName() {
-        return "piccolo-gateway-client-pool";
+        return ThreadNames.T_TCP_CLIENT;
     }
 
     @Override
-    protected ChannelOutboundHandler getEncoder() {
-        return codec.getEncoder();
-    }
-
-    @Override
-    protected ChannelInboundHandler getDecoder() {
-        return codec.getDecoder();
+    protected Codec newCodec() {
+        return new MultiPacketCodec();
     }
 }

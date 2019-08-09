@@ -42,7 +42,7 @@ public class PiccoloServer implements PiccoloContext {
         //initialize config
         environment = SpiLoader.getLoader(Environment.class).getExtension();
         environment.scanAllProperties();
-        environment.load();
+        environment.load("piccolo-server.properties");
 
 
         reusableSessionManager = new ReusableSessionManager(this);

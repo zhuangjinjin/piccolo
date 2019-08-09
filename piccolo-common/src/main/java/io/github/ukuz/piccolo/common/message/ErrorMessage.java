@@ -20,6 +20,7 @@ import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
 import static io.github.ukuz.piccolo.common.constants.CommandType.*;
 
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.common.ErrorCode;
 import io.netty.buffer.ByteBuf;
 import lombok.Data;
 
@@ -59,8 +60,8 @@ public class ErrorMessage extends ByteBufMessage {
         return this;
     }
 
-    public ErrorMessage code(byte code) {
-        this.code = code;
+    public ErrorMessage code(ErrorCode code) {
+        this.code = code.errorCode;
         return this;
     }
 

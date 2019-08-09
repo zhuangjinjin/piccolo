@@ -16,6 +16,7 @@
 package io.github.ukuz.piccolo.transport.handler;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.external.common.Assert;
@@ -24,29 +25,32 @@ import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ukuz90
  */
 public class ClientHandler extends ChannelDuplexHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
     private ConnectionManager cxnxManager;
 
     private ChannelHandler handler;
-    private PiccoloContext piccoloContext;
+    private Environment environment;
 
-    public ClientHandler(PiccoloContext piccoloContext, ConnectionManager cxnxManager, ChannelHandler handler) {
+    public ClientHandler(Environment environment, ConnectionManager cxnxManager, ChannelHandler handler) {
         Assert.notNull(handler, "handler must not be null");
         Assert.notNull(cxnxManager, "cxnxManager must not be null");
-        Assert.notNull(piccoloContext, "piccoloContext must not be null");
-        this.piccoloContext = piccoloContext;
+        Assert.notNull(environment, "environment must not be null");
+        this.environment = environment;
         this.cxnxManager = cxnxManager;
         this.handler = handler;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        NettyConnection connection = new NettyConnection(piccoloContext);
+        NettyConnection connection = new NettyConnection(environment);
         connection.init(ctx.channel(), false);
         cxnxManager.add(connection);
         handler.connected(connection);

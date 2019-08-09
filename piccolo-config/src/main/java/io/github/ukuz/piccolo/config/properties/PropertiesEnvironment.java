@@ -25,6 +25,7 @@ import io.github.ukuz.piccolo.api.config.EnvironmentException;
 import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
 import io.github.ukuz.piccolo.config.common.ConfigurationPropertiesProcessor;
+import io.netty.util.internal.StringUtil;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
@@ -51,8 +52,8 @@ public class PropertiesEnvironment implements Environment {
     private final ConcurrentMap<String, Properties> configMap = new ConcurrentHashMap<>();
     private final AtomicBoolean isScan = new AtomicBoolean();
 
-
-    private static final String CONF_FILE_NAME = "conf" + File.separator + "piccolo.properties";
+    private static final String CONF_DIR_NAME = "conf";
+    private static final String CONF_FILE_NAME = CONF_DIR_NAME + File.separator + "piccolo.properties";
     private static final Properties EMPTY = new EmptyProperties();
 
     private Holder<Configuration> config = new Holder<>();
@@ -78,7 +79,7 @@ public class PropertiesEnvironment implements Environment {
 
         try {
             Set<Class> classes = scanner.scan(new String[]{"io.github.ukuz.piccolo"});
-            logger.info("scanAllProperties scan class: " + classes);
+            logger.info("scanAllProperties, scan class: " + classes);
             classes.parallelStream()
                     .filter(Properties.class::isAssignableFrom)
                     .forEach(this::newInstance);
@@ -102,9 +103,14 @@ public class PropertiesEnvironment implements Environment {
     }
 
     @Override
-    public void load() throws EnvironmentException {
-        logger.info("scanAllProperties load.");
-        URL url = findClassLoader().getResource(CONF_FILE_NAME);
+    public void load(String configFileName) throws EnvironmentException {
+        if (!StringUtil.isNullOrEmpty(configFileName)) {
+            configFileName = CONF_DIR_NAME + File.separator + configFileName;
+        } else {
+            configFileName = CONF_FILE_NAME;
+        }
+        logger.info("load config : {}", configFileName);
+        URL url = findClassLoader().getResource(configFileName);
         if (url == null) {
             throw new IllegalArgumentException("load config file failure, file not found : " + CONF_FILE_NAME);
         }

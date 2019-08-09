@@ -16,6 +16,7 @@
 package io.github.ukuz.piccolo.transport.connection;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
@@ -39,11 +40,11 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     private long lastReadTime;
     private SessionContext context;
     private byte state = STATE_NEW;
-    private PiccoloContext piccoloContext;
+    private Environment environment;
 
 
-    public NettyConnection(PiccoloContext piccoloContext) {
-        this.piccoloContext = piccoloContext;
+    public NettyConnection(Environment environment) {
+        this.environment = environment;
         this.context = new SessionContext();
     }
 
@@ -54,7 +55,7 @@ public class NettyConnection implements Connection, ChannelFutureListener {
         }
         this.channel = channel;
         if (isSecurity) {
-            SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
+            SecurityProperties security = environment.getProperties(SecurityProperties.class);
             this.context.changeCipher(new RSACipher(security.getPublicKey(), security.getPrivateKey()));
         }
     }
@@ -77,6 +78,11 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     @Override
     public ChannelFuture sendAsync(BaseMessage message) {
         return sendAsync(message, null);
+    }
+
+    @Override
+    public ChannelFuture sendAsyncAndClose(BaseMessage message) {
+        return sendAsync(message, ChannelFutureListener.CLOSE);
     }
 
     @Override
@@ -106,6 +112,11 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     @Override
     public SessionContext getSessionContext() {
         return context;
+    }
+
+    @Override
+    public void setSessionContext(SessionContext sessionContext) {
+        this.context = sessionContext;
     }
 
     @Override
