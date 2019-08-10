@@ -25,7 +25,6 @@ import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import io.github.ukuz.piccolo.common.message.FastConnectMessage;
 import io.github.ukuz.piccolo.common.message.FastConnectOkMessage;
 import io.github.ukuz.piccolo.common.properties.CoreProperties;
-import io.github.ukuz.piccolo.common.security.AESCipher;
 import io.github.ukuz.piccolo.core.PiccoloServer;
 import io.github.ukuz.piccolo.core.session.ReusableSession;
 import io.github.ukuz.piccolo.core.session.ReusableSessionManager;

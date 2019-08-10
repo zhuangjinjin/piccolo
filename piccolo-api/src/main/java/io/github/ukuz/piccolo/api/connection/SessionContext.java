@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.api.connection;
 
 import io.github.ukuz.piccolo.api.router.ClientClassifier;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.netty.util.internal.StringUtil;
 
 /**
  * @author ukuz90
@@ -113,6 +114,10 @@ public class SessionContext {
 
     public Cipher getCipher() {
         return cipher;
+    }
+
+    public boolean handshakeOk() {
+        return !StringUtil.isNullOrEmpty(deviceId);
     }
 
     @Override

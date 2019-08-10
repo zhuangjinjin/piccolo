@@ -18,6 +18,7 @@ package io.github.ukuz.piccolo.core.handler;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
+import io.github.ukuz.piccolo.common.message.BindUserMessage;
 import io.github.ukuz.piccolo.transport.handler.ServerHandler;
 
 /**
@@ -29,7 +30,8 @@ public class ChannelHandlers {
 
     public static ChannelHandler newConnectChannelHandler(PiccoloContext piccoloContext) {
         DispatcherHandler dispatcherHandler = new DispatcherHandler(null);
-        FastConnectHandler fastConnectHandler = new FastConnectHandler(piccoloContext, dispatcherHandler);
+        BindUserHandler bindUserHandler = new BindUserHandler(piccoloContext, dispatcherHandler);
+        FastConnectHandler fastConnectHandler = new FastConnectHandler(piccoloContext, bindUserHandler);
         HandshakeServerHandler handshakeServerHandler = new HandshakeServerHandler(piccoloContext, fastConnectHandler);
         return new MultiMessageHandler(piccoloContext, handshakeServerHandler);
     }

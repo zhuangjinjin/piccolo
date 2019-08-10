@@ -13,28 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.cache;
+package io.github.ukuz.piccolo.core.router;
+
+import io.github.ukuz.piccolo.api.router.ClientLocator;
+import io.github.ukuz.piccolo.api.router.Router;
 
 /**
  * @author ukuz90
  */
-public final class CacheKeys {
+public class RemoteRouter implements Router<ClientLocator> {
 
-    private static final String USER_PREFIX = "piccolo:ur:";
+    private ClientLocator clientLocator;
 
-    private static final String SESSION_PREFIX = "piccolo:rs:";
-
-    private static final String FAST_CONNECTION_DEVICE_PREFIX = "piccolo:fcd:";
-
-    public static String getSessionKey(String sessionId) {
-        return SESSION_PREFIX + sessionId;
+    public RemoteRouter(ClientLocator clientLocator) {
+        this.clientLocator = clientLocator;
     }
 
-    public static String getDeviceIdKey(String deviceId) {
-        return FAST_CONNECTION_DEVICE_PREFIX + deviceId;
+    @Override
+    public ClientLocator getRouterValue() {
+        return clientLocator;
     }
 
-    public static String getUserRouteKey(String userId) {
-        return USER_PREFIX + userId;
+    @Override
+    public RouterType getRouterType() {
+        return RouterType.REMOTE;
+    }
+
+    public byte getClientType() {
+        return (byte) clientLocator.getClientType();
     }
 }

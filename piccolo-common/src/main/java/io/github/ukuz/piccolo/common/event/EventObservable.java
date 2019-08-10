@@ -13,28 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.cache;
+package io.github.ukuz.piccolo.common.event;
 
 /**
  * @author ukuz90
  */
-public final class CacheKeys {
+public abstract class EventObservable {
 
-    private static final String USER_PREFIX = "piccolo:ur:";
-
-    private static final String SESSION_PREFIX = "piccolo:rs:";
-
-    private static final String FAST_CONNECTION_DEVICE_PREFIX = "piccolo:fcd:";
-
-    public static String getSessionKey(String sessionId) {
-        return SESSION_PREFIX + sessionId;
+    public EventObservable() {
+        EventBus.register(this);
     }
 
-    public static String getDeviceIdKey(String deviceId) {
-        return FAST_CONNECTION_DEVICE_PREFIX + deviceId;
-    }
-
-    public static String getUserRouteKey(String userId) {
-        return USER_PREFIX + userId;
-    }
 }

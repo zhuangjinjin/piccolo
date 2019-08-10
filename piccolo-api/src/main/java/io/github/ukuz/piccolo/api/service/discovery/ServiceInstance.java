@@ -15,6 +15,8 @@
  */
 package io.github.ukuz.piccolo.api.service.discovery;
 
+import java.util.Map;
+
 /**
  * @author ukuz90
  */
@@ -52,10 +54,9 @@ public interface ServiceInstance {
      * get metadata by key
      *
      * @param key
-     * @param <T>
      * @return
      */
-    default <T> T getMetaData(String key) {
+    default Map<String, String> getMetaData(String key) {
         return null;
     }
 

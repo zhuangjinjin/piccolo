@@ -26,6 +26,7 @@ import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.event.EventBus;
+import io.github.ukuz.piccolo.core.router.RouterCenter;
 import io.github.ukuz.piccolo.core.server.ConnectServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
 import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
@@ -41,6 +42,8 @@ public class PiccoloServer implements PiccoloContext {
     private final ConnectServer connectServer;
     private final ReusableSessionManager reusableSessionManager;
 
+    private final RouterCenter routerCenter;
+
     public PiccoloServer() {
         //initialize config
         environment = SpiLoader.getLoader(Environment.class).getExtension();
@@ -52,6 +55,9 @@ public class PiccoloServer implements PiccoloContext {
         EventBus.create(factory.create(ExecutorFactory.EVENT_BUS, environment));
 
         reusableSessionManager = new ReusableSessionManager(this);
+
+        routerCenter = new RouterCenter(this);
+
         gatewayServer = new GatewayServer(this);
         connectServer = new ConnectServer(this);
     }
@@ -101,5 +107,9 @@ public class PiccoloServer implements PiccoloContext {
 
     public ReusableSessionManager getReusableSessionManager() {
         return reusableSessionManager;
+    }
+
+    public RouterCenter getRouterCenter() {
+        return routerCenter;
     }
 }

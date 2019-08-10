@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.cache;
+package io.github.ukuz.piccolo.server.boot;
+
+import io.github.ukuz.piccolo.core.router.RouterCenter;
 
 /**
  * @author ukuz90
  */
-public final class CacheKeys {
+public class RouterCenterBoot implements BootJob {
 
-    private static final String USER_PREFIX = "piccolo:ur:";
+    private RouterCenter routerCenter;
 
-    private static final String SESSION_PREFIX = "piccolo:rs:";
-
-    private static final String FAST_CONNECTION_DEVICE_PREFIX = "piccolo:fcd:";
-
-    public static String getSessionKey(String sessionId) {
-        return SESSION_PREFIX + sessionId;
+    public RouterCenterBoot(RouterCenter routerCenter) {
+        this.routerCenter = routerCenter;
     }
 
-    public static String getDeviceIdKey(String deviceId) {
-        return FAST_CONNECTION_DEVICE_PREFIX + deviceId;
+    @Override
+    public void start() {
+        this.routerCenter.startAsync();
     }
 
-    public static String getUserRouteKey(String userId) {
-        return USER_PREFIX + userId;
+    @Override
+    public void stop() {
+        this.routerCenter.startAsync();
     }
 }

@@ -19,11 +19,13 @@ import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import lombok.Builder;
+import lombok.Getter;
 
 /**
  * @author ukuz90
  */
 @Builder
+@Getter
 public final class ClientLocator {
 
     private String host;
@@ -50,12 +52,27 @@ public final class ClientLocator {
         return connId == null;
     }
 
+    public ClientLocator offline() {
+        this.connId = null;
+        return this;
+    }
+
     public boolean isSameMachine(String host, int port) {
         return this.port == port && this.host.equals(host);
     }
 
     public String getHostAndPort() {
         return host + ":" + port;
+    }
+
+    public ClientLocator setHost(String host) {
+        this.host = host;
+        return this;
+    }
+
+    public ClientLocator setPort(int port) {
+        this.port = port;
+        return this;
     }
 
     public static ClientLocator from(Connection connection) {
@@ -67,6 +84,19 @@ public final class ClientLocator {
                 .deviceId(context.getDeviceId())
                 .connId(connection.getId())
                 .build();
+    }
+
+    public String toJson() {
+        return "{"
+                + "\"port\":" + port
+                + (host == null ? "" : ",\"host\":\"" + host + "\"")
+                + (deviceId == null ? "" : ",\"deviceId\":\"" + deviceId + "\"")
+                + (osName == null ? "" : ",\"osName\":\"" + osName + "\"")
+                + (osVersion == null ? "" : ",\"osVersion\":\"" + osVersion + "\"")
+                + (clientVersion == null ? "" : ",\"clientVersion\":\"" + clientVersion + "\"")
+                + (connId == null ? "" : ",\"connId\":\"" + connId + "\"")
+                + "}";
+
     }
 
     @Override

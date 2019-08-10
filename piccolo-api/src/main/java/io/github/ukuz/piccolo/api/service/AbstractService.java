@@ -15,6 +15,11 @@
  */
 package io.github.ukuz.piccolo.api.service;
 
+import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -25,7 +30,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractService implements Service {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final AtomicBoolean isStarted = new AtomicBoolean();
+
+    protected String name;
 
     @Override
     public CompletableFuture<Boolean> startAsync() {
@@ -47,9 +56,16 @@ public abstract class AbstractService implements Service {
                 future.whenCompleteAsync((result, throwable) -> {
                     Optional.of(result).ifPresent(r-> serviceCallback.success());
                     Optional.of(throwable).ifPresent(t->serviceCallback.failure(wrapServiceException((Throwable) t)));
+                    if (throwable == null) {
+                        logger.info("service {} start success.", getName());
+                    } else {
+                        logger.error("service {} start failure, cause: {}", getName(), ((Throwable)throwable).getMessage());
+                    }
+
                 });
             } catch (ServiceException e) {
                 serviceCallback.failure(e);
+                logger.error("service {} start failure, cause: {}", getName(), e);
             }
         } else {
             //duplicate start
@@ -69,8 +85,10 @@ public abstract class AbstractService implements Service {
             try {
                 destroy();
                 serviceCallback.success();
+                logger.info("service {} stop success.", getName());
             } catch (ServiceException e) {
                 serviceCallback.failure(e);
+                logger.error("service {} stop failure, cause: {}", getName(), e.getMessage());
             }
         } else {
             //duplicate stop
@@ -121,5 +139,13 @@ public abstract class AbstractService implements Service {
     @Override
     public boolean isRunning() {
         throw new UnsupportedOperationException();
+    }
+
+    protected String getName() {
+        if (name == null) {
+            String simpleClassName = ClassUtils.simpleClassName(this.getClass());
+            name = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(simpleClassName), ' ');
+        }
+        return name;
     }
 }

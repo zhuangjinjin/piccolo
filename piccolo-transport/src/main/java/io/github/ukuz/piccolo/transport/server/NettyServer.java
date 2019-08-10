@@ -84,10 +84,10 @@ public abstract class NettyServer extends AbstractService implements Server {
             throw new IllegalStateServiceException("Server " + getId() + " init failed, current state: " + serverState.get());
         }
 
-        logger.info("server start init...");
+        logger.info("{} start init...", getName());
         doInit();
         serverState.set(State.Initialized);
-        logger.info("server finish init...");
+        logger.info("{} finish init...", getName());
     }
 
     @Override

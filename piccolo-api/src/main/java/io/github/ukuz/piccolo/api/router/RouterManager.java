@@ -29,7 +29,7 @@ public interface RouterManager<R extends Router> {
      * @param router new Router
      * @return previous Router
      */
-    R register(String userId, Router router);
+    R register(String userId, R router);
 
     /**
      * unregister router by userId and clientType
@@ -38,7 +38,7 @@ public interface RouterManager<R extends Router> {
      * @param clientType
      * @return
      */
-    boolean unregister(String userId, int clientType);
+    boolean unregister(String userId, byte clientType);
 
     /**
      * lookup router by userId and clientType
@@ -47,7 +47,7 @@ public interface RouterManager<R extends Router> {
      * @param clientType
      * @return
      */
-    R lookup(String userId, int clientType);
+    R lookup(String userId, byte clientType);
 
     /**
      * lookup all router by userId

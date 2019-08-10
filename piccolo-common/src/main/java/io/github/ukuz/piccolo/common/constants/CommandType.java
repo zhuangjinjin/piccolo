@@ -25,6 +25,7 @@ public enum CommandType {
     HEARTBEAT(3),
     FAST_CONNECT(4),
     BIND_USER(5),
+    OK(6),
 
     UNKNOWN(-1);
 

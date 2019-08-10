@@ -48,6 +48,7 @@ public class ServerLauncher {
             processChain = newBootProcessChain();
         }
 
+        processChain.addLast(new RouterCenterBoot(server.getRouterCenter()));
         processChain.addLast(new ServerBoot(server.getGatewayServer()));
         processChain.addLast(new ServerBoot(server.getConnectServer()));
         processChain.addLast(lastJob);
