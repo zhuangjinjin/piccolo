@@ -13,14 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.router;
+package io.github.ukuz.piccolo.common.properties;
+
+import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
+import io.github.ukuz.piccolo.api.config.Properties;
+import lombok.Data;
 
 /**
  * @author ukuz90
  */
-public class DefaultClientClassifier implements ClientClassifier {
-    @Override
-    public byte getClientType(String osName) {
-        return (byte) ClientType.find(osName).type;
+@ConfigurationProperties(prefix = "piccolo.thread-pool")
+@Data
+public class ThreadPoolProperties implements Properties {
+
+    private NestedThreadPoolProperties mq;
+    private NestedThreadPoolProperties eventBus;
+
+    @Data
+    public class NestedThreadPoolProperties implements Properties {
+
+        private int coreSize;
+        private int maxSize;
+        private int queueSize;
+        private int keepAliveSeconds;
+
     }
+
 }

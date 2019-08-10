@@ -44,4 +44,18 @@ public final class EventBus {
         delegate.post(event);
     }
 
+    public static void register(Object obj) {
+        if (delegate == null) {
+            throw new EventException("eventBus was not initialized");
+        }
+        delegate.register(obj);
+    }
+
+    public static void unregister(Object obj) {
+        if (delegate == null) {
+            throw new EventException("eventBus was not initialized");
+        }
+        delegate.unregister(obj);
+    }
+
 }

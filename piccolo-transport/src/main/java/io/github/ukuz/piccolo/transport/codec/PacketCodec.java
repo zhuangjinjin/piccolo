@@ -27,7 +27,7 @@ import io.netty.buffer.ByteBuf;
 public class PacketCodec implements Codec {
 
     private final static int PAYLOAD_MAX_LENGTH = 10 * 1024 * 1024;
-    private final static int HEADER_LENGTH = 12;
+    private final static int HEADER_LENGTH = 13;
     private final static int MAGIC_NUM = 0xbcc0;
     private final static byte MAGIC_NUM_H = (byte) (MAGIC_NUM >> 8);
     private final static byte MAGIC_NUM_L = (byte) MAGIC_NUM;
@@ -38,6 +38,7 @@ public class PacketCodec implements Codec {
             Packet packet = (Packet) msg;
             out.writeByte(MAGIC_NUM_H);
             out.writeByte(MAGIC_NUM_L);
+            out.writeByte(packet.getCmd());
             out.writeByte(packet.getFlag());
             out.writeInt(packet.getSessionId());
             out.writeByte(packet.getLrc());
@@ -61,6 +62,7 @@ public class PacketCodec implements Codec {
         }
 
         //begin
+        byte cmd = in.readByte();
         byte flag = in.readByte();
         int sessionId = in.readInt();
         byte lrc = in.readByte();
@@ -79,6 +81,7 @@ public class PacketCodec implements Codec {
 
         Packet packet = new Packet();
         packet.setMagic((short)MAGIC_NUM);
+        packet.setCmd(cmd);
         packet.setFlag(flag);
         packet.setSessionId(sessionId);
         packet.setLrc(lrc);

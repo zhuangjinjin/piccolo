@@ -13,36 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.constants;
+package io.github.ukuz.piccolo.common.router;
+
+import io.github.ukuz.piccolo.api.router.ClientClassifier;
 
 /**
  * @author ukuz90
  */
-public enum CommandType {
-
-    ERROR(1),
-    HANDSHAKE(2),
-    HEARTBEAT(3),
-    FAST_CONNECT(4),
-    BIND_USER(5),
-
-    UNKNOWN(-1);
-
-    private final int cmd;
-
-    CommandType(int cmd) {
-        this.cmd = cmd;
-    }
-
-    public static CommandType toCMD(byte cmd) {
-        CommandType[] values = values();
-        if (cmd > 0 && cmd < values.length) {
-            return values[cmd - 1];
-        }
-        return UNKNOWN;
-    }
-
-    public byte getCmd() {
-        return (byte) cmd;
+public class DefaultClientClassifier implements ClientClassifier {
+    @Override
+    public byte getClientType(String osName) {
+        return (byte) ClientType.find(osName).type;
     }
 }

@@ -38,6 +38,14 @@ public interface Connection {
     ChannelFuture sendAsync(BaseMessage message);
 
     /**
+     * send async without encrypt, compress and so on...
+     *
+     * @param message
+     * @return
+     */
+    ChannelFuture sendRawAsync(BaseMessage message);
+
+    /**
      * send async and close when send success
      * @param message
      * @return
@@ -45,6 +53,14 @@ public interface Connection {
     ChannelFuture sendAsyncAndClose(BaseMessage message);
 
     ChannelFuture sendAsync(BaseMessage message, ChannelFutureListener listener);
+
+    /**
+     * send async without encrypt, compress and so on...
+     *
+     * @param message
+     * @return
+     */
+    ChannelFuture sendRawAsync(BaseMessage message, ChannelFutureListener listener);
 
     SessionContext getSessionContext();
 

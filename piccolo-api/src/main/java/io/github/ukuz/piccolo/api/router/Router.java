@@ -13,36 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.constants;
+package io.github.ukuz.piccolo.api.router;
 
 /**
  * @author ukuz90
  */
-public enum CommandType {
+public interface Router<T> {
 
-    ERROR(1),
-    HANDSHAKE(2),
-    HEARTBEAT(3),
-    FAST_CONNECT(4),
-    BIND_USER(5),
+    T getRouterValue();
 
-    UNKNOWN(-1);
+    RouterType getRouterType();
 
-    private final int cmd;
-
-    CommandType(int cmd) {
-        this.cmd = cmd;
-    }
-
-    public static CommandType toCMD(byte cmd) {
-        CommandType[] values = values();
-        if (cmd > 0 && cmd < values.length) {
-            return values[cmd - 1];
-        }
-        return UNKNOWN;
-    }
-
-    public byte getCmd() {
-        return (byte) cmd;
+    enum RouterType {
+        LOCAL,
+        REMOTE
     }
 }

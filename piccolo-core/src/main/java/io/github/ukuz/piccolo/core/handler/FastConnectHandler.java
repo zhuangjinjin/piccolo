@@ -25,6 +25,7 @@ import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import io.github.ukuz.piccolo.common.message.FastConnectMessage;
 import io.github.ukuz.piccolo.common.message.FastConnectOkMessage;
 import io.github.ukuz.piccolo.common.properties.CoreProperties;
+import io.github.ukuz.piccolo.common.security.AESCipher;
 import io.github.ukuz.piccolo.core.PiccoloServer;
 import io.github.ukuz.piccolo.core.session.ReusableSession;
 import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
@@ -71,9 +72,8 @@ public class FastConnectHandler extends ChannelHandlerDelegateAdapter {
                 FastConnectOkMessage okMessage = FastConnectOkMessage.build(connection)
                         .heartbeat(heartbeat);
 
-                //TODO 这里是否有必要转Cipher，此时如果不设置，Cipher是RSA
-
-                connection.sendAsync(okMessage, future -> {
+                //不加密发送
+                connection.sendRawAsync(okMessage, future -> {
                     if (future.isSuccess()) {
                         //4. 恢复缓存的会话信息(包含会话密钥等)
                         connection.setSessionContext(session.getContext());

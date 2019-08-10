@@ -15,7 +15,6 @@
  */
 package io.github.ukuz.piccolo.transport.connection;
 
-import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
@@ -78,6 +77,18 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     @Override
     public ChannelFuture sendAsync(BaseMessage message) {
         return sendAsync(message, null);
+    }
+
+    @Override
+    public ChannelFuture sendRawAsync(BaseMessage message) {
+       return sendRawAsync(message, null);
+    }
+
+    @Override
+    public ChannelFuture sendRawAsync(BaseMessage message, ChannelFutureListener listener) {
+        // not encrypt, not compress
+        message.setRaw(true);
+        return sendAsync(message, listener);
     }
 
     @Override

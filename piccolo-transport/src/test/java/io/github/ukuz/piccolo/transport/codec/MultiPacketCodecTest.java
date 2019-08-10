@@ -52,6 +52,7 @@ class MultiPacketCodecTest {
         ByteBuf out = PooledByteBufAllocator.DEFAULT.heapBuffer();
         out.writeByte(0xbc);
         out.writeByte(0xc0);
+        out.writeByte(1);
         out.writeByte(0);
         out.writeInt(1);
         out.writeByte(0);
@@ -67,6 +68,7 @@ class MultiPacketCodecTest {
         ByteBuf out = PooledByteBufAllocator.DEFAULT.heapBuffer();
         out.writeByte(0xbc);
         out.writeByte(0xc0);
+        out.writeByte(1);
         out.writeByte(0);
         out.writeInt(1);
         out.writeByte(0);
@@ -86,6 +88,7 @@ class MultiPacketCodecTest {
         ByteBuf out = PooledByteBufAllocator.DEFAULT.heapBuffer();
         out.writeByte(0xc0);
         out.writeByte(0xbc);
+        out.writeByte(1);
         out.writeByte(0);
         out.writeInt(1);
         out.writeByte(0);
@@ -105,6 +108,7 @@ class MultiPacketCodecTest {
         ByteBuf out = PooledByteBufAllocator.DEFAULT.heapBuffer();
         out.writeByte(0xbc);
         out.writeByte(0xc0);
+        out.writeByte(1);
         out.writeByte(0);
         out.writeInt(1);
         out.writeByte(0);
@@ -113,6 +117,7 @@ class MultiPacketCodecTest {
 
         out.writeByte(0xbc);
         out.writeByte(0xc0);
+        out.writeByte(1);
         out.writeByte(0);
         out.writeInt(1);
         out.writeByte(0);

@@ -21,13 +21,17 @@ import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 
 import io.github.ukuz.piccolo.common.constants.CommandType;
-import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author ukuz90
  */
 public class DefaultPacketToMessageConverter implements PacketToMessageConverter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPacketToMessageConverter.class);
+
     @Override
     public BaseMessage convert(Packet packet, Connection connection) {
         CommandType cmd = CommandType.toCMD(packet.getCommandType());
@@ -40,7 +44,10 @@ public class DefaultPacketToMessageConverter implements PacketToMessageConverter
                 return new HeartbeatMessage(connection);
             case FAST_CONNECT:
                 return new FastConnectMessage(connection);
+            case BIND_USER:
+                return new BindUserMessage(connection);
             default:
+                LOGGER.error("packet covert failure, not found mapping cmd: {} packet: {} conn: {}", cmd, packet, connection);
                 return null;
         }
     }

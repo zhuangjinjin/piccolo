@@ -21,12 +21,18 @@ import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.common.constants.CommandType;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
+import io.github.ukuz.piccolo.common.message.FastConnectOkMessage;
 import io.github.ukuz.piccolo.common.message.HandshakeOkMessage;
+import io.github.ukuz.piccolo.common.message.HeartbeatMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ukuz90
  */
-public class ClientPacketToMesageConverter implements PacketToMessageConverter {
+public class ClientPacketToMessageConverter implements PacketToMessageConverter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientPacketToMessageConverter.class);
 
     @Override
     public BaseMessage convert(Packet packet, Connection connection) {
@@ -34,9 +40,14 @@ public class ClientPacketToMesageConverter implements PacketToMessageConverter {
         switch (cmd) {
             case HANDSHAKE:
                 return new HandshakeOkMessage(connection);
+            case FAST_CONNECT:
+                return new FastConnectOkMessage(connection);
+            case HEARTBEAT:
+                return new HeartbeatMessage(connection);
             case ERROR:
                 return new ErrorMessage(connection);
             default:
+                LOGGER.error("packet covert failure, not found mapping cmd: {} packet: {} conn: {}", cmd, packet, connection);
                 break;
         }
         return null;

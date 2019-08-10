@@ -20,23 +20,29 @@ import lombok.Data;
 
 /**
  *
- * +-----------+----------+---------------+---------+------------+---------+
- * | magic(2B) | flag(1B) | sessionId(4B) | lrc(1B) | length(4B) | payload |
- * | 0xBCC0    | 0x80     |               |         | 0x00000005 | "HELLO" |
- * +-----------+----------+---------------+---------+------------+---------+
+ * +-----------+----------|----------+---------------+---------+------------+---------+
+ * | magic(2B) | cmd(1B)  | flag(1B) | sessionId(4B) | lrc(1B) | length(4B) | payload |
+ * | 0xBCC0    |          | 0x80     |               |         | 0x00000005 | "HELLO" |
+ * +-----------+----------+----------+---------------+---------+------------+---------+
  * @author ukuz90
  */
 @Data
 public class Packet {
 
-    private static final int HEADER_LENGTH = 12;
+    private static final int HEADER_LENGTH = 13;
 
     /**
      * magic number
      */
     transient private short magic;
     /**
-     * high 5 bit was cmd, low 3 bit was compress type (no-compress type default)
+     * cmd
+     */
+    private byte cmd;
+    /**
+     * high 4 bits reserved for expansion</br>
+     * 4th bit was whether encrypt</br>
+     * low 3 bits was compress type (no-compress type default)
      */
     private byte flag;
     /**
@@ -60,6 +66,7 @@ public class Packet {
         byte lrc = 0;
         byte[] data = Unpooled.buffer(HEADER_LENGTH - 1)
                 .writeShort(magic)
+                .writeByte(cmd)
                 .writeByte(flag)
                 .writeInt(sessionId)
                 .writeInt(length)

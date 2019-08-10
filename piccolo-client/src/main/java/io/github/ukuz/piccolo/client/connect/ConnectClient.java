@@ -74,7 +74,7 @@ public class ConnectClient extends NettyClient {
 
     @Override
     protected Codec newCodec() {
-        return new MultiPacketCodec(new ClientPacketToMesageConverter());
+        return new MultiPacketCodec(new ClientPacketToMessageConverter());
     }
 
 }

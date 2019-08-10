@@ -19,8 +19,9 @@ import io.github.ukuz.piccolo.api.connection.Cipher;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
@@ -29,8 +30,10 @@ import java.nio.charset.StandardCharsets;
  */
 public abstract class ByteBufMessage implements BaseMessage {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ByteBufMessage.class);
     private byte commandType;
     private byte compressType;
+    private boolean encrypt = true;
     private int sessionId;
     private Connection connection;
 
@@ -42,31 +45,56 @@ public abstract class ByteBufMessage implements BaseMessage {
     @Override
     public void decodeBody(Packet packet) {
         byte[] payload = packet.getPayload();
-        // 解密
-        if (getCipher() != null) {
-            payload = getCipher().decrypt(payload);
+        commandType = packet.getCommandType();
+        decomposeFlag(packet.getFlag());
+        sessionId = packet.getSessionId();
+        if (encrypt) {
+            // 解密
+            byte[] tmp = null;
+            if (getCipher() != null) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("decodeBody use encrypt, cipher: {}, packet: {} ", getCipher(), packet);
+                }
+                tmp = getCipher().decrypt(payload);
+            }
+            if (tmp != null && tmp.length > 0) {
+                payload = tmp;
+            } else {
+                encrypt = false;
+            }
         }
         ByteBuf buf = Unpooled.wrappedBuffer(payload);
         decodeBody0(buf);
     }
 
+
     @Override
     public Packet encodeBody() {
-        Packet packet = new Packet();
-        packet.setMagic((short) 0xbcc0);
-        packet.setFlag(getFlag());
-        packet.setSessionId(sessionId);
-
 //        ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer();
         ByteBuf buf = connection.getChannel().alloc().buffer();
         encodeBody0(buf);
         byte[] payload = new byte[buf.readableBytes()];
         buf.readBytes(payload);
-        // 加密
-        if (getCipher() != null) {
-            payload = getCipher().encrypt(payload);
+        if (encrypt) {
+            // 加密
+            byte[] tmp = null;
+            if (getCipher() != null) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("decodeBody use encrypt, cipher: {} cmd:{}", getCipher(), commandType);
+                }
+                tmp = getCipher().encrypt(payload);
+            }
+            if (tmp != null && tmp.length > 0) {
+                payload = tmp;
+            } else {
+                encrypt = false;
+            }
         }
 
+        Packet packet = new Packet();
+        packet.setMagic((short) 0xbcc0);
+        packet.setFlag(assemblyFlag());
+        packet.setSessionId(sessionId);
         packet.setPayload(payload);
         packet.setLength(payload.length);
         return packet;
@@ -160,8 +188,17 @@ public abstract class ByteBufMessage implements BaseMessage {
 
     protected abstract void encodeBody0(ByteBuf buf);
 
-    public byte getFlag() {
-        return (byte) (commandType << 3 | (0x07 & compressType));
+    private void decomposeFlag(byte flag) {
+        compressType = (byte) (flag & 0x7);
+        encrypt = ((flag >> 3 & 1 ) == 1);
+    }
+
+    private byte assemblyFlag() {
+        if (encrypt) {
+            return (byte) (0x08 | (0x07 & compressType));
+        } else {
+            return (byte) (0x07 & compressType);
+        }
     }
 
     public byte getCommandType() {
@@ -196,4 +233,11 @@ public abstract class ByteBufMessage implements BaseMessage {
         return connection;
     }
 
+    @Override
+    public void setRaw(boolean isRaw) {
+        if (isRaw) {
+            encrypt = false;
+            compressType = 0;
+        }
+    }
 }

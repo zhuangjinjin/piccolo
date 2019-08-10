@@ -56,6 +56,7 @@ public class SpiLoader<T> {
         primaryExtensionKey = spi.primary();
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> SpiLoader<T> getLoader(Class<T> type) {
         if (type == null) {
             throw new IllegalArgumentException("Spi type must not be null");
@@ -66,12 +67,7 @@ public class SpiLoader<T> {
         if (!type.isAnnotationPresent(Spi.class)) {
             throw new IllegalArgumentException("Spi type " + type.getName() + " must annotated with @Spi");
         }
-        SpiLoader loader = LOADERS.get(type);
-        if (loader == null) {
-            LOADERS.putIfAbsent(type, new SpiLoader(type));
-            loader = LOADERS.get(type);
-        }
-        return loader;
+        return LOADERS.computeIfAbsent(type, t -> new SpiLoader(t));
     }
 
     public T getExtension() {
@@ -143,11 +139,7 @@ public class SpiLoader<T> {
     }
 
     private T getInstance(Class<T> clazz) {
-        Holder holder = INSTANCES.get(clazz);
-        if (holder == null) {
-            INSTANCES.putIfAbsent(clazz, new Holder<>());
-            holder = INSTANCES.get(clazz);
-        }
+        Holder holder = INSTANCES.computeIfAbsent(clazz, c -> new Holder());
         return getInstance(holder, clazz);
     }
 

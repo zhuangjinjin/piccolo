@@ -27,4 +27,10 @@ public interface BaseMessage {
 
     Packet encodeBody();
 
+    /**
+     * not compress, not encrypt if true
+     * @param isRaw
+     */
+    void setRaw(boolean isRaw);
+
 }

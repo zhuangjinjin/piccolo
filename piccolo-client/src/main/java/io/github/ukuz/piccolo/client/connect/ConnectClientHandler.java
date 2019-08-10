@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.client.connect;
 
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.config.Environment;
+import io.github.ukuz.piccolo.api.connection.Cipher;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
@@ -25,11 +26,12 @@ import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.client.properties.ClientProperties;
 import io.github.ukuz.piccolo.common.cache.CacheKeys;
-import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.common.message.*;
 import io.github.ukuz.piccolo.common.security.AESCipher;
+import io.github.ukuz.piccolo.common.security.CipherBox;
 import io.github.ukuz.piccolo.common.security.RSACipher;
 import io.netty.util.AttributeKey;
+import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +42,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author ukuz90
  */
-public class ConnectPacketHandler implements ChannelHandler {
+public class ConnectClientHandler implements ChannelHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(ConnectPacketHandler.class);
+    private static final SimpleStatistics STATISTICS = new SimpleStatistics();
+    private final Logger logger = LoggerFactory.getLogger(ConnectClientHandler.class);
 
     public static final AttributeKey<ClientConfig> CONFIG_KEY = AttributeKey.newInstance("config_key");
     private ClientConfig clientConfig;
@@ -51,12 +54,12 @@ public class ConnectPacketHandler implements ChannelHandler {
 
     private boolean isPerformanceTest;
 
-    public ConnectPacketHandler(Environment environment) {
+    public ConnectClientHandler(Environment environment) {
         isPerformanceTest = true;
         properties = environment.getProperties(ClientProperties.class);
     }
 
-    public ConnectPacketHandler(Environment environment, ClientConfig clientConfig) {
+    public ConnectClientHandler(Environment environment, ClientConfig clientConfig) {
         this.clientConfig = clientConfig;
         properties = environment.getProperties(ClientProperties.class);
     }
@@ -102,11 +105,41 @@ public class ConnectPacketHandler implements ChannelHandler {
             logger.warn("message was invalid wire type, message: {} conn: {}", message, connection);
             return;
         }
-        BaseMessage msg = (BaseMessage) message;
-        if (msg instanceof HandshakeOkMessage) {
+        SessionContext context = connection.getSessionContext();
 
-        } else if (msg instanceof FastConnectOkMessage) {
+        if (message instanceof HandshakeOkMessage) {
+            HandshakeOkMessage msg = (HandshakeOkMessage) message;
+            int connectedNum = STATISTICS.increaseConnectedNum();
+            byte[] sessionKey = CipherBox.I.mixKey(clientConfig.getClientKey(), msg.serverKey);
 
+            context.changeCipher(new AESCipher(1024, sessionKey, clientConfig.getIv()));
+            context.setHeartbeat(msg.heartbeat);
+            startHeartbeat(msg.heartbeat - 1000);
+
+            bindUser(connection);
+            if (!isPerformanceTest) {
+                saveFastConnectionInfo(msg, context.getCipher());
+            }
+            logger.info("handshake success, clientConfig: {} conn: {} connectedNum: {}", clientConfig, connection, connectedNum);
+
+        } else if (message instanceof FastConnectOkMessage) {
+            FastConnectOkMessage msg = (FastConnectOkMessage) message;
+            int connectedNum = STATISTICS.increaseConnectedNum();
+            String cipherStr = clientConfig.getCipher();
+            String[] cs = cipherStr.split(",");
+            int keyLen = Integer.parseInt(cs[2]);
+            byte[] key = AESCipher.toArray(cs[0], keyLen);
+            byte[] iv = AESCipher.toArray(cs[1], keyLen);
+
+            connection.getSessionContext().changeCipher(new AESCipher(keyLen, key, iv));
+            context.setHeartbeat(msg.heartbeat);
+            startHeartbeat(msg.heartbeat - 1000);
+
+
+            bindUser(connection);
+            logger.info("fast connect success, clientConfig: {} conn: {} connectedNum: {}", clientConfig, connection, connectedNum);
+        } else if (message instanceof ErrorMessage) {
+            logger.error("receive of error message: {}", message);
         }
     }
 
@@ -135,17 +168,46 @@ public class ConnectPacketHandler implements ChannelHandler {
 
     private void fastConnect(Connection connection) {
         SessionContext context = connection.getSessionContext();
+        Map<String, String> session = getFastConnectionInfo(clientConfig.getDeviceId());
+        if (session == null) {
+            handshake(connection);
+            return;
+        }
+        String sessionId = session.get("sessionId");
+        if (StringUtil.isNullOrEmpty(sessionId)) {
+            handshake(connection);
+            return;
+        }
+        String expireTime = session.get("expireTime");
+        if (!StringUtil.isNullOrEmpty(expireTime)) {
+            long expire = Long.parseLong(expireTime);
+            if (expire < System.currentTimeMillis()) {
+                handshake(connection);
+                return;
+            }
+        }
+
+        String cipherStr = session.get("cipherStr");
+
         FastConnectMessage message = new FastConnectMessage(connection);
         message.deviceId = clientConfig.getDeviceId();
-        Map<String, String> info = getFastConnectionInfo(clientConfig.getDeviceId());
-        message.sessionId = info.get("sessionId");
+        message.sessionId = sessionId;
+
+        connection.sendRawAsync(message, future -> {
+            if (future.isSuccess()) {
+                clientConfig.setCipher(cipherStr);
+            } else {
+                handshake(connection);
+            }
+        });
 
     }
 
-    private void saveFastConnectionInfo(HandshakeOkMessage message) {
-        Map<String, String> result = new HashMap<>();
+    private void saveFastConnectionInfo(HandshakeOkMessage message, Cipher cipher) {
+        Map<String, String> result = new HashMap<>(3);
         result.put("expireTime", String.valueOf(message.expireTime));
         result.put("sessionId", message.sessionId);
+        result.put("cipher", cipher.toString());
         String key = CacheKeys.getDeviceIdKey(clientConfig.getDeviceId());
         cacheManager.set(key, result, 60 * 5);
     }
@@ -155,8 +217,13 @@ public class ConnectPacketHandler implements ChannelHandler {
         return cacheManager.get(key, Map.class);
     }
 
-    private void bindUser() {
+    private void bindUser(Connection connection) {
+        BindUserMessage message = new BindUserMessage(connection);
+        message.userId = clientConfig.getUserId();
+        message.tags = "test";
+        connection.sendAsync(message);
 
+        connection.getSessionContext().setUserId(clientConfig.getUserId());
     }
 
     private void startHeartbeat(int heartbeat) {

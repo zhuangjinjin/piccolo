@@ -18,15 +18,18 @@ package io.github.ukuz.piccolo.core;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
+import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.core.server.ConnectServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
 import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
+import io.github.ukuz.piccolo.core.threadpool.ServerExecutorFactory;
 
 /**
  * @author ukuz90
@@ -44,6 +47,9 @@ public class PiccoloServer implements PiccoloContext {
         environment.scanAllProperties();
         environment.load("piccolo-server.properties");
 
+        //initialize eventBus
+        ServerExecutorFactory factory = new ServerExecutorFactory();
+        EventBus.create(factory.create(ExecutorFactory.EVENT_BUS, environment));
 
         reusableSessionManager = new ReusableSessionManager(this);
         gatewayServer = new GatewayServer(this);

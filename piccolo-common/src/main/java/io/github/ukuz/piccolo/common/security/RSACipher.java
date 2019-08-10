@@ -95,4 +95,9 @@ public class RSACipher implements Cipher {
         PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(bytes));
         return keyFactory.generatePrivate(priPKCS8);
     }
+
+    @Override
+    public String toString() {
+        return "RsaCipher [privateKey=" + new String(privateKey.getEncoded()) + ", publicKey=" + new String(publicKey.getEncoded()) + "]";
+    }
 }
