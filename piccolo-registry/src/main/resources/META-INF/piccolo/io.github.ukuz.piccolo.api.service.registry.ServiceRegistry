@@ -1,0 +1,1 @@
+zk=io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery

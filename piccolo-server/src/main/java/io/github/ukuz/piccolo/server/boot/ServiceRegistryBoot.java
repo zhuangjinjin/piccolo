@@ -17,32 +17,21 @@ package io.github.ukuz.piccolo.server.boot;
 
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
-import io.github.ukuz.piccolo.transport.server.NettyServer;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author ukuz90
  */
-public class ServerBoot implements BootJob {
-    private NettyServer server;
+public class ServiceRegistryBoot implements BootJob {
 
-    public ServerBoot(NettyServer server) {
-        this.server = server;
-    }
+    private ServiceRegistry registry = SpiLoader.getLoader(ServiceRegistry.class).getExtension();
 
     @Override
     public void start() {
-        CompletableFuture<Boolean> future = this.server.startAsync();
-        future.whenCompleteAsync((success, throwable) -> {
-            if (success && server.getRegistration() != null) {
-                SpiLoader.getLoader(ServiceRegistry.class).getExtension().registry(server.getRegistration());
-            }
-        });
+        registry.start();
     }
 
     @Override
     public void stop() {
-        this.server.stopAsync();
+        registry.stopAsync();
     }
 }

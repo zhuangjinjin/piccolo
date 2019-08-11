@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.service.registry;
+package io.github.ukuz.piccolo.registry.zookeeper.manager;
 
-import io.github.ukuz.piccolo.api.service.Service;
-import io.github.ukuz.piccolo.api.spi.Spi;
+import io.github.ukuz.piccolo.api.service.ServiceException;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "zk")
-public interface ServiceRegistry<R extends Registration> extends Service {
+public class ZooKeeperInitialingException extends ServiceException {
+    public ZooKeeperInitialingException(String message) {
+        super(message);
+    }
 
-    void registry(R registration);
+    public ZooKeeperInitialingException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    void deregistry(R registration);
-
+    public ZooKeeperInitialingException(Throwable cause) {
+        super(cause);
+    }
 }

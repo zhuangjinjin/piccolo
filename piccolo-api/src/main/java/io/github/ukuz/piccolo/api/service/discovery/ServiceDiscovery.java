@@ -15,12 +15,16 @@
  */
 package io.github.ukuz.piccolo.api.service.discovery;
 
+import io.github.ukuz.piccolo.api.service.Service;
+import io.github.ukuz.piccolo.api.spi.Spi;
+
 import java.util.List;
 
 /**
  * @author ukuz90
  */
-public interface ServiceDiscovery<S extends ServiceInstance> {
+@Spi(primary = "zk")
+public interface ServiceDiscovery<S extends ServiceInstance> extends Service {
 
     /**
      * lookup available service instance

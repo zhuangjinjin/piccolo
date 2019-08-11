@@ -23,6 +23,8 @@ import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.IllegalStateServiceException;
 import io.github.ukuz.piccolo.api.service.Server;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
+import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.properties.CoreProperties;
 import io.github.ukuz.piccolo.transport.channel.ServerSocketChannelFactory;
@@ -210,6 +212,10 @@ public abstract class NettyServer extends AbstractService implements Server {
     public abstract String getBossThreadName();
 
     public abstract String getWorkerThreadName();
+
+    public Registration getRegistration() {
+        return null;
+    }
 
     public enum State {
         Created,

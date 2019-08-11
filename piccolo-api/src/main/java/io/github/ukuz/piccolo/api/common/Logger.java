@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.api.common;
 
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -64,4 +65,33 @@ public class Logger {
         }
     }
 
+    public void computeIfTraceEnable(Consumer<org.slf4j.Logger> consumer) {
+        if (logger.isTraceEnabled()) {
+            consumer.accept(logger);
+        }
+    }
+
+    public void computeIfDebugEnable(Consumer<org.slf4j.Logger> consumer) {
+        if (logger.isDebugEnabled()) {
+            consumer.accept(logger);
+        }
+    }
+
+    public void computeIfInfoEnable(Consumer<org.slf4j.Logger> consumer) {
+        if (logger.isInfoEnabled()) {
+            consumer.accept(logger);
+        }
+    }
+
+    public void computeIfWarnEnable(Consumer<org.slf4j.Logger> consumer) {
+        if (logger.isWarnEnabled()) {
+            consumer.accept(logger);
+        }
+    }
+
+    public void computeIfErrorEnable(Consumer<org.slf4j.Logger> consumer) {
+        if (logger.isErrorEnabled()) {
+            consumer.accept(logger);
+        }
+    }
 }

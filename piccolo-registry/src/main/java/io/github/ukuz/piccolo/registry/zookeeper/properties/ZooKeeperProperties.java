@@ -13,19 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.service.registry;
+package io.github.ukuz.piccolo.registry.zookeeper.properties;
 
-import io.github.ukuz.piccolo.api.service.Service;
-import io.github.ukuz.piccolo.api.spi.Spi;
+import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
+import io.github.ukuz.piccolo.api.config.Properties;
+import lombok.Data;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "zk")
-public interface ServiceRegistry<R extends Registration> extends Service {
+@ConfigurationProperties(prefix = "piccolo.zookeeper")
+@Data
+public class ZooKeeperProperties implements Properties {
 
-    void registry(R registration);
+    private String host;
+    private String ns;
+    private String digest;
+    private int sessionTimeoutMs;
+    private int connectionTimeoutMs;
+    private int maxRetries;
+    private int baseSleepTimeMs;
+    private int maxSleepMs;
 
-    void deregistry(R registration);
 
 }

@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.registry.zookeeper.properties;
+package io.github.ukuz.piccolo.server.boot;
 
-import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
-import io.github.ukuz.piccolo.api.config.Properties;
-import lombok.Data;
+import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 
 /**
  * @author ukuz90
  */
-@ConfigurationProperties(prefix = "piccolo.zookeeper")
-@Data
-public class ZookeeperProperties implements Properties {
+public class ServiceDiscoveryBoot implements BootJob {
 
-    private String host;
-    private String ns;
-    private int sessionTimeOutMs;
+    private ServiceDiscovery discovery = SpiLoader.getLoader(ServiceDiscovery.class).getExtension();
 
+    @Override
+    public void start() {
+        discovery.start();
+    }
+
+    @Override
+    public void stop() {
+        discovery.stopAsync();
+    }
 }

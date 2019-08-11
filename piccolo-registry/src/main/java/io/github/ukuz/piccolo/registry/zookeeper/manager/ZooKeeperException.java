@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.registry;
+package io.github.ukuz.piccolo.registry.zookeeper.manager;
 
 /**
  * @author ukuz90
  */
-public class ServiceRegistryAndDiscovery {
+public class ZooKeeperException extends RuntimeException {
 
+    public ZooKeeperException(String message) {
+        super(message);
+    }
 
+    public ZooKeeperException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ZooKeeperException(Throwable cause) {
+        super(cause);
+    }
 }
