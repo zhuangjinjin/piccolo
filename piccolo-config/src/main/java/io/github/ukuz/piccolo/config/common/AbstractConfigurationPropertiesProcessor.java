@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -66,15 +67,7 @@ public abstract class AbstractConfigurationPropertiesProcessor<T extends Configu
         Field[] fields = properties.getClass().getDeclaredFields();
         ConfigurationProperties annotation = properties.getClass().getAnnotation(ConfigurationProperties.class);
         for (Field field : fields) {
-            Object value = fetchProperty(annotation.prefix(), field, properties, configuration);
-            field.setAccessible(true);
-            try {
-                field.set(properties, value);
-            } catch (IllegalAccessException e) {
-                logger.error("process failure, class: {}, field: {}, cause: {}", properties.getClass().getName(), field.getName(), e.getMessage());
-                e.printStackTrace();
-            }
-            field.setAccessible(false);
+            processSingleField(field, annotation.prefix(), properties, configuration);
         }
         logger.info("process " + properties.getClass().getName() + " finish.");
     }
@@ -98,18 +91,7 @@ public abstract class AbstractConfigurationPropertiesProcessor<T extends Configu
             Field[] fields = obj.getClass().getDeclaredFields();
             prefix = getPropertyKey(prefix, field.getName());
             for (Field f : fields) {
-                if (Modifier.isFinal(f.getModifiers())) {
-                    continue;
-                }
-                Object value = fetchProperty(prefix, f, obj, configuration);
-                f.setAccessible(true);
-                try {
-                    f.set(obj, value);
-                } catch (IllegalAccessException e) {
-                    logger.error("process failure, class: {}, field: {}, cause: {}", obj.getClass().getName(), f.getName(), e.getMessage());
-                    e.printStackTrace();
-                }
-                f.setAccessible(false);
+                processSingleField(f, prefix, obj, configuration);
             }
             return obj;
         } catch (InstantiationException e) {
@@ -120,6 +102,25 @@ public abstract class AbstractConfigurationPropertiesProcessor<T extends Configu
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void processSingleField(Field f, String prefix, Object obj, T configuration) {
+        if (Modifier.isFinal(f.getModifiers())) {
+            return;
+        }
+        try {
+            Object value = fetchProperty(prefix, f, obj, configuration);
+            f.setAccessible(true);
+            try {
+                f.set(obj, value);
+            } catch (IllegalAccessException e) {
+                logger.error("process failure, class: {}, field: {}, cause: {}", obj.getClass().getName(), f.getName(), e.getMessage());
+                e.printStackTrace();
+            }
+            f.setAccessible(false);
+        } catch (WireTypeNotSupportException e) {
+            logger.error("process failure, field: {} cause: {}", f, e);
+        }
     }
 
     private Object newInstance(Class clazz, Object parent) throws IllegalAccessException, InstantiationException, InvocationTargetException {

@@ -9,25 +9,24 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>piccolo-core</artifactId>
+    <artifactId>piccolo-registry</artifactId>
     <packaging>jar</packaging>
-    <name>piccolo-core</name>
+    <name>piccolo-registry</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>piccolo-transport</artifactId>
+            <groupId>io.github.ukuz</groupId>
+            <artifactId>piccolo-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>piccolo-common</artifactId>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>piccolo-cache</artifactId>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
         </dependency>
     </dependencies>
-
 </project>

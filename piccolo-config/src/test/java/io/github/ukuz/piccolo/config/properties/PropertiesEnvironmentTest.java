@@ -32,20 +32,20 @@ class PropertiesEnvironmentTest {
     void setUp() {
         environment = SpiLoader.getLoader(Environment.class).getExtension();
         environment.scanAllProperties();
-//        environment.load();
+        environment.load("piccolo.properties");
     }
 
     @DisplayName("test_getProperties")
     @Test
     void testGetProperties() {
-//        RedisProperties redisProperties = environment.getProperties(RedisProperties.class);
-//        assertEquals(20, redisProperties.getMaxConnNum());
-//        assertEquals("standalone", redisProperties.getMode());
-//        assertTrue(redisProperties.isEnabled());
-//        assertEquals(10000L, redisProperties.getTimeBetweenEvictionRunsMillis());
-//        assertEquals(100, redisProperties.getProp1());
-//        assertEquals(1.1, redisProperties.getProp3());
-//        assertEquals(1, redisProperties.getProp4());
-//        assertTrue(redisProperties.getJedisPoolConfig().isTestWhileIdle());
+        RedisProperties redisProperties = environment.getProperties(RedisProperties.class);
+        assertEquals(20, redisProperties.getMaxConnNum());
+        assertEquals("standalone", redisProperties.getMode());
+        assertTrue(redisProperties.isEnabled());
+        assertEquals(10000L, redisProperties.getTimeBetweenEvictionRunsMillis());
+        assertEquals(100, redisProperties.getProp1());
+        assertEquals(1.1, redisProperties.getProp3());
+        assertEquals(1, redisProperties.getProp4());
+        assertTrue(redisProperties.getJedisPoolConfig().isTestWhileIdle());
     }
 }

@@ -13,6 +13,8 @@
         <module>piccolo-client</module>
         <module>piccolo-config</module>
         <module>piccolo-common</module>
+        <module>piccolo-registry</module>
+        <module>piccolo-cache</module>
     </modules>
 
 
@@ -48,6 +50,8 @@
         <slf4j_version>1.7.25</slf4j_version>
         <logback_version>1.2.2</logback_version>
         <guava_version>28.0-jre</guava_version>
+        <jedis_version>2.9.0</jedis_version>
+        <fastjson_version>1.2.47</fastjson_version>
 
         <!-- Maven plugins -->
         <maven_compiler_version>3.6.0</maven_compiler_version>
@@ -68,23 +72,33 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ukuz</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>piccolo-transport</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ukuz</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>piccolo-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ukuz</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>piccolo-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.ukuz</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>piccolo-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>piccolo-cache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>piccolo-registry</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -129,11 +143,25 @@
                 <version>${curator_version}</version>
             </dependency>
 
+            <!-- redis -->
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis_version}</version>
+            </dependency>
+
             <!-- guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava_version}</version>
+            </dependency>
+
+            <!-- json -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson_version}</version>
             </dependency>
 
             <!-- apache commons -->

@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.cache;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.spi.Spi;
 
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Map;
 @Spi(primary = "redis")
 public interface CacheManager {
 
-    void init();
+    void init(PiccoloContext piccoloContext);
 
     void destroy();
 
@@ -40,6 +41,8 @@ public interface CacheManager {
 
     void set(String key, Object value, int expireTime);
 
+    String get(String key);
+
     <T> T get(String key, Class<T> tClass);
 
     void hset(String key, String field, String value);
@@ -50,13 +53,15 @@ public interface CacheManager {
 
     void hdel(String key, String field);
 
+    Map<String, String> hgetAll(String key);
+
     <T> Map<String, T> hgetAll(String key, Class<T> clazz);
 
-    void zAdd(String key, String value);
+    void zAdd(String key, String field, double score);
 
     Long zCard(String key);
 
-    void zRem(String key, String value);
+    void zRem(String key, String field);
 
     <T> List<T> zrange(String key, int start, int end, Class<T> clazz);
 

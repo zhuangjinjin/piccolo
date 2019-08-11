@@ -41,6 +41,7 @@ public class PiccoloServer implements PiccoloContext {
     private final GatewayServer gatewayServer;
     private final ConnectServer connectServer;
     private final ReusableSessionManager reusableSessionManager;
+    private final CacheManager cacheManager;
 
     private final RouterCenter routerCenter;
 
@@ -55,6 +56,8 @@ public class PiccoloServer implements PiccoloContext {
         EventBus.create(factory.create(ExecutorFactory.EVENT_BUS, environment));
 
         reusableSessionManager = new ReusableSessionManager(this);
+
+        cacheManager = SpiLoader.getLoader(CacheManager.class).getExtension();
 
         routerCenter = new RouterCenter(this);
 
@@ -79,7 +82,7 @@ public class PiccoloServer implements PiccoloContext {
 
     @Override
     public CacheManager getCacheManager() {
-        return null;
+        return cacheManager;
     }
 
     @Override

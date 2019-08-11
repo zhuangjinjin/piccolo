@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.properties;
-
-import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
-import io.github.ukuz.piccolo.api.config.Properties;
-import lombok.Data;
+package io.github.ukuz.piccolo.cache;
 
 /**
  * @author ukuz90
  */
-@ConfigurationProperties(prefix = "piccolo.thread-pool")
-@Data
-public class ThreadPoolProperties implements Properties {
+public class CacheException extends RuntimeException {
 
-    private ThreadPoolNestedProperties mq;
-    private ThreadPoolNestedProperties eventBus;
-
-    @Data
-    public class ThreadPoolNestedProperties implements Properties {
-
-        private int coreSize;
-        private int maxSize;
-        private int queueSize;
-        private int keepAliveSeconds;
-
+    public CacheException(String message) {
+        super(message);
     }
 
+    public CacheException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public CacheException(Throwable cause) {
+        super(cause);
+    }
 }
