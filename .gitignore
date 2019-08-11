@@ -27,6 +27,7 @@ buildNumber.properties
 *.diff
 *.patch
 *.tmp
+*.rdb
 
 # system ignore
 .DS_Store
