@@ -40,7 +40,6 @@
         <junit_jupiter_version>5.5.1</junit_jupiter_version>
         <netty_version>4.1.25.Final</netty_version>
         <curator_version>4.2.0</curator_version>
-        <zookeeper_version>3.4.10</zookeeper_version>
         <lombok_version>1.16.18</lombok_version>
         <mockito_version>2.28.2</mockito_version>
         <commons_configuration_version>2.5</commons_configuration_version>
@@ -142,17 +141,6 @@
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator_version}</version>
-                <!--<exclusions>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>org.apache.zookeeper</groupId>-->
-                        <!--<artifactId>zookeeper</artifactId>-->
-                    <!--</exclusion>-->
-                <!--</exclusions>-->
-            </dependency>
-            <dependency>
-                <groupId>org.apache.zookeeper</groupId>
-                <artifactId>zookeeper</artifactId>
-                <version>${zookeeper_version}</version>
             </dependency>
 
             <!-- redis -->
