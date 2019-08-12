@@ -20,12 +20,17 @@ import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
+import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
+import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
+import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
@@ -132,4 +137,14 @@ public class ConnectServer extends NettyServer {
         return null;
     }
 
+    @Override
+    public Registration getRegistration() {
+        ServiceInstance si = DefaultServiceInstance.builder()
+                .host(host)
+                .port(port)
+                .isPersistent(false)
+                .serviceId(ServiceNames.S_CONNECT)
+                .build();
+        return ZKRegistration.build(si);
+    }
 }

@@ -28,10 +28,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.github.ukuz</groupId>
-            <artifactId>piccolo-registry</artifactId>
-        </dependency>
     </dependencies>
 
 

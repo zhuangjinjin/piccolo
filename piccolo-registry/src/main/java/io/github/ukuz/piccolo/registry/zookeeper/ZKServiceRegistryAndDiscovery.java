@@ -101,7 +101,7 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
         if (registration.isPersistent()) {
             zkManager.getDirectory().registerPersistNode(registration.getServicePath(), Jsons.toJson(registration));
         } else {
-            zkManager.getDirectory().registerPersistNode(registration.getServicePath(), Jsons.toJson(registration));
+            zkManager.getDirectory().registerEphemeralNode(registration.getServicePath(), Jsons.toJson(registration));
         }
     }
 

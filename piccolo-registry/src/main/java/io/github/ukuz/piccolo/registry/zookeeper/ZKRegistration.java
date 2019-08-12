@@ -15,10 +15,9 @@
  */
 package io.github.ukuz.piccolo.registry.zookeeper;
 
-import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
-import lombok.Builder;
+import org.apache.curator.utils.ZKPaths;
 
 import java.util.Map;
 
@@ -61,6 +60,11 @@ public class ZKRegistration implements Registration, ServiceInstance {
     @Override
     public boolean isPersistent() {
         return instance.isPersistent();
+    }
+
+    @Override
+    public String getServicePath() {
+        return getServiceId() + ZKPaths.PATH_SEPARATOR + getHostAndPort();
     }
 
     public static ZKRegistration build(ServiceInstance instance) {
