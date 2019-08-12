@@ -26,6 +26,9 @@ import lombok.Data;
 @Data
 public class ZooKeeperProperties implements Properties {
 
+    /**
+     * host (eg: ip1:port1,ip2:port2,...)
+     */
     private String host;
     private String ns;
     private String digest;

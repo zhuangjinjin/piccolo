@@ -66,7 +66,7 @@ public final class ZooKeeperManager extends AbstractService {
                 ;
 
         // copied from baymax's ZKClient.java
-        if (StringUtil.isNullOrEmpty(zkProp.getDigest())) {
+        if (!StringUtil.isNullOrEmpty(zkProp.getDigest())) {
             /*
              * scheme对应于采用哪种方案来进行权限管理，zookeeper实现了一个pluggable的ACL方案，可以通过扩展scheme，来扩展ACL的机制。
              * zookeeper缺省支持下面几种scheme:
@@ -98,6 +98,7 @@ public final class ZooKeeperManager extends AbstractService {
     @Override
     protected CompletableFuture<Boolean> doStartAsync() throws ServiceException {
         try {
+            LOGGER.info("{} start", getName());
             client.start();
             LOGGER.info("{} wait for connect", getName());
             if (!client.blockUntilConnected(1, TimeUnit.MINUTES)) {

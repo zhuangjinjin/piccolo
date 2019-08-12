@@ -33,7 +33,7 @@ public class RedisProperties implements Properties {
     public static final String MODE_CLUSTER = "cluster";
 
     /**
-     * host (eg: ip1:port1,ip2:port2)
+     * host (eg: ip1:port1,ip2:port2,...)
      */
     private String host;
     /**

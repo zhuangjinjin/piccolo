@@ -32,6 +32,7 @@ import org.apache.curator.utils.ZKPaths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +50,14 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
         Environment environment = SpiLoader.getLoader(Environment.class).getExtension();
         zkManager = new ZooKeeperManager(environment.getProperties(ZooKeeperProperties.class));
         zkManager.init();
+    }
+
+    @Override
+    protected CompletableFuture<Boolean> doStartAsync() {
+        zkManager.start();
+        CompletableFuture future = new CompletableFuture<>();
+        future.complete(true);
+        return future;
     }
 
     @Override

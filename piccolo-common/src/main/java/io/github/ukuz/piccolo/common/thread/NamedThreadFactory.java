@@ -42,7 +42,7 @@ public class NamedThreadFactory implements ThreadFactory {
         this.prefix = prefix;
         this.isDaemon = isDaemon;
         SecurityManager sm = System.getSecurityManager();
-        group = sm.getThreadGroup() == null ? Thread.currentThread().getThreadGroup() : sm.getThreadGroup();
+        group = sm == null ? Thread.currentThread().getThreadGroup() : sm.getThreadGroup();
     }
 
     @Override
