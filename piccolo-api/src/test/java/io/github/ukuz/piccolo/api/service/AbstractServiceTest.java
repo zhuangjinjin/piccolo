@@ -80,13 +80,6 @@ class AbstractServiceTest {
         }
     }
 
-    @DisplayName("test_startAsync")
-    @Test
-    void testStartAsync() {
-        CompletableFuture<Boolean> future = service.startAsync(new EmptyCallback());
-        assertTrue(future.join());
-    }
-
     @DisplayName("test_stopAsync_WithException")
     @Test
     void testStopAsyncWithException() {
@@ -105,15 +98,6 @@ class AbstractServiceTest {
             assertEquals(ServiceException.class, e.getCause().getClass());
             assertEquals("io.github.ukuz.piccolo.api.service.ServiceException: java.io.FileNotFoundException: Resource was not exist.", e.getMessage());
         }
-    }
-
-    @DisplayName("test_stopAsync")
-    @Test
-    void testStopAsync() {
-        CompletableFuture<Boolean> startFuture = service.startAsync(new EmptyCallback());
-        assertTrue(startFuture.join());
-        CompletableFuture<Boolean> stopFuture = service.stopAsync(new EmptyCallback());
-        assertFalse(stopFuture.join());
     }
 
     @DisplayName("test_start")

@@ -13,30 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
+package io.github.ukuz.piccolo.api.push;
 
-import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.api.router.ClientLocator;
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * @author ukuz90
  */
-public class ServiceRegistryBoot implements BootJob {
+@Builder
+@Getter
+public class PushResult {
 
-    private ServiceRegistry registry;
+    public static final byte CODE_SUCCESS = 1;
+    public static final byte CODE_FAILURE = 2;
+    public static final byte CODE_OFFLINE = 3;
+    public static final byte CODE_TIMEOUT = 4;
 
-    public ServiceRegistryBoot(ServiceRegistry registry) {
-        this.registry = registry;
-    }
+    private byte resultCode;
+    private String userId;
+    private Object[] timeline;
+    private ClientLocator clientLocator;
 
-    @Override
-    public void start() {
-        //必须同步调用。
-        registry.start();
-    }
 
-    @Override
-    public void stop() {
-        registry.stopAsync();
-    }
+
 }

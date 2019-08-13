@@ -15,10 +15,14 @@
  */
 package io.github.ukuz.piccolo.api.mq;
 
+import io.github.ukuz.piccolo.api.service.Service;
+import io.github.ukuz.piccolo.api.spi.Spi;
+
 /**
  * @author ukuz90
  */
-public interface MQClient {
+@Spi(primary = "kafka")
+public interface MQClient extends Service {
 
     void subscribe(String topic, MQMessageReceiver receiver);
 

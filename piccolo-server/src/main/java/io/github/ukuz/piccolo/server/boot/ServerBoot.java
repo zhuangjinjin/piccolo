@@ -15,8 +15,6 @@
  */
 package io.github.ukuz.piccolo.server.boot;
 
-import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
 
 import java.util.concurrent.CompletableFuture;
@@ -31,18 +29,25 @@ public class ServerBoot implements BootJob {
         this.server = server;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void start() {
         CompletableFuture<Boolean> future = this.server.startAsync();
         future.whenCompleteAsync((success, throwable) -> {
             if (success && server.getRegistration() != null) {
-                SpiLoader.getLoader(ServiceRegistry.class).getExtension().registry(server.getRegistration());
+                server.getPiccoloContext().getServiceRegistry().registry(server.getRegistration());
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void stop() {
-        this.server.stopAsync();
+        CompletableFuture<Boolean> future = this.server.stopAsync();
+        future.whenCompleteAsync((success, throwable) -> {
+            if (success && server.getRegistration() != null) {
+                server.getPiccoloContext().getServiceRegistry().deregistry(server.getRegistration());
+            }
+        });
     }
 }

@@ -15,6 +15,8 @@
  */
 package io.github.ukuz.piccolo.api.service;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,20 +40,29 @@ public abstract class AbstractService implements Service {
 
     @Override
     public CompletableFuture<Boolean> startAsync() {
-        return startAsync(null);
+        return startAsyncWithCallback(null, null);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> startAsync(PiccoloContext context) {
+        Assert.notNull(context, "context must not be null");
+        return startAsyncWithCallback(context, null);
     }
 
     @Override
     public CompletableFuture<Boolean> stopAsync() {
-        return stopAsync(null);
+        return stopAsyncWithCallback(null);
     }
 
-    @Override
-    public final CompletableFuture<Boolean> startAsync(Callback callback) throws ServiceException {
+    protected final CompletableFuture<Boolean> startAsyncWithCallback(PiccoloContext context, Callback callback) throws ServiceException {
         ServiceCallback serviceCallback = wrapServiceCallback(callback);
         if  (isStarted.compareAndSet(false, true)) {
             try {
-                init();
+                if (context == null) {
+                    init();
+                } else {
+                    init(context);
+                }
                 CompletableFuture future = doStartAsync();
                 future.whenCompleteAsync((result, throwable) -> {
                     Optional.of(result).ifPresent(r-> serviceCallback.success());
@@ -74,8 +85,7 @@ public abstract class AbstractService implements Service {
         return serviceCallback;
     }
 
-    @Override
-    public final CompletableFuture<Boolean> stopAsync(Callback callback) {
+    public final CompletableFuture<Boolean> stopAsyncWithCallback(Callback callback) {
         ServiceCallback serviceCallback = wrapServiceCallback(callback);
         if (!isStarted.get()) {
             serviceCallback.failure(new IllegalStateServiceException("Service " + this.getClass().getName() + " was not running."));
@@ -100,7 +110,7 @@ public abstract class AbstractService implements Service {
     @Override
     public final boolean start() throws ServiceException {
         try {
-            return startAsync(null).join();
+            return startAsync().join();
         } catch (CompletionException e) {
             throw wrapServiceException(e.getCause());
         }
@@ -109,7 +119,7 @@ public abstract class AbstractService implements Service {
     @Override
     public final boolean stop() throws ServiceException {
         try {
-            return stopAsync(null).join();
+            return stopAsync().join();
         } catch (CompletionException e) {
             throw wrapServiceException(e.getCause());
         }

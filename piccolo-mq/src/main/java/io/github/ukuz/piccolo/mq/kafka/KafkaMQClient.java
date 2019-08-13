@@ -15,23 +15,53 @@
  */
 package io.github.ukuz.piccolo.mq.kafka;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
+import io.github.ukuz.piccolo.api.service.AbstractService;
+import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.mq.kafka.manager.KafkaManager;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author ukuz90
  */
-public class KafkaMQClient implements MQClient {
+public class KafkaMQClient extends AbstractService implements MQClient {
 
+    private KafkaManager kafkaManager;
 
+    @Override
+    public void init(PiccoloContext context) throws ServiceException {
+        kafkaManager = new KafkaManager(context);
+        kafkaManager.init();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected CompletableFuture<Boolean> doStartAsync() {
+        CompletableFuture future = new CompletableFuture();
+        future.complete(true);
+        return future;
+    }
+
+    @Override
+    public void destroy() throws ServiceException {
+        kafkaManager.destroy();
+    }
 
     @Override
     public void subscribe(String topic, MQMessageReceiver receiver) {
-
+        kafkaManager.subscribe(topic, receiver);
     }
 
     @Override
     public void publish(String topic, Object message) {
+        kafkaManager.publish(topic, message);
+    }
 
+    @Override
+    protected String getName() {
+        return "kafka mq client";
     }
 }

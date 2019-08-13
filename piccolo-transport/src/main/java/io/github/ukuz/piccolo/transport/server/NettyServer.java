@@ -217,6 +217,10 @@ public abstract class NettyServer extends AbstractService implements Server {
         return null;
     }
 
+    public PiccoloContext getPiccoloContext() {
+        return piccoloContext;
+    }
+
     public enum State {
         Created,
         Initializing,

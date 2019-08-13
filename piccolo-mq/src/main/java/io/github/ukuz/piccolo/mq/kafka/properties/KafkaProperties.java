@@ -19,8 +19,11 @@ import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
 import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.external.properties.PropertyMapper;
 import lombok.Data;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.BytesSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -37,6 +40,7 @@ public class KafkaProperties implements Properties {
 
     private ProducerNestedProperties producer;
     private ConsumerNestedProperties consumer;
+    private AdminClientNestedProperties adminClient;
 
     @Data
     public class ProducerNestedProperties implements Properties {
@@ -61,7 +65,7 @@ public class KafkaProperties implements Properties {
             //必填参数
             map.from(this::getBootstrapServers).to(props.in(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
             map.from(StringSerializer.class::getName).to(props.in(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG));
-            map.from(StringSerializer.class::getName).to(props.in(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG));
+            map.from(ByteArraySerializer.class::getName).to(props.in(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG));
 
             /////////////////////调优参数/////////////////////
             //最重要的参数之一
@@ -108,7 +112,7 @@ public class KafkaProperties implements Properties {
             map.from(this::getBootstrapServers).to(props.in(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
             map.from(this::getGroupId).to(props.in(ConsumerConfig.GROUP_ID_CONFIG));
             map.from(StringDeserializer.class::getName).to(props.in(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG));
-            map.from(StringDeserializer.class::getName).to(props.in(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG));
+            map.from(ByteArraySerializer.class::getName).to(props.in(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG));
             //offset从最早的开始，默认是从最近的开始
             map.from(this::getAutoOffsetReset).to(props.in(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG));
 
@@ -132,12 +136,30 @@ public class KafkaProperties implements Properties {
         }
     }
 
+    @Data
+    public class AdminClientNestedProperties implements Properties {
+        private String bootstrapServers;
+
+        private final HashMap<String, Object> properties = new HashMap<>();
+
+        public Map<String, Object> buildProperties() {
+            NestedProperties props = new NestedProperties();
+            PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+            map.from(this::getBootstrapServers).to(props.in(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG));
+            return props.with(properties);
+        }
+    }
+
     public Map<String, Object> buildProducerProperties() {
         return producer.buildProperties();
     }
 
     public Map<String, Object> buildConsumerProperties() {
         return consumer.buildProperties();
+    }
+
+    public Map<String, Object> buildAdminClientProperties() {
+        return adminClient.buildProperties();
     }
 
     public static class NestedProperties extends HashMap<String, Object> {

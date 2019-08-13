@@ -15,28 +15,29 @@
  */
 package io.github.ukuz.piccolo.server.boot;
 
-import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.mq.MQClient;
 
 /**
  * @author ukuz90
  */
-public class ServiceRegistryBoot implements BootJob {
+public class MQClientBoot implements BootJob {
 
-    private ServiceRegistry registry;
+    private MQClient mqClient;
+    private PiccoloContext context;
 
-    public ServiceRegistryBoot(ServiceRegistry registry) {
-        this.registry = registry;
+    public MQClientBoot(MQClient mqClient, PiccoloContext context) {
+        this.mqClient = mqClient;
+        this.context = context;
     }
 
     @Override
     public void start() {
-        //必须同步调用。
-        registry.start();
+        mqClient.startAsync(context);
     }
 
     @Override
     public void stop() {
-        registry.stopAsync();
+        mqClient.stopAsync();
     }
 }

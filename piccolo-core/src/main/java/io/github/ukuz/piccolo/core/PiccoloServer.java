@@ -24,6 +24,7 @@ import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
+import io.github.ukuz.piccolo.api.spi.Spi;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.core.router.RouterCenter;
@@ -31,6 +32,7 @@ import io.github.ukuz.piccolo.core.server.ConnectServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
 import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
 import io.github.ukuz.piccolo.core.threadpool.ServerExecutorFactory;
+import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
 
 /**
  * @author ukuz90
@@ -42,6 +44,9 @@ public class PiccoloServer implements PiccoloContext {
     private final ConnectServer connectServer;
     private final ReusableSessionManager reusableSessionManager;
     private final CacheManager cacheManager;
+    private final ExecutorFactory executorFactory;
+    private final MQClient mqClient;
+    private final ZKServiceRegistryAndDiscovery srd;
 
     private final RouterCenter routerCenter;
 
@@ -52,8 +57,12 @@ public class PiccoloServer implements PiccoloContext {
         environment.load("piccolo-server.properties");
 
         //initialize eventBus
-        ServerExecutorFactory factory = new ServerExecutorFactory();
-        EventBus.create(factory.create(ExecutorFactory.EVENT_BUS, environment));
+        executorFactory = new ServerExecutorFactory();
+        EventBus.create(executorFactory.create(ExecutorFactory.EVENT_BUS, environment));
+
+        srd = (ZKServiceRegistryAndDiscovery) SpiLoader.getLoader(ServiceRegistry.class).getExtension("zk");
+
+        mqClient = SpiLoader.getLoader(MQClient.class).getExtension();
 
         reusableSessionManager = new ReusableSessionManager(this);
 
@@ -72,12 +81,12 @@ public class PiccoloServer implements PiccoloContext {
 
     @Override
     public ServiceRegistry getServiceRegistry() {
-        return null;
+        return srd;
     }
 
     @Override
     public ServiceDiscovery getServiceDiscovery() {
-        return null;
+        return srd;
     }
 
     @Override
@@ -87,7 +96,7 @@ public class PiccoloServer implements PiccoloContext {
 
     @Override
     public MQClient getMQClient() {
-        return null;
+        return mqClient;
     }
 
     @Override
@@ -98,6 +107,11 @@ public class PiccoloServer implements PiccoloContext {
     @Override
     public <T extends Properties> T getProperties(Class<T> clazz) {
         return environment.getProperties(clazz);
+    }
+
+    @Override
+    public ExecutorFactory getExecutorFactory() {
+        return executorFactory;
     }
 
     public GatewayServer getGatewayServer() {

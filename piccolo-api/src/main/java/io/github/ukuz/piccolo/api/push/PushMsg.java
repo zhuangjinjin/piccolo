@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
+package io.github.ukuz.piccolo.api.push;
 
-import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * @author ukuz90
  */
-public class ServiceDiscoveryBoot implements BootJob {
+@Builder
+@Getter
+public class PushMsg {
 
-    private ServiceDiscovery discovery = SpiLoader.getLoader(ServiceDiscovery.class).getExtension();
+    private int msgType;
+    private int msgId;
+    private String content;
 
-    @Override
-    public void start() {
-        discovery.start();
-    }
-
-    @Override
-    public void stop() {
-        discovery.stopAsync();
-    }
 }

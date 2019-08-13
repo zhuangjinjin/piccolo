@@ -15,8 +15,17 @@
  */
 package io.github.ukuz.piccolo.mq.kafka.consumer;
 
+import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,16 +33,54 @@ import java.util.Map;
  */
 public class KafkaConsumerWorker implements Runnable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerWorker.class);
     private final Map<String, Object> properties;
+    private List<String> topics;
+    private volatile boolean running = true;
+    private final MQMessageReceiver receiver;
 
-    public KafkaConsumerWorker(Map<String, Object> properties) {
+    public KafkaConsumerWorker(Map<String, Object> properties, List<String> topics, MQMessageReceiver receiver) {
         this.properties = properties;
+        this.topics = topics;
+        this.receiver = receiver;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         try(KafkaConsumer consumer = new KafkaConsumer(properties)) {
+            try {
+                consumer.subscribe(topics, new ConsumerRebalanceListener() {
+                    @Override
+                    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+
+                    }
+
+                    @Override
+                    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+
+                    }
+                });
+                while (isRunning()) {
+                    ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(1000));
+                    records.forEach(record -> {
+                        receiver.receive(record.topic(), record.value());
+                    });
+
+                }
+
+            } catch (Exception e) {
+
+            }
 
         }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }

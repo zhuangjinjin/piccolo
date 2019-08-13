@@ -15,6 +15,8 @@
  */
 package io.github.ukuz.piccolo.api.service;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -40,20 +42,11 @@ public interface Service {
     CompletableFuture<Boolean> stopAsync();
 
     /**
-     * asynchronous start service with callback.
-     *
-     * @param callback
+     * asynchronus start service
+     * @param context
      * @return
      */
-    CompletableFuture<Boolean> startAsync(Callback callback);
-
-    /**
-     * asynchronous start service with callback.
-     *
-     * @param callback
-     * @return
-     */
-    CompletableFuture<Boolean> stopAsync(Callback callback);
+    CompletableFuture<Boolean> startAsync(PiccoloContext context);
 
     /**
      * synchronous start service.
@@ -77,6 +70,13 @@ public interface Service {
      * @throws ServiceException
      */
     default void init() throws ServiceException {}
+
+    /**
+     * synchronous init service.
+     * @param context
+     * @throws ServiceException
+     */
+    default void init(PiccoloContext context) throws ServiceException {}
 
     /**
      * synchronous destroy service.

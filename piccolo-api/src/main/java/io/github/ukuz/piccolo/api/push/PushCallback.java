@@ -13,30 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
-
-import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
+package io.github.ukuz.piccolo.api.push;
 
 /**
  * @author ukuz90
  */
-public class ServiceRegistryBoot implements BootJob {
+public interface PushCallback {
 
-    private ServiceRegistry registry;
+    default void onResult(PushResult pushResult) {
 
-    public ServiceRegistryBoot(ServiceRegistry registry) {
-        this.registry = registry;
     }
 
-    @Override
-    public void start() {
-        //必须同步调用。
-        registry.start();
-    }
-
-    @Override
-    public void stop() {
-        registry.stopAsync();
-    }
 }

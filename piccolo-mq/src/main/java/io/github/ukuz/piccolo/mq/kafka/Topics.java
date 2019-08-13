@@ -13,30 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.server.boot;
-
-import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
+package io.github.ukuz.piccolo.mq.kafka;
 
 /**
  * @author ukuz90
  */
-public class ServiceRegistryBoot implements BootJob {
+public enum Topics {
 
-    private ServiceRegistry registry;
+    ;
 
-    public ServiceRegistryBoot(ServiceRegistry registry) {
-        this.registry = registry;
+    private final String topic;
+    private final int numOfPartition;
+    private final short replicationFactor;
+
+    Topics(String topic, int numOfPartition, short replicationFactor) {
+        this.topic = topic;
+        this.numOfPartition = numOfPartition;
+        this.replicationFactor = replicationFactor;
     }
 
-    @Override
-    public void start() {
-        //必须同步调用。
-        registry.start();
+    public String getTopic() {
+        return topic;
     }
 
-    @Override
-    public void stop() {
-        registry.stopAsync();
+    public int getNumOfPartition() {
+        return numOfPartition;
+    }
+
+    public short getReplicationFactor() {
+        return replicationFactor;
     }
 }

@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.api;
 
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
+import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.mq.MQClient;
@@ -41,5 +42,7 @@ public interface PiccoloContext {
     Environment getEnvironment();
 
     <T extends Properties> T getProperties(Class<T> clazz);
+
+    ExecutorFactory getExecutorFactory();
 
 }

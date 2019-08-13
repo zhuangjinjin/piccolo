@@ -48,9 +48,9 @@ public class ServerLauncher {
             processChain = newBootProcessChain();
         }
 
-        processChain.addLast(new ServiceRegistryBoot());
-//        processChain.addLast(new ServiceDiscoveryBoot());
+        processChain.addLast(new ServiceRegistryBoot(server.getServiceRegistry()));
 
+        processChain.addLast(new MQClientBoot(server.getMQClient(), server));
         processChain.addLast(new CacheManagerBoot(server.getCacheManager(), server));
         processChain.addLast(new RouterCenterBoot(server.getRouterCenter()));
         processChain.addLast(new ServerBoot(server.getGatewayServer()));
@@ -69,7 +69,5 @@ public class ServerLauncher {
     private BootProcessChain newBootProcessChain() {
         return new DefaultBootProcessChain();
     }
-
-
 
 }
