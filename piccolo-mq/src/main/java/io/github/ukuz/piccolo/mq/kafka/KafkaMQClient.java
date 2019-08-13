@@ -13,28 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.properties;
+package io.github.ukuz.piccolo.mq.kafka;
 
-import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
-import io.github.ukuz.piccolo.api.config.Properties;
-import lombok.Data;
+import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 
 /**
  * @author ukuz90
  */
-@ConfigurationProperties(prefix = "piccolo.client")
-@Data
-public class ClientProperties implements Properties {
+public class KafkaMQClient implements MQClient {
 
-     private String connectServerHost;
-     private Integer connectServerPort;
 
-     private String gatewayServerHost;
-     private Integer gatewayServerPort;
 
-     private String serverPublicKey;
-     private String clientPrivateKey;
+    @Override
+    public void subscribe(String topic, MQMessageReceiver receiver) {
 
-     private Integer aesKeyLength;
+    }
 
+    @Override
+    public void publish(String topic, Object message) {
+
+    }
 }

@@ -26,16 +26,13 @@ import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
-import io.github.ukuz.piccolo.core.PiccoloServer;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
-import io.github.ukuz.piccolo.transport.eventloop.EventLoopGroupFactory;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
-import io.netty.channel.ChannelFactory;
 
 import java.net.InetSocketAddress;
 
@@ -48,6 +45,7 @@ public class GatewayServer extends NettyServer {
     private final String host;
     private final int port;
     private final ConnectionManager cxnxManager;
+    private ZKRegistration serviceInstance;
 
     public GatewayServer(PiccoloContext piccoloContext) {
         this(piccoloContext,
@@ -76,7 +74,13 @@ public class GatewayServer extends NettyServer {
     @Override
     protected void doInit() {
         address = new InetSocketAddress(host, port);
-
+        ServiceInstance si = DefaultServiceInstance.builder()
+                .host(host)
+                .port(port)
+                .isPersistent(false)
+                .serviceId(ServiceNames.S_GATEWAY)
+                .build();
+        serviceInstance = ZKRegistration.build(si);
     }
 
     @Override
@@ -121,12 +125,6 @@ public class GatewayServer extends NettyServer {
 
     @Override
     public Registration getRegistration() {
-        ServiceInstance si = DefaultServiceInstance.builder()
-                .host(host)
-                .port(port)
-                .isPersistent(false)
-                .serviceId(ServiceNames.S_GATEWAY)
-                .build();
-        return ZKRegistration.build(si);
+        return serviceInstance;
     }
 }

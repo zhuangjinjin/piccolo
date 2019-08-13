@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.properties;
+package io.github.ukuz.piccolo.api.event;
 
-import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
-import io.github.ukuz.piccolo.api.config.Properties;
-import lombok.Data;
+import io.github.ukuz.piccolo.api.connection.Connection;
 
 /**
  * @author ukuz90
  */
-@ConfigurationProperties(prefix = "piccolo.client")
-@Data
-public class ClientProperties implements Properties {
+public class UserOnlineEvent implements ApplicationEvent {
 
-     private String connectServerHost;
-     private Integer connectServerPort;
+    private final String userId;
+    private final Connection connection;
 
-     private String gatewayServerHost;
-     private Integer gatewayServerPort;
+    public UserOnlineEvent(String userId, Connection connection) {
+        this.userId = userId;
+        this.connection = connection;
+    }
 
-     private String serverPublicKey;
-     private String clientPrivateKey;
+    public String getUserId() {
+        return userId;
+    }
 
-     private Integer aesKeyLength;
-
+    public Connection getConnection() {
+        return connection;
+    }
 }

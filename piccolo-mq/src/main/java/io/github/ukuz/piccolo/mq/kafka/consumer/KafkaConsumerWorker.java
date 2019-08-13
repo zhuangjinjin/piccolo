@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.properties;
+package io.github.ukuz.piccolo.mq.kafka.consumer;
 
-import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
-import io.github.ukuz.piccolo.api.config.Properties;
-import lombok.Data;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+
+import java.util.Map;
 
 /**
  * @author ukuz90
  */
-@ConfigurationProperties(prefix = "piccolo.client")
-@Data
-public class ClientProperties implements Properties {
+public class KafkaConsumerWorker implements Runnable {
 
-     private String connectServerHost;
-     private Integer connectServerPort;
+    private final Map<String, Object> properties;
 
-     private String gatewayServerHost;
-     private Integer gatewayServerPort;
+    public KafkaConsumerWorker(Map<String, Object> properties) {
+        this.properties = properties;
+    }
 
-     private String serverPublicKey;
-     private String clientPrivateKey;
+    @Override
+    public void run() {
+        try(KafkaConsumer consumer = new KafkaConsumer(properties)) {
 
-     private Integer aesKeyLength;
-
+        }
+    }
 }

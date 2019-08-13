@@ -25,6 +25,7 @@ import redis.clients.util.Pool;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,14 +45,14 @@ public class RedisConnectionFactory {
     private JedisCluster cluster;
     private Pool<Jedis> pool;
 
-    private int database;
+    private int database = Protocol.DEFAULT_DATABASE;
 
     public void init(RedisProperties redisProperties) {
         this.properties = redisProperties;
         redisServers = RedisNode.from(properties.getHost());
 
         shardInfo = createShareInfo();
-        database = properties.getDatabase();
+        Optional.ofNullable(properties.getDatabase()).ifPresent(v -> database=v);
 
         if (properties.isCluster()) {
             cluster = createCluster();

@@ -38,10 +38,10 @@ public class ServerExecutorFactory extends AbstractExecutorFactory {
                         .queueCapacity(tp.getMq().getQueueSize())
                         .keepAliveSeconds(tp.getMq().getKeepAliveSeconds())
                         .build();
-                break;
+                return createExecutor(config);
             default:
                 return super.create(name, environment);
         }
-        return createExecutor(config);
+
     }
 }

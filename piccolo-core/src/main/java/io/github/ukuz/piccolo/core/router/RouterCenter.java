@@ -17,10 +17,12 @@ package io.github.ukuz.piccolo.core.router;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.event.RouterChangeEvent;
 import io.github.ukuz.piccolo.api.router.ClientLocator;
 import io.github.ukuz.piccolo.api.router.Router;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.core.PiccoloServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +60,33 @@ public final class RouterCenter extends AbstractService {
      * @return
      */
     public boolean register(String userId, Connection connection) {
-//        ClientLocator clientLocator = ClientLocator.from(connection)
-//                .setHost()
-//                .setPort()
-        return false;
+        ClientLocator clientLocator = ClientLocator.from(connection)
+                .setHost(piccoloServer.getGatewayServer().getRegistration().getHost())
+                .setPort(piccoloServer.getGatewayServer().getRegistration().getPort());
+
+        LocalRouter localRouter = new LocalRouter(connection);
+        RemoteRouter remoteRouter = new RemoteRouter(clientLocator);
+
+        LocalRouter oldLocalRouter = null;
+        RemoteRouter oldRemoteRouter = null;
+        try {
+            oldLocalRouter = localRouterManager.register(userId, localRouter);
+            oldRemoteRouter = remoteRouterManager.register(userId, remoteRouter);
+        } catch (Exception e) {
+            LOGGER.error("register router failure, userId: {}, cause: {}", userId, e);
+        }
+
+        if (oldLocalRouter != null) {
+            EventBus.post(new RouterChangeEvent(userId, oldLocalRouter));
+            LOGGER.info("register router success, userId: {}, oldLocalRouter: {}", oldLocalRouter);
+        }
+
+        if (oldRemoteRouter != null && oldRemoteRouter.isOnline()) {
+            EventBus.post(new RouterChangeEvent(userId, oldRemoteRouter));
+            LOGGER.info("register router success, userId: {}, oldRemoteRouter: {}", oldRemoteRouter);
+        }
+
+        return true;
     }
 
     /**
@@ -71,8 +96,23 @@ public final class RouterCenter extends AbstractService {
      * @param clientType
      * @return
      */
-    public boolean unRegister(String userId, int clientType) {
-        return false;
+    public boolean unRegister(String userId, byte clientType) {
+        return unRegisterRemote(userId, clientType) && unRegisterLocal(userId, clientType);
     }
 
+    public LocalRouter lookupLocal(String userId, byte clientType) {
+        return localRouterManager.lookup(userId, clientType);
+    }
+
+    public RemoteRouter lookupRemote(String userId, byte clientType) {
+        return remoteRouterManager.lookup(userId, clientType);
+    }
+
+    public boolean unRegisterLocal(String userId, byte clientType) {
+        return localRouterManager.unregister(userId, clientType);
+    }
+
+    public boolean unRegisterRemote(String userId, byte clientType) {
+        return remoteRouterManager.unregister(userId, clientType);
+    }
 }

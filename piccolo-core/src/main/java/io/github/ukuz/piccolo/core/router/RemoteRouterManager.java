@@ -60,13 +60,19 @@ public class RemoteRouterManager extends EventObservable implements RouterManage
     public boolean unregister(String userId, byte clientType) {
         String key = CacheKeys.getUserRouteKey(userId);
         String field = String.valueOf(clientType);
-        ClientLocator old = cacheManager.hget(key, field, ClientLocator.class);
-        if (old == null || old.isOffline()) {
+        ClientLocator old = null;
+        try {
+            old = cacheManager.hget(key, field, ClientLocator.class);
+            if (old == null || old.isOffline()) {
+                return true;
+            }
+            cacheManager.hset(key, field, old.offline().toJson());
+            logger.info("unRegister remote router success,  userId: {} router: {}", userId, old);
             return true;
+        } catch (Exception e) {
+            logger.error("unRegister remote router failure, userId: {} router: {} cause: {}", userId, old, e);
+            return false;
         }
-        cacheManager.hset(key, field, old.offline().toJson());
-        logger.info("unRegister remote router success userId={}, route={}", userId, old);
-        return true;
     }
 
     @Override

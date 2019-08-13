@@ -50,6 +50,7 @@ public class ConnectServer extends NettyServer {
     private final String host;
     private final int port;
     private GlobalChannelTrafficShapingHandler channelTrafficShapingHandler;
+    private ZKRegistration serviceInstance;
 
     public ConnectServer(PiccoloContext piccoloContext) {
         this(piccoloContext,
@@ -79,6 +80,14 @@ public class ConnectServer extends NettyServer {
     @Override
     protected void doInit() {
         this.address = new InetSocketAddress(this.host, this.port);
+
+        ServiceInstance si = DefaultServiceInstance.builder()
+                .host(host)
+                .port(port)
+                .isPersistent(false)
+                .serviceId(ServiceNames.S_CONNECT)
+                .build();
+        serviceInstance = ZKRegistration.build(si);
         //限流
         NetProperties.TrafficNestedProperties traffic = piccoloContext.getProperties(NetProperties.class).getConnectServerTraffic();
         if (traffic.isEnabled()) {
@@ -139,12 +148,6 @@ public class ConnectServer extends NettyServer {
 
     @Override
     public Registration getRegistration() {
-        ServiceInstance si = DefaultServiceInstance.builder()
-                .host(host)
-                .port(port)
-                .isPersistent(false)
-                .serviceId(ServiceNames.S_CONNECT)
-                .build();
-        return ZKRegistration.build(si);
+        return serviceInstance;
     }
 }

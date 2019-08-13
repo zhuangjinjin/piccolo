@@ -15,6 +15,7 @@
         <module>piccolo-common</module>
         <module>piccolo-registry</module>
         <module>piccolo-cache</module>
+        <module>piccolo-mq</module>
     </modules>
 
 
@@ -52,6 +53,7 @@
         <guava_version>28.0-jre</guava_version>
         <jedis_version>2.9.0</jedis_version>
         <fastjson_version>1.2.47</fastjson_version>
+        <kafka_version>2.0.0</kafka_version>
 
         <!-- Maven plugins -->
         <maven_compiler_version>3.6.0</maven_compiler_version>
@@ -99,6 +101,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>piccolo-registry</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>piccolo-mq</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -163,6 +170,18 @@
                 <artifactId>fastjson</artifactId>
                 <version>${fastjson_version}</version>
             </dependency>
+
+            <!-- kafka client -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka_version}</version>
+            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.kafka</groupId>-->
+                <!--<artifactId>kafka-clients</artifactId>-->
+                <!--<version>${kafka_version}</version>-->
+            <!--</dependency>-->
 
             <!-- apache commons -->
             <dependency>

@@ -30,11 +30,11 @@ public class CoreProperties implements Properties {
      * netty, nio
      */
     private String epollProvider;
-    private int maxHeartbeatTime;
-    private int minHeartbeatTime;
-    private int maxPacketSize;
-    private int maxHbTimeoutMs;
-    private int sessionExpireTime;
+    private Integer maxHeartbeatTime;
+    private Integer minHeartbeatTime;
+    private Integer maxPacketSize;
+    private Integer maxHbTimeoutMs;
+    private Integer sessionExpireTime;
 
     public boolean isUseNettyEpoll() {
         if (!"netty".equals(epollProvider)) {

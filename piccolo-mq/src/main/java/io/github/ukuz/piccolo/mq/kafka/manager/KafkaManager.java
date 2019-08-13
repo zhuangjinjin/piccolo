@@ -13,28 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.properties;
+package io.github.ukuz.piccolo.mq.kafka.manager;
 
-import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
-import io.github.ukuz.piccolo.api.config.Properties;
-import lombok.Data;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
 
 /**
  * @author ukuz90
  */
-@ConfigurationProperties(prefix = "piccolo.client")
-@Data
-public class ClientProperties implements Properties {
+public class KafkaManager {
 
-     private String connectServerHost;
-     private Integer connectServerPort;
-
-     private String gatewayServerHost;
-     private Integer gatewayServerPort;
-
-     private String serverPublicKey;
-     private String clientPrivateKey;
-
-     private Integer aesKeyLength;
+    private KafkaProducer producer;
+    private KafkaConsumer consumer;
 
 }

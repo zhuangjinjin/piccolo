@@ -13,37 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.core.router;
+package io.github.ukuz.piccolo.api.event;
 
-import io.github.ukuz.piccolo.api.router.ClientLocator;
 import io.github.ukuz.piccolo.api.router.Router;
 
 /**
  * @author ukuz90
  */
-public class RemoteRouter implements Router<ClientLocator> {
+public class RouterChangeEvent implements ApplicationEvent {
 
-    private ClientLocator clientLocator;
+    private final String userId;
+    private final Router<?> router;
 
-    public RemoteRouter(ClientLocator clientLocator) {
-        this.clientLocator = clientLocator;
+    public RouterChangeEvent(String userId, Router<?> router) {
+        this.userId = userId;
+        this.router = router;
     }
 
-    @Override
-    public ClientLocator getRouterValue() {
-        return clientLocator;
+    public String getUserId() {
+        return userId;
     }
 
-    @Override
-    public RouterType getRouterType() {
-        return RouterType.REMOTE;
-    }
-
-    public byte getClientType() {
-        return (byte) clientLocator.getClientType();
-    }
-
-    public boolean isOnline() {
-        return clientLocator.isOnline();
+    public Router<?> getRouter() {
+        return router;
     }
 }

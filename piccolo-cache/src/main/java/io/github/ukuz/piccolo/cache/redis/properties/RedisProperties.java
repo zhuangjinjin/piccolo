@@ -21,6 +21,8 @@ import io.netty.util.internal.StringUtil;
 import lombok.Data;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.Optional;
+
 /**
  * @author ukuz90
  */
@@ -43,7 +45,7 @@ public class RedisProperties implements Properties {
     /**
      * >= 0 (default 0)
      */
-    private int database;
+    private Integer database;
     private String sentinelMaster;
     private String password;
 
@@ -63,19 +65,19 @@ public class RedisProperties implements Properties {
     @Data
     public class RedisPoolNestedConfig implements Properties {
 
-        private boolean testWhileIdle;
-        private boolean testOnBorrow;
-        private long minEvictableIdleTimeMillis;
-        private long timeBetweenEvictionRunsMillis;
-        private int numTestsPerEvictionRun;
+        private Boolean testWhileIdle;
+        private Boolean testOnBorrow;
+        private Long minEvictableIdleTimeMillis;
+        private Long timeBetweenEvictionRunsMillis;
+        private Integer numTestsPerEvictionRun;
 
         public JedisPoolConfig apply() {
             JedisPoolConfig config = new JedisPoolConfig();
-            config.setTestWhileIdle(testWhileIdle);
-            config.setTestOnBorrow(testOnBorrow);
-            config.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-            config.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-            config.setNumTestsPerEvictionRun(numTestsPerEvictionRun);
+            Optional.ofNullable(testWhileIdle).ifPresent(config::setTestWhileIdle);
+            Optional.ofNullable(testOnBorrow).ifPresent(config::setTestOnBorrow);
+            Optional.ofNullable(timeBetweenEvictionRunsMillis).ifPresent(config::setTimeBetweenEvictionRunsMillis);
+            Optional.ofNullable(minEvictableIdleTimeMillis).ifPresent(config::setMinEvictableIdleTimeMillis);
+            Optional.ofNullable(numTestsPerEvictionRun).ifPresent(config::setNumTestsPerEvictionRun);
             return config;
         }
 
