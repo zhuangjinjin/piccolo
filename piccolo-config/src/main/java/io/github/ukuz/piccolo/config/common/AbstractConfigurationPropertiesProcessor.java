@@ -43,21 +43,21 @@ public abstract class AbstractConfigurationPropertiesProcessor<T extends Configu
     @Override
     public void init() {
         logger.info("properties processor init.");
-        wireTypeFunction.putIfAbsent(int.class, (key, configuration) -> configuration.getInt(key, 0));
-        wireTypeFunction.putIfAbsent(Integer.class, (key, configuration) -> configuration.getInteger(key, Integer.valueOf(0)));
+        wireTypeFunction.putIfAbsent(int.class, (key, configuration) -> configuration.getInteger(key, 0));
+        wireTypeFunction.putIfAbsent(Integer.class, (key, configuration) -> configuration.getInteger(key, null));
         wireTypeFunction.putIfAbsent(byte.class, (key, configuration) -> configuration.getByte(key, (byte) 0));
-        wireTypeFunction.putIfAbsent(Byte.class, (key, configuration) -> configuration.getByte(key, (byte) 0));
+        wireTypeFunction.putIfAbsent(Byte.class, (key, configuration) -> configuration.getByte(key, null));
         wireTypeFunction.putIfAbsent(boolean.class, (key, configuration) -> configuration.getBoolean(key, false));
         wireTypeFunction.putIfAbsent(Boolean.class, (key, configuration) -> configuration.getBoolean(key, Boolean.FALSE));
         wireTypeFunction.putIfAbsent(short.class, (key, configuration) -> configuration.getShort(key, (short) 0));
-        wireTypeFunction.putIfAbsent(Short.class, (key, configuration) -> configuration.getShort(key, (short) 0));
+        wireTypeFunction.putIfAbsent(Short.class, (key, configuration) -> configuration.getShort(key, null));
         wireTypeFunction.putIfAbsent(long.class, (key, configuration) -> configuration.getLong(key, 0));
-        wireTypeFunction.putIfAbsent(Long.class, (key, configuration) -> configuration.getLong(key, Long.valueOf(0)));
+        wireTypeFunction.putIfAbsent(Long.class, (key, configuration) -> configuration.getLong(key, null));
         wireTypeFunction.putIfAbsent(float.class, (key, configuration) -> configuration.getFloat(key, 0));
-        wireTypeFunction.putIfAbsent(Float.class, (key, configuration) -> configuration.getFloat(key, Float.valueOf(0)));
+        wireTypeFunction.putIfAbsent(Float.class, (key, configuration) -> configuration.getFloat(key, null));
         wireTypeFunction.putIfAbsent(double.class, (key, configuration) -> configuration.getDouble(key, 0));
-        wireTypeFunction.putIfAbsent(Double.class, (key, configuration) -> configuration.getDouble(key, Double.valueOf(0)));
-        wireTypeFunction.putIfAbsent(String.class, (key, configuration) -> configuration.getString(key, ""));
+        wireTypeFunction.putIfAbsent(Double.class, (key, configuration) -> configuration.getDouble(key, null));
+        wireTypeFunction.putIfAbsent(String.class, (key, configuration) -> configuration.getString(key, null));
     }
 
     @Override
