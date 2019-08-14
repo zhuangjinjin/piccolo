@@ -17,11 +17,18 @@ package io.github.ukuz.piccolo.api.common;
 
 import io.github.ukuz.piccolo.api.annotation.AnnotationTypeFilter;
 import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author ukuz90
@@ -30,6 +37,8 @@ public class ClassPathScanner {
 
     private static final char CLASSPATH_RESOURCE_PATH_SEPARATOR = '/';
     private static final char PACKAGE_SEPARATOR_CHAR = '.';
+    private static final String CLASS_NAME_SUFFIX = ".class";
+    private static final String PACKAGE_SEPARATOR_REGEX = "\\.";
 
     private Set<AnnotationTypeFilter> includes = new HashSet<>();
     private Set<AnnotationTypeFilter> excludes = new HashSet<>();
@@ -51,24 +60,31 @@ public class ClassPathScanner {
     public Set<Class> scan(String[] scanPackages) throws ClassNotFoundException, URISyntaxException {
         Set<Class> result = new HashSet<>();
         for (String scanPackage : scanPackages) {
+            int baseNameCount = scanPackage.split(PACKAGE_SEPARATOR_REGEX).length;
             String scanPath = scanPackage.replace(PACKAGE_SEPARATOR_CHAR, CLASSPATH_RESOURCE_PATH_SEPARATOR);
-            File file = new File(findClassLoader().getResource(scanPath).toURI());
-            doCandidate(scanPath, file, result);
+            Path baseDir = Paths.get(findClassLoader().getResource(scanPath).toURI());
+            doCandidate(baseDir, baseNameCount, baseDir.toFile(), result);
         }
 
         return result;
     }
 
-    private void doCandidate(String scanPath, File file, Set<Class> candidatedClassSet) throws ClassNotFoundException {
+    private void doCandidate(Path baseDir, int baseNameCount, File file, Set<Class> candidatedClassSet) throws ClassNotFoundException {
         if (file.isDirectory()) {
             File[] childrenFiles = file.listFiles();
             for (File childrenFile : childrenFiles) {
-                doCandidate(scanPath, childrenFile, candidatedClassSet);
+                doCandidate(baseDir, baseNameCount, childrenFile, candidatedClassSet);
             }
         } else {
-            int start = file.getPath().indexOf(scanPath);
-            int end = file.getPath().lastIndexOf(".class");
-            String className = file.getPath().substring(start, end).replace(CLASSPATH_RESOURCE_PATH_SEPARATOR, PACKAGE_SEPARATOR_CHAR);
+            Path path = Paths.get(file.toURI());
+            String className = null;
+            if (!path.startsWith(baseDir)) {
+               return;
+            }
+            Path newPath = path.subpath(baseDir.getNameCount() - baseNameCount, path.getNameCount());
+            StringBuilder sb = new StringBuilder();
+            newPath.forEach(p -> sb.append(p.toString()).append(PACKAGE_SEPARATOR_CHAR));
+            className = sb.substring(0, sb.lastIndexOf(CLASS_NAME_SUFFIX));
             Class clazz = findClassLoader().loadClass(className);
             if (candidate(clazz)) {
                 candidatedClassSet.add(clazz);
