@@ -32,6 +32,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-registry</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>piccolo-mq</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

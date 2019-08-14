@@ -18,11 +18,20 @@ package io.github.ukuz.piccolo.core.handler;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.message.DispatcherMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static io.github.ukuz.piccolo.mq.kafka.Topics.*;
 
 /**
  * @author ukuz90
  */
 public class DispatcherHandler implements ChannelHandler {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(DispatcherHandler.class);
 
     private ChannelHandler channelHandler;
 
@@ -33,22 +42,25 @@ public class DispatcherHandler implements ChannelHandler {
 
     @Override
     public void connected(Connection connection) throws ExchangeException {
-        
     }
 
     @Override
     public void disconnected(Connection connection) throws ExchangeException {
-
     }
 
     @Override
     public void sent(Connection connection, Object message) throws ExchangeException {
-
     }
 
     @Override
     public void received(Connection connection, Object message) throws ExchangeException {
-
+        if (message instanceof DispatcherMessage) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("DispatcherHandler received message: {}", message);
+            }
+            MQClient client = SpiLoader.getLoader(MQClient.class).getExtension();
+            client.publish(DISPATCH_MESSAGE.getTopic(), ((DispatcherMessage) message).payload);
+        }
     }
 
     @Override

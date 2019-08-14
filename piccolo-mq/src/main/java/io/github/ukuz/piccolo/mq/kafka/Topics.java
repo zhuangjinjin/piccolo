@@ -19,7 +19,10 @@ package io.github.ukuz.piccolo.mq.kafka;
  * @author ukuz90
  */
 public enum Topics {
-
+    /**
+     *
+     */
+    DISPATCH_MESSAGE("/piccolo/dispatch", 3, (short) 3),
     ;
 
     private final String topic;

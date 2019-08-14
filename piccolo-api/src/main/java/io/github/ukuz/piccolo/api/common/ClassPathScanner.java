@@ -28,6 +28,9 @@ import java.util.Set;
  */
 public class ClassPathScanner {
 
+    private static final char CLASSPATH_RESOURCE_PATH_SEPARATOR = '/';
+    private static final char PACKAGE_SEPARATOR_CHAR = '.';
+
     private Set<AnnotationTypeFilter> includes = new HashSet<>();
     private Set<AnnotationTypeFilter> excludes = new HashSet<>();
 
@@ -48,7 +51,7 @@ public class ClassPathScanner {
     public Set<Class> scan(String[] scanPackages) throws ClassNotFoundException, URISyntaxException {
         Set<Class> result = new HashSet<>();
         for (String scanPackage : scanPackages) {
-            String scanPath = scanPackage.replaceAll("\\.", File.separator);
+            String scanPath = scanPackage.replace(PACKAGE_SEPARATOR_CHAR, CLASSPATH_RESOURCE_PATH_SEPARATOR);
             File file = new File(findClassLoader().getResource(scanPath).toURI());
             doCandidate(scanPath, file, result);
         }
@@ -65,7 +68,7 @@ public class ClassPathScanner {
         } else {
             int start = file.getPath().indexOf(scanPath);
             int end = file.getPath().lastIndexOf(".class");
-            String className = file.getPath().substring(start, end).replaceAll(File.separator, ".");
+            String className = file.getPath().substring(start, end).replace(CLASSPATH_RESOURCE_PATH_SEPARATOR, PACKAGE_SEPARATOR_CHAR);
             Class clazz = findClassLoader().loadClass(className);
             if (candidate(clazz)) {
                 candidatedClassSet.add(clazz);

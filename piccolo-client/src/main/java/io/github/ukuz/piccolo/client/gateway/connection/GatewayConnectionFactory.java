@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.mq;
+package io.github.ukuz.piccolo.client.gateway.connection;
+
+import io.github.ukuz.piccolo.api.connection.Connection;
 
 /**
  * @author ukuz90
  */
-public interface MQMessageReceiver<T> {
+public interface GatewayConnectionFactory {
 
-    void receive(String topic, T message);
+    Connection getConnection();
 
 }

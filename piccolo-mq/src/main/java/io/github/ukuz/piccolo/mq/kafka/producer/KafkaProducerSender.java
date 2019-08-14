@@ -18,14 +18,19 @@ package io.github.ukuz.piccolo.mq.kafka.producer;
 import io.github.ukuz.piccolo.api.service.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author ukuz90
  */
 public class KafkaProducerSender {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducerSender.class);
 
     private final Map<String, Object> producerProps;
     private KafkaProducer producer;
@@ -42,13 +47,15 @@ public class KafkaProducerSender {
     public void send(String topic, byte[] content, Callback callback) {
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, content);
         producer.send(record, ((metadata, exception) -> {
-            if (callback == null) {
-                return;
-            }
             if (exception == null) {
-                callback.success();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("producer send success, message: {}", content);
+                }
+                Optional.ofNullable(callback).ifPresent(Callback::success);
             } else {
-                callback.failure(exception);
+                //TODO need throw exception ?
+                LOGGER.error("producer send failure, message: {}", exception);
+                Optional.ofNullable(callback).ifPresent(cb -> cb.failure(exception));
             }
         }));
     }

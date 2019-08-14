@@ -38,6 +38,7 @@ public class RouterChangeListener extends EventObservable implements MQMessageRe
     }
 
     private void sendKickUserMessageToClient(String userId, LocalRouter localRouter) {
+
     }
 
     private void sendKickUserMessageToMQClient(String userId, RemoteRouter remoteRouter) {
@@ -45,5 +46,6 @@ public class RouterChangeListener extends EventObservable implements MQMessageRe
 
     @Override
     public void receive(String topic, Object message) {
+
     }
 }

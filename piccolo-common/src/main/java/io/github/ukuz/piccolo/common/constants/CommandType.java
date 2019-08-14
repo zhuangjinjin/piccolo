@@ -26,6 +26,7 @@ public enum CommandType {
     FAST_CONNECT(4),
     BIND_USER(5),
     OK(6),
+    DISPATCH(7),
 
     UNKNOWN(-1);
 
