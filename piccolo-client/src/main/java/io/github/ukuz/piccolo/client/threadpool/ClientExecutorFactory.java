@@ -31,6 +31,14 @@ public class ClientExecutorFactory extends AbstractExecutorFactory {
         ThreadPoolProperties tp = environment.getProperties(ThreadPoolProperties.class);
         ThreadPoolConfig config;
         switch (name) {
+            case PUSH_CLIENT:
+                config = ThreadPoolConfig.builder()
+                        .coreSize(tp.getPushClient().getCoreSize())
+                        .maxSize(tp.getPushClient().getMaxSize())
+                        .queueCapacity(tp.getPushClient().getQueueSize())
+                        .keepAliveSeconds(tp.getPushClient().getKeepAliveSeconds())
+                        .build();
+                return createExecutor(config);
             default:
                 return super.create(name, environment);
         }

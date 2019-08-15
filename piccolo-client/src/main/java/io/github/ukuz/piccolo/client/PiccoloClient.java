@@ -25,6 +25,9 @@ import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.client.gateway.connection.GatewayConnectionFactory;
+import io.github.ukuz.piccolo.client.gateway.connection.GatewayTcpConnectionFactory;
+import io.github.ukuz.piccolo.client.router.CachedRemoteRouterManager;
 import io.github.ukuz.piccolo.client.threadpool.ClientExecutorFactory;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
 
@@ -36,6 +39,10 @@ public class PiccoloClient implements PiccoloContext {
     private final Environment environment;
     private final ExecutorFactory executorFactory;
     private final ZKServiceRegistryAndDiscovery srd;
+    private final CacheManager cacheManager;
+    private final CachedRemoteRouterManager remoteRouterManager;
+    private final GatewayConnectionFactory gatewayConnectionFactory;
+
 
     public PiccoloClient() {
         //initialize config
@@ -46,7 +53,12 @@ public class PiccoloClient implements PiccoloContext {
         //initialize executor
         executorFactory = new ClientExecutorFactory();
 
+        cacheManager = SpiLoader.getLoader(CacheManager.class).getExtension();
+        remoteRouterManager = new CachedRemoteRouterManager(cacheManager);
+
         srd = (ZKServiceRegistryAndDiscovery) SpiLoader.getLoader(ServiceRegistry.class).getExtension("zk");
+
+        gatewayConnectionFactory = new GatewayTcpConnectionFactory(this);
 
     }
 
@@ -57,17 +69,17 @@ public class PiccoloClient implements PiccoloContext {
 
     @Override
     public ServiceRegistry getServiceRegistry() {
-        return null;
+        return srd;
     }
 
     @Override
     public ServiceDiscovery getServiceDiscovery() {
-        return null;
+        return srd;
     }
 
     @Override
     public CacheManager getCacheManager() {
-        return null;
+        return cacheManager;
     }
 
     @Override
@@ -77,7 +89,7 @@ public class PiccoloClient implements PiccoloContext {
 
     @Override
     public Environment getEnvironment() {
-        return null;
+        return environment;
     }
 
     @Override
@@ -87,6 +99,14 @@ public class PiccoloClient implements PiccoloContext {
 
     @Override
     public ExecutorFactory getExecutorFactory() {
-        return null;
+        return executorFactory;
+    }
+
+    public CachedRemoteRouterManager getRemoteRouterManager() {
+        return remoteRouterManager;
+    }
+
+    public GatewayConnectionFactory getGatewayConnectionFactory() {
+        return gatewayConnectionFactory;
     }
 }

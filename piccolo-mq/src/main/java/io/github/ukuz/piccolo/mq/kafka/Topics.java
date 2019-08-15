@@ -22,7 +22,7 @@ public enum Topics {
     /**
      *
      */
-    DISPATCH_MESSAGE("/piccolo/dispatch", 3, (short) 3),
+    DISPATCH_MESSAGE("piccolo.dispatch", 3, (short) 3),
     ;
 
     private final String topic;

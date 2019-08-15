@@ -26,6 +26,7 @@ public interface ExecutorFactory {
 
     String EVENT_BUS = "event-bus";
     String MQ = "mq";
+    String PUSH_CLIENT = "push-client";
 
     Executor create(String name, Environment environment);
 

@@ -28,5 +28,6 @@ public class ThreadProperties implements Properties {
 
     private int connectWorkerThreadNum;
     private int gatewayWorkerThreadNum;
+    private int wsWorkerThreadNum;
 
 }

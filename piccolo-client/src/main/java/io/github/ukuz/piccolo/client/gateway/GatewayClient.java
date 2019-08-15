@@ -18,9 +18,12 @@ package io.github.ukuz.piccolo.client.gateway;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.client.ChannelHandlers;
+import io.github.ukuz.piccolo.client.gateway.connection.GatewayConnectionFactory;
 import io.github.ukuz.piccolo.client.properties.ClientProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.transport.client.NettyClient;
@@ -74,6 +77,7 @@ public class GatewayClient extends NettyClient {
 
     @Override
     protected Codec newCodec() {
-        return new MultiPacketCodec();
+        return new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension("client"));
     }
+
 }

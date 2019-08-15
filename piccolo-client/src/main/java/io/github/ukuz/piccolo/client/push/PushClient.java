@@ -15,61 +15,93 @@
  */
 package io.github.ukuz.piccolo.client.push;
 
-import io.github.ukuz.piccolo.api.PiccoloContext;
-import io.github.ukuz.piccolo.api.cache.CacheManager;
-import io.github.ukuz.piccolo.api.common.Monitor;
-import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
-import io.github.ukuz.piccolo.api.config.Environment;
-import io.github.ukuz.piccolo.api.config.Properties;
-import io.github.ukuz.piccolo.api.mq.MQClient;
-import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
-import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.client.gateway.GatewayClient;
+import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.*;
+
+import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
+import io.github.ukuz.piccolo.api.push.PushContext;
+import io.github.ukuz.piccolo.api.push.PushMsg;
+import io.github.ukuz.piccolo.api.router.ClientLocator;
+import io.github.ukuz.piccolo.client.PiccoloClient;
+import io.github.ukuz.piccolo.common.message.PushMessage;
+import io.github.ukuz.piccolo.core.router.RemoteRouter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
+
+import static io.github.ukuz.piccolo.mq.kafka.Topics.*;
 
 /**
  * @author ukuz90
  */
-public class PushClient implements PiccoloContext {
+public class PushClient {
 
-    private GatewayClient gatewayClient;
+    private ConcurrentMap<String, NestedMessageReceiver> topicsHandler = new ConcurrentHashMap<>();
+    private PiccoloClient piccoloClient;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PushClient.class);
+    private Executor dispatchHandlerExecutor;
 
-    @Override
-    public Monitor getMonitor() {
-        return null;
+    public PushClient() {
+        piccoloClient = new PiccoloClient();
+        dispatchHandlerExecutor = piccoloClient.getExecutorFactory().create(PUSH_CLIENT, piccoloClient.getEnvironment());
     }
 
-    @Override
-    public ServiceRegistry getServiceRegistry() {
-        return null;
+    public void registerHandler(BaseDispatcherHandler handler) {
+        Assert.notNull(handler, "handler must not be null");
+        registerHandler(DISPATCH_MESSAGE.getTopic(), handler);
     }
 
-    @Override
-    public ServiceDiscovery getServiceDiscovery() {
-        return null;
+    public void push(PushContext context) {
+        Assert.notNull(context, "context must not be null");
+        //先查询client所在的网关服务器的地址
+        if (context.getUserId() != null) {
+            Set<RemoteRouter> remoteRouters = piccoloClient.getRemoteRouterManager().lookupAll(context.getUserId());
+            remoteRouters.forEach(remoteRouter -> {
+                Connection connection = piccoloClient.getGatewayConnectionFactory().getConnection(remoteRouter.getRouterValue().getHostAndPort());
+                if (connection != null) {
+                    PushMessage msg = PushMessage.build(connection).content(context.getContext());
+                    connection.sendAsync(msg);
+                } else {
+                    LOGGER.error("can not push message to gateway server, is it work, userId: {} server: {}",
+                            context.getUserId(),
+                            remoteRouter.getRouterValue().getHostAndPort());
+                    //TODO 是否重试？
+                }
+            });
+        } else if (context.getUserIds() != null && context.getUserIds().size() > 0) {
+
+        } else if (context.isBroadcast()) {
+
+        }
     }
 
-    @Override
-    public CacheManager getCacheManager() {
-        return null;
+    private void registerHandler(String topic, BaseDispatcherHandler handler) {
+        Assert.notNull(topic, "topic must not be null");
+        Assert.notNull(handler, "handler must not be null");
+        LOGGER.info("registerHandler topic: {} handler: {}", topic, handler);
+
+        topicsHandler.computeIfAbsent(topic, t -> new NestedMessageReceiver(handler));
+        piccoloClient.getMQClient().subscribe(topic, topicsHandler.get(topic));
     }
 
-    @Override
-    public MQClient getMQClient() {
-        return null;
+    private class NestedMessageReceiver implements MQMessageReceiver<byte[]> {
+
+        private BaseDispatcherHandler handler;
+
+        public NestedMessageReceiver(BaseDispatcherHandler handler) {
+            Assert.notNull(handler, "handler must not be null");
+            this.handler = handler;
+        }
+
+        @Override
+        public void receive(String topic, byte[] message) {
+            dispatchHandlerExecutor.execute(() -> handler.onDispatch(message));
+        }
     }
 
-    @Override
-    public Environment getEnvironment() {
-        return null;
-    }
-
-    @Override
-    public <T extends Properties> T getProperties(Class<T> clazz) {
-        return null;
-    }
-
-    @Override
-    public ExecutorFactory getExecutorFactory() {
-        return null;
-    }
 }

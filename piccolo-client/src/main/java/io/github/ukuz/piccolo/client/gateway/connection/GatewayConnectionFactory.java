@@ -16,12 +16,21 @@
 package io.github.ukuz.piccolo.client.gateway.connection;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
+import io.github.ukuz.piccolo.api.service.discovery.ServiceListener;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author ukuz90
  */
-public interface GatewayConnectionFactory {
+public interface GatewayConnectionFactory extends ServiceListener {
 
-    Connection getConnection();
+    Connection getConnection(String hostAndPort);
+
+    <T extends BaseMessage> boolean send(String hostAndPort, Function<Connection, T> creator, Consumer<T> sender);
+
+    <T extends BaseMessage> boolean broadcast(Function<Connection, T> creator, Consumer<T> sender);
 
 }

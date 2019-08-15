@@ -16,11 +16,13 @@
 package io.github.ukuz.piccolo.core.handler;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.message.DispatcherMessage;
+import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +60,19 @@ public class DispatcherHandler implements ChannelHandler {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("DispatcherHandler received message: {}", message);
             }
+
+            DispatcherMessage msg = (DispatcherMessage) message;
+            //判断是否绑定用户了
+            SessionContext context = connection.getSessionContext();
+            if (context.getUserId() == null) {
+                connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("not bind user"));
+                LOGGER.error("dispatcher ");
+            }
             MQClient client = SpiLoader.getLoader(MQClient.class).getExtension();
-            client.publish(DISPATCH_MESSAGE.getTopic(), ((DispatcherMessage) message).payload);
+            client.publish(DISPATCH_MESSAGE.getTopic(), msg.payload);
+        } else {
+            connection.close();
+            LOGGER.error("handler unknown message, message: {} conn: {}", message, connection);
         }
     }
 

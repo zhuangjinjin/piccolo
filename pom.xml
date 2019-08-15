@@ -137,6 +137,11 @@
                 <artifactId>netty-codec</artifactId>
                 <version>${netty_version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${netty_version}</version>
+            </dependency>
 
             <!-- zookeeper client -->
             <dependency>
@@ -316,6 +321,7 @@
                                 <exclude>.travis.yml</exclude>
                                 <exclude>README.md</exclude>
                                 <exclude>**/logback.xml</exclude>
+                                <exclude>**/*.html</exclude>
                             </excludes>
                         </configuration>
                     </execution>

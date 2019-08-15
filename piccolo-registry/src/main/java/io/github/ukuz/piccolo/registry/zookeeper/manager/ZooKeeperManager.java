@@ -106,7 +106,7 @@ public final class ZooKeeperManager extends AbstractService {
             }
 
             initLocalCache("/");
-            LOGGER.info("{} start success, server lists is:{}", zkProp.getHost());
+            LOGGER.info("{} start success, server lists is: {}", getName(), zkProp.getHost());
             CompletableFuture future = new CompletableFuture();
             future.complete(true);
             return future;

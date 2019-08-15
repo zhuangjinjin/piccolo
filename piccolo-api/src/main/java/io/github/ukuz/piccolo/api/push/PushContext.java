@@ -15,12 +15,18 @@
  */
 package io.github.ukuz.piccolo.api.push;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+
 import java.util.List;
 import java.util.Set;
 
 /**
  * @author ukuz90
  */
+@Builder
+@Getter
 public class PushContext {
 
     /**

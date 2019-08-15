@@ -25,6 +25,7 @@ import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
+import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
@@ -33,8 +34,11 @@ import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * @author ukuz90
@@ -46,6 +50,7 @@ public class GatewayServer extends NettyServer {
     private final int port;
     private final ConnectionManager cxnxManager;
     private ZKRegistration serviceInstance;
+    private GlobalChannelTrafficShapingHandler trafficShapingHandler;
 
     public GatewayServer(PiccoloContext piccoloContext) {
         this(piccoloContext,
@@ -81,11 +86,27 @@ public class GatewayServer extends NettyServer {
                 .serviceId(ServiceNames.S_GATEWAY)
                 .build();
         serviceInstance = ZKRegistration.build(si);
+
+        NetProperties.TrafficNestedProperties traffic = piccoloContext.getProperties(NetProperties.class).getGatewayServerTraffic();
+        if (traffic.isEnabled()) {
+            ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory(ThreadNames.T_TRAFFIC_SHAPING));
+            trafficShapingHandler = new GlobalChannelTrafficShapingHandler(executor,
+                    traffic.getWriteGlobalLimit(), traffic.getReadGlobalLimit(),
+                    traffic.getWriteChannelLimit(), traffic.getReadChannelLimit());
+        }
     }
 
     @Override
-    protected void doDestory() {
+    protected void initPipeline(ChannelPipeline pipeline) {
+        super.initPipeline(pipeline);
+        if (trafficShapingHandler != null) {
+            pipeline.addFirst(trafficShapingHandler);
+        }
+    }
 
+    @Override
+    protected void doDestroy() {
+        cxnxManager.destroy();
     }
 
     @Override

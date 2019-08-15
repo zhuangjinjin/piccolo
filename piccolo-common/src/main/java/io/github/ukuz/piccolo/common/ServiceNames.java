@@ -24,5 +24,6 @@ public final class ServiceNames {
 
     public static final String S_GATEWAY = "/gateway";
     public static final String S_CONNECT = "/connect";
+    public static final String S_WS = "/ws";
 
 }

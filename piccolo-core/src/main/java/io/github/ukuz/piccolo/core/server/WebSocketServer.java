@@ -18,53 +18,49 @@ package io.github.ukuz.piccolo.core.server;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
-import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
-import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
-import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
+import io.github.ukuz.piccolo.core.externel.handler.WebSocketIndexHandler;
+import io.github.ukuz.piccolo.core.handler.WebSocketChannelHandler;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import io.github.ukuz.piccolo.transport.codec.Codec;
-import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * @author ukuz90
  */
-public class ConnectServer extends NettyServer {
+public class WebSocketServer extends NettyServer {
 
     private InetSocketAddress address;
     private final String host;
     private final int port;
-    private GlobalChannelTrafficShapingHandler channelTrafficShapingHandler;
     private ZKRegistration serviceInstance;
 
-    public ConnectServer(PiccoloContext piccoloContext) {
-        this(piccoloContext,
-                piccoloContext.getProperties(NetProperties.class).getConnectServer().getBindIp(),
-                piccoloContext.getProperties(NetProperties.class).getConnectServer().getBindPort());
+    public WebSocketServer(PiccoloContext piccoloContext) {
+        this(piccoloContext, new WebSocketChannelHandler(piccoloContext, null), new NettyConnectionManager());
     }
 
-    public ConnectServer(PiccoloContext piccoloContext, String host, int port) {
-        this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager(), host, port);
+    public WebSocketServer(PiccoloContext piccoloContext, ChannelHandler channelHandler, ConnectionManager cxnxManager) {
+        this(piccoloContext, channelHandler, cxnxManager,
+                piccoloContext.getProperties(NetProperties.class).getWsServer().getBindIp(),
+                piccoloContext.getProperties(NetProperties.class).getWsServer().getBindPort());
     }
 
-    public ConnectServer(PiccoloContext piccoloContext,
-                         ChannelHandler channelHandler, ConnectionManager cxnxManager,
-                         String host, int port) {
+    public WebSocketServer(PiccoloContext piccoloContext, ChannelHandler channelHandler, ConnectionManager cxnxManager, String host, int port) {
         super(piccoloContext, channelHandler, cxnxManager);
         Assert.notEmptyString(host, "host must not be empty");
         Assert.isTrue(port >= 0, "port was invalid port: " + port);
@@ -74,41 +70,41 @@ public class ConnectServer extends NettyServer {
 
     @Override
     protected Codec newCodec() {
-        return new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension());
+        return null;
     }
 
     @Override
     protected void doInit() {
-        this.address = new InetSocketAddress(this.host, this.port);
+        address = new InetSocketAddress(host, port);
 
         ServiceInstance si = DefaultServiceInstance.builder()
                 .host(host)
                 .port(port)
                 .isPersistent(false)
-                .serviceId(ServiceNames.S_CONNECT)
+                .serviceId(ServiceNames.S_WS)
                 .build();
-        serviceInstance = ZKRegistration.build(si);
-        //限流
-        NetProperties.TrafficNestedProperties traffic = piccoloContext.getProperties(NetProperties.class).getConnectServerTraffic();
-        if (traffic.isEnabled()) {
-            ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory(ThreadNames.T_TRAFFIC_SHAPING));
-            channelTrafficShapingHandler = new GlobalChannelTrafficShapingHandler(executor,
-                    traffic.getWriteGlobalLimit(), traffic.getReadGlobalLimit(),
-                    traffic.getWriteChannelLimit(), traffic.getReadChannelLimit());
-        }
+        serviceInstance = new ZKRegistration(si);
+    }
+
+    @Override
+    protected void initPipeline(ChannelPipeline pipeline) {
+        //duplex
+        pipeline.addLast(new HttpServerCodec());
+        //inbound
+        pipeline.addLast(new HttpObjectAggregator(65536));
+        //duplex (webSocket handshake)
+        pipeline.addLast(new WebSocketServerCompressionHandler());
+        //inbound
+        pipeline.addLast(new WebSocketServerProtocolHandler(piccoloContext.getProperties(NetProperties.class).getWsPath(), null, true));
+        //inbound
+        pipeline.addLast(new WebSocketIndexHandler());
+        //duplex
+        pipeline.addLast(getServerHandler());
     }
 
     @Override
     protected void doDestroy() {
         cxnxManager.destroy();
-    }
-
-    @Override
-    protected void initPipeline(ChannelPipeline pipeline) {
-        super.initPipeline(pipeline);
-        if (channelTrafficShapingHandler != null) {
-            pipeline.addFirst(channelTrafficShapingHandler);
-        }
     }
 
     @Override
@@ -128,17 +124,17 @@ public class ConnectServer extends NettyServer {
 
     @Override
     public int getWorkerThreadNum() {
-        return piccoloContext.getProperties(ThreadProperties.class).getConnectWorkerThreadNum();
+        return piccoloContext.getProperties(ThreadProperties.class).getWsWorkerThreadNum();
     }
 
     @Override
     public String getBossThreadName() {
-        return ThreadNames.T_CONN_BOSS;
+        return ThreadNames.T_WS_BOSS;
     }
 
     @Override
     public String getWorkerThreadName() {
-        return ThreadNames.T_CONN_WORKER;
+        return ThreadNames.T_WS_WORKER;
     }
 
     @Override

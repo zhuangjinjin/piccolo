@@ -28,5 +28,9 @@
             <groupId>io.github.ukuz</groupId>
             <artifactId>piccolo-registry</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.ukuz</groupId>
+            <artifactId>piccolo-core</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -23,7 +23,6 @@ import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.IllegalStateServiceException;
 import io.github.ukuz.piccolo.api.service.Server;
 import io.github.ukuz.piccolo.api.service.ServiceException;
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.properties.CoreProperties;
@@ -145,11 +144,16 @@ public abstract class NettyServer extends AbstractService implements Server {
         if (!serverState.compareAndSet(State.Started, State.Shutdown)) {
             throw new IllegalStateServiceException("Server " + getId() + " destroy failed, current state: " + serverState.get());
         }
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
-        doDestory();
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully().syncUninterruptibly();
+        }
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully().syncUninterruptibly();
+        }
+        doDestroy();
 
         serverState.set(State.Terminated);
+        logger.info("{} destroy complete", getName());
     }
 
     protected void initOptions(ServerBootstrap server) {
@@ -195,7 +199,7 @@ public abstract class NettyServer extends AbstractService implements Server {
 
     protected abstract void doInit();
 
-    protected abstract void doDestory();
+    protected abstract void doDestroy();
 
     protected abstract InetSocketAddress getInetSocketAddress();
 
@@ -215,6 +219,10 @@ public abstract class NettyServer extends AbstractService implements Server {
 
     public Registration getRegistration() {
         return null;
+    }
+
+    public ServerHandler getServerHandler() {
+        return serverHandler;
     }
 
     public PiccoloContext getPiccoloContext() {

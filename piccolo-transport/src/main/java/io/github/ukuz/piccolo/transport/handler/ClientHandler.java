@@ -18,9 +18,11 @@ package io.github.ukuz.piccolo.transport.handler;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.event.ConnectionConnectEvent;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
+import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -54,6 +56,7 @@ public class ClientHandler extends ChannelDuplexHandler {
         connection.init(ctx.channel(), false);
         cxnxManager.add(connection);
         handler.connected(connection);
+        EventBus.post(new ConnectionConnectEvent(connection));
     }
 
     @Override

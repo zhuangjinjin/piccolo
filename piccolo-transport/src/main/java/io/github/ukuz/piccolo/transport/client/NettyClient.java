@@ -20,6 +20,7 @@ import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.AbstractService;
+import io.github.ukuz.piccolo.api.service.Callback;
 import io.github.ukuz.piccolo.api.service.Service;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
@@ -74,7 +75,7 @@ public abstract class NettyClient extends AbstractService implements Service {
 
     @Override
     protected CompletableFuture<Boolean> doStartAsync() {
-        logger.info("client start async...");
+        logger.info("{} start async...", getName());
         CompletableFuture result = new CompletableFuture();
         bootstrap = new Bootstrap();
         workerGroup = eventLoopGroupFactory.newEventLoopGroup(1, 50, newWorkerThreadFactory());
@@ -90,16 +91,7 @@ public abstract class NettyClient extends AbstractService implements Service {
         bootstrap.channelFactory(channelFactory);
         initOptions(bootstrap);
 
-        ChannelFuture channelFuture = bootstrap.connect(getInetSocketAddress());
-        channelFuture.addListener(future -> {
-            if (future.isSuccess()) {
-                logger.info("client start async success: {}", channelFuture.channel().localAddress().toString().replace("/", ""));
-                result.complete(true);
-            } else {
-                logger.error("client start async failure: {}", future.cause().getMessage());
-                result.completeExceptionally(new ServiceException(future.cause()));
-            }
-        });
+        result.complete(true);
 
         return result;
     }
@@ -117,9 +109,30 @@ public abstract class NettyClient extends AbstractService implements Service {
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 4000);
     }
 
+    public ChannelFuture connect(String host, int port) {
+        return bootstrap.connect(new InetSocketAddress(host, port));
+    }
+
+    public ChannelFuture connect(String host, int port, Callback callback) {
+        ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port));
+        channelFuture.addListener(future -> {
+            if (future.isSuccess()) {
+                logger.info("client start async success: {}", channelFuture.channel().localAddress().toString().replace("/", ""));
+                callback.success(true);
+            } else {
+                logger.error("client start async failure: {}", future.cause().getMessage());
+                callback.failure(new ServiceException(future.cause()));
+            }
+        });
+        return channelFuture;
+    }
+
     @Override
     public void destroy() throws ServiceException {
-        workerGroup.shutdownGracefully();
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
+        logger.info("{} destroy complete", getName());
     }
 
     protected ThreadFactory newWorkerThreadFactory() {

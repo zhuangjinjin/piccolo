@@ -28,9 +28,11 @@ public class NetProperties implements Properties {
 
     private String localIp;
     private String publicIp;
+    private String wsPath;
 
     private ServerNestedProperties connectServer;
     private ServerNestedProperties gatewayServer;
+    private ServerNestedProperties wsServer;
 
     private TrafficNestedProperties connectServerTraffic;
     private TrafficNestedProperties gatewayServerTraffic;
