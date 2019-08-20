@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.core.threadpool;
 
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.common.properties.ThreadPoolProperties;
+import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.common.threadpool.AbstractExecutorFactory;
 import io.github.ukuz.piccolo.common.threadpool.ThreadPoolConfig;
 
@@ -33,6 +34,7 @@ public class ServerExecutorFactory extends AbstractExecutorFactory {
         switch (name) {
             case MQ:
                 config = ThreadPoolConfig.builder()
+                        .name(ThreadNames.T_MQ)
                         .coreSize(tp.getMq().getCoreSize())
                         .maxSize(tp.getMq().getMaxSize())
                         .queueCapacity(tp.getMq().getQueueSize())

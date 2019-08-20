@@ -19,6 +19,7 @@ import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.common.properties.ThreadPoolProperties;
+import io.github.ukuz.piccolo.common.thread.ThreadNames;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -59,6 +60,7 @@ public  class AbstractExecutorFactory implements ExecutorFactory {
         switch (name) {
             case EVENT_BUS:
                 config = ThreadPoolConfig.builder()
+                        .name(ThreadNames.T_EVENT_BUS)
                         .coreSize(tp.getEventBus().getCoreSize())
                         .maxSize(tp.getEventBus().getMaxSize())
                         .queueCapacity(tp.getEventBus().getQueueSize())

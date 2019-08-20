@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.client.threadpool;
 
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.common.properties.ThreadPoolProperties;
+import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.common.threadpool.AbstractExecutorFactory;
 import io.github.ukuz.piccolo.common.threadpool.ThreadPoolConfig;
 
@@ -33,12 +34,13 @@ public class ClientExecutorFactory extends AbstractExecutorFactory {
         switch (name) {
             case PUSH_CLIENT:
                 config = ThreadPoolConfig.builder()
+                        .name(ThreadNames.T_PUSH_CLIENT_TIMER)
                         .coreSize(tp.getPushClient().getCoreSize())
                         .maxSize(tp.getPushClient().getMaxSize())
                         .queueCapacity(tp.getPushClient().getQueueSize())
                         .keepAliveSeconds(tp.getPushClient().getKeepAliveSeconds())
                         .build();
-                return createExecutor(config);
+                return createScheduledExecutor(config);
             default:
                 return super.create(name, environment);
         }

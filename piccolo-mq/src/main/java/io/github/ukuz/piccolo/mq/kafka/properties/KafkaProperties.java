@@ -22,10 +22,7 @@ import lombok.Data;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.BytesSerializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.common.serialization.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -112,7 +109,7 @@ public class KafkaProperties implements Properties {
             map.from(this::getBootstrapServers).to(props.in(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
             map.from(this::getGroupId).to(props.in(ConsumerConfig.GROUP_ID_CONFIG));
             map.from(StringDeserializer.class::getName).to(props.in(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG));
-            map.from(ByteArraySerializer.class::getName).to(props.in(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG));
+            map.from(ByteArrayDeserializer.class::getName).to(props.in(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG));
             //offset从最早的开始，默认是从最近的开始
             map.from(this::getAutoOffsetReset).to(props.in(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG));
 
