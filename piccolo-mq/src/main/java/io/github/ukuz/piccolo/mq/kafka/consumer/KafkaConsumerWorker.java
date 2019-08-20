@@ -62,7 +62,7 @@ public class KafkaConsumerWorker implements Runnable {
                     }
                 });
                 while (isRunning()) {
-                    ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(1000));
+                    ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(20));
                     records.forEach(record -> {
                         receiver.receive(record.topic(), record.value());
                     });

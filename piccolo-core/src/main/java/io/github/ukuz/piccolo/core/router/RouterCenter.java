@@ -38,6 +38,7 @@ public final class RouterCenter extends AbstractService {
 
     private LocalRouterManager localRouterManager;
     private RemoteRouterManager remoteRouterManager;
+    private RouterChangeListener routerChangeListener;
 
     private PiccoloServer piccoloServer;
 
@@ -50,6 +51,7 @@ public final class RouterCenter extends AbstractService {
         LOGGER.info("router center init.");
         localRouterManager = new LocalRouterManager();
         remoteRouterManager = new RemoteRouterManager(piccoloServer.getCacheManager());
+        routerChangeListener = new RouterChangeListener(piccoloServer);
     }
 
     /**

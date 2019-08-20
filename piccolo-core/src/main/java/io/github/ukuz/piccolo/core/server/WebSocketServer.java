@@ -18,18 +18,23 @@ package io.github.ukuz.piccolo.core.server;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.externel.handler.WebSocketIndexHandler;
+import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.handler.WebSocketChannelHandler;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
+import io.github.ukuz.piccolo.transport.codec.BinaryFrameDuplexCodec;
 import io.github.ukuz.piccolo.transport.codec.Codec;
+import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
 import io.netty.channel.ChannelPipeline;
@@ -51,7 +56,7 @@ public class WebSocketServer extends NettyServer {
     private ZKRegistration serviceInstance;
 
     public WebSocketServer(PiccoloContext piccoloContext) {
-        this(piccoloContext, new WebSocketChannelHandler(piccoloContext, null), new NettyConnectionManager());
+        this(piccoloContext, new WebSocketChannelHandler(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext)), new NettyConnectionManager());
     }
 
     public WebSocketServer(PiccoloContext piccoloContext, ChannelHandler channelHandler, ConnectionManager cxnxManager) {
@@ -70,7 +75,7 @@ public class WebSocketServer extends NettyServer {
 
     @Override
     protected Codec newCodec() {
-        return null;
+        return  new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension());
     }
 
     @Override
@@ -88,16 +93,23 @@ public class WebSocketServer extends NettyServer {
 
     @Override
     protected void initPipeline(ChannelPipeline pipeline) {
+        BinaryFrameDuplexCodec codec = new BinaryFrameDuplexCodec(cxnxManager, newCodec());
         //duplex
         pipeline.addLast(new HttpServerCodec());
         //inbound
         pipeline.addLast(new HttpObjectAggregator(65536));
-        //duplex (webSocket handshake)
+        //duplex
         pipeline.addLast(new WebSocketServerCompressionHandler());
-        //inbound
+        //inbound (webSocket handshake)
+        //Sec-webSocket-version:7 use WebSocketServerhandshaker07
+        //Sec-webSocket-version:8 use WebSocketServerhandshaker08
+        //Sec-webSocket-version:13 use WebSocketServerhandshaker13
+        //header not specified use WebSocketServerhandshaker00
         pipeline.addLast(new WebSocketServerProtocolHandler(piccoloContext.getProperties(NetProperties.class).getWsPath(), null, true));
         //inbound
         pipeline.addLast(new WebSocketIndexHandler());
+        pipeline.addLast(codec.getDecoder());
+        pipeline.addLast(codec.getEncoder());
         //duplex
         pipeline.addLast(getServerHandler());
     }
@@ -145,5 +157,10 @@ public class WebSocketServer extends NettyServer {
     @Override
     public Registration getRegistration() {
         return serviceInstance;
+    }
+
+    @Override
+    public boolean isSecurity() {
+        return false;
     }
 }

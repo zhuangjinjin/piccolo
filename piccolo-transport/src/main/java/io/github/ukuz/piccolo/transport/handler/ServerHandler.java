@@ -37,20 +37,22 @@ public class ServerHandler extends ChannelDuplexHandler {
 
     private ChannelHandler handler;
     private PiccoloContext piccoloContext;
+    private boolean isSecurity;
 
-    public ServerHandler(PiccoloContext piccoloContext, ConnectionManager cxnxManager, ChannelHandler handler) {
+    public ServerHandler(PiccoloContext piccoloContext, ConnectionManager cxnxManager, ChannelHandler handler, boolean isSecurity) {
         Assert.notNull(handler, "handler must not be null");
         Assert.notNull(cxnxManager, "cxnxManager must not be null");
         Assert.notNull(piccoloContext, "piccoloContext must not be null");
         this.piccoloContext = piccoloContext;
         this.cxnxManager = cxnxManager;
         this.handler = handler;
+        this.isSecurity = isSecurity;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Connection connection = new NettyConnection(piccoloContext.getEnvironment());
-        connection.init(ctx.channel(), false);
+        connection.init(ctx.channel(), isSecurity);
         cxnxManager.add(connection);
         LOGGER.info("handler active ctx: {} connection:{}", ctx, connection);
         handler.connected(connection);

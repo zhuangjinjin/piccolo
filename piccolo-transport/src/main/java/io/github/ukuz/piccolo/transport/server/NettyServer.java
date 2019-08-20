@@ -76,7 +76,7 @@ public abstract class NettyServer extends AbstractService implements Server {
             this.eventLoopGroupFactory = SpiLoader.getLoader(EventLoopGroupFactory.class).getExtension("nio");
             this.channelFactory = SpiLoader.getLoader(ServerSocketChannelFactory.class).getExtension("nio");
         }
-        this.serverHandler = new ServerHandler(piccoloContext, cxnxManager, channelHandler);
+        this.serverHandler = new ServerHandler(piccoloContext, cxnxManager, channelHandler, isSecurity());
     }
 
     @Override
@@ -223,6 +223,10 @@ public abstract class NettyServer extends AbstractService implements Server {
 
     public ServerHandler getServerHandler() {
         return serverHandler;
+    }
+
+    public boolean isSecurity() {
+        return true;
     }
 
     public PiccoloContext getPiccoloContext() {

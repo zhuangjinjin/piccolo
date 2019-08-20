@@ -148,4 +148,9 @@ public class GatewayServer extends NettyServer {
     public Registration getRegistration() {
         return serviceInstance;
     }
+
+    @Override
+    public boolean isSecurity() {
+        return false;
+    }
 }

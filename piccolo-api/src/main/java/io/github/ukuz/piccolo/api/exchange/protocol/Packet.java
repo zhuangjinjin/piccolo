@@ -29,7 +29,7 @@ import lombok.Data;
 @Data
 public class Packet {
 
-    private static final int HEADER_LENGTH = 13;
+    public static final int HEADER_LENGTH = 13;
 
     /**
      * magic number

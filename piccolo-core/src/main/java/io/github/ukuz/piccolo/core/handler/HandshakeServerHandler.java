@@ -49,91 +49,125 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
     }
 
     @Override
-    public void connected(Connection connection) throws ExchangeException {
-        SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
-        connection.getSessionContext().changeCipher(new RSACipher(security.getPublicKey(), security.getPrivateKey()));
-        super.connected(connection);
-    }
-
-    @Override
     public void received(Connection connection, Object message) throws ExchangeException {
         if (message instanceof HandshakeMessage) {
-            HandshakeMessage msg = (HandshakeMessage) message;
-            //aes密钥向量16位
-            byte[] iv = msg.iv;
-            //客户端随机16位
-            byte[] clientKey = msg.clientKey;
-            //服务端随机16位
-            byte[] serverKey = CipherBox.I.randomAESKey();
-            //生成会话密钥16位
-            byte[] sessionKey = CipherBox.I.mixKey(clientKey, serverKey);
-
-            //1. 校验客户端参数
-            if (StringUtil.isNullOrEmpty(msg.deviceId)
-                || msg.iv.length != CipherBox.I.getAesKeyLength()
-                || msg.clientKey.length != CipherBox.I.getAesKeyLength()) {
-
-                //send error msg and close
-                connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("param invalid"));
-                logger.error("handshake failure, invalid, message: {}, conn: {}", msg, connection);
-                return;
+            if (connection.getSessionContext().isSecurity()) {
+                doInSecurity(connection, (HandshakeMessage) message);
+            } else {
+                doNotInSecurity(connection, (HandshakeMessage) message);
             }
-
-            //2. 校验重复握手
-            SessionContext context = connection.getSessionContext();
-            if (msg.deviceId.equals(context.getDeviceId())) {
-
-                //send error msg
-                connection.sendAsync(ErrorMessage.build(msg).code(ErrorCode.REPEAT_HANDSHAKE));
-
-                logger.warn("handshake failure, repeat handshake, message: {}, conn: {}", msg, connection);
-                return;
-            }
-
-            //3. 更换为对称加密算法 RSA=>AES(clientKey)
-            SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
-            context.changeCipher(new AESCipher(security, clientKey, iv));
-
-            //4. 生成可复用的session, 用于快速重连
-            ReusableSessionManager reusableSessionManager = ((PiccoloServer)piccoloContext).getReusableSessionManager();
-            ReusableSession session = reusableSessionManager.genSession(context);
-
-            //5. 计算心跳时间
-            CoreProperties core = piccoloContext.getProperties(CoreProperties.class);
-            int heartbeat = Math.max(core.getMinHeartbeatTime(), Math.min(msg.maxHeartbeat, core.getMaxHeartbeatTime()));
-
-            //6. 响应握手成功信息
-            HandshakeOkMessage okMessage = HandshakeOkMessage.build(connection)
-                    .sessionId(session.getSessionId())
-                    .expireTime(session.getExpireTime())
-                    .serverKey(serverKey)
-                    .heartbeat(heartbeat);
-
-            connection.sendAsync(okMessage, future -> {
-                if (future.isSuccess()) {
-                    //7. 更换为对称加密算法 RSA=>AES(sessionKey)
-                    context.changeCipher(new AESCipher(security, sessionKey, iv));
-                    //8. 保存当前信息到SessionContext中
-                    connection.getSessionContext()
-                            .setDeviceId(msg.deviceId)
-                            .setClientVersion(msg.clientVersion)
-                            .setOsVersion(msg.osVersion)
-                            .setOsVersion(msg.osVersion)
-                            .setHeartbeat(heartbeat);
-
-                    //9. 保存当前session到缓存中，用来快速重连
-                    reusableSessionManager.cacheSession(session);
-
-                    logger.info("handshake success, conn: {}", connection);
-                } else {
-                    logger.info("handshake failure, conn: {}, cause: {}", connection, future.cause());
-                }
-            });
-
         }
 
         super.received(connection, message);
     }
 
+    private void doInSecurity(Connection connection, HandshakeMessage msg) {
+        //aes密钥向量16位
+        byte[] iv = msg.iv;
+        //客户端随机16位
+        byte[] clientKey = msg.clientKey;
+        //服务端随机16位
+        byte[] serverKey = CipherBox.I.randomAESKey();
+        //生成会话密钥16位
+        byte[] sessionKey = CipherBox.I.mixKey(clientKey, serverKey);
+
+        //1. 校验客户端参数
+        if (StringUtil.isNullOrEmpty(msg.deviceId)
+                || msg.iv.length != CipherBox.I.getAesKeyLength()
+                || msg.clientKey.length != CipherBox.I.getAesKeyLength()) {
+
+            //send error msg and close
+            connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("param invalid"));
+            logger.error("handshake failure, invalid, message: {}, conn: {}", msg, connection);
+            return;
+        }
+
+        //2. 校验重复握手
+        SessionContext context = connection.getSessionContext();
+        if (msg.deviceId.equals(context.getDeviceId())) {
+
+            //send error msg
+            connection.sendAsync(ErrorMessage.build(msg).code(ErrorCode.REPEAT_HANDSHAKE));
+
+            logger.warn("handshake failure, repeat handshake, message: {}, conn: {}", msg, connection);
+            return;
+        }
+
+        //3. 更换为对称加密算法 RSA=>AES(clientKey)
+        SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
+        context.changeCipher(new AESCipher(security, clientKey, iv));
+
+        //4. 生成可复用的session, 用于快速重连
+        ReusableSessionManager reusableSessionManager = ((PiccoloServer)piccoloContext).getReusableSessionManager();
+        ReusableSession session = reusableSessionManager.genSession(context);
+
+        //5. 计算心跳时间
+        CoreProperties core = piccoloContext.getProperties(CoreProperties.class);
+        int heartbeat = Math.max(core.getMinHeartbeatTime(), Math.min(msg.maxHeartbeat, core.getMaxHeartbeatTime()));
+
+        //6. 响应握手成功信息
+        HandshakeOkMessage okMessage = HandshakeOkMessage.build(connection)
+                .sessionId(session.getSessionId())
+                .expireTime(session.getExpireTime())
+                .serverKey(serverKey)
+                .heartbeat(heartbeat);
+
+        connection.sendAsync(okMessage, future -> {
+            if (future.isSuccess()) {
+                //7. 更换为对称加密算法 RSA=>AES(sessionKey)
+                context.changeCipher(new AESCipher(security, sessionKey, iv));
+                //8. 保存当前信息到SessionContext中
+                connection.getSessionContext()
+                        .setDeviceId(msg.deviceId)
+                        .setClientVersion(msg.clientVersion)
+                        .setOsVersion(msg.osVersion)
+                        .setOsVersion(msg.osVersion)
+                        .setHeartbeat(heartbeat);
+
+                //9. 保存当前session到缓存中，用来快速重连
+                reusableSessionManager.cacheSession(session);
+
+                logger.info("handshake success, conn: {}", connection);
+            } else {
+                logger.info("handshake failure, conn: {}, cause: {}", connection, future.cause());
+            }
+        });
+    }
+
+    private void doNotInSecurity(Connection connection, HandshakeMessage msg) {
+
+        //1. 校验客户端参数
+        if (StringUtil.isNullOrEmpty(msg.deviceId)) {
+
+            //send error msg and close
+            connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("param invalid"));
+            logger.error("handshake failure, invalid, message: {}, conn: {}", msg, connection);
+            return;
+        }
+
+        //2. 校验重复握手
+        SessionContext context = connection.getSessionContext();
+        if (msg.deviceId.equals(context.getDeviceId())) {
+
+            //send error msg
+            connection.sendAsync(ErrorMessage.build(msg).code(ErrorCode.REPEAT_HANDSHAKE));
+
+            logger.warn("handshake failure, repeat handshake, message: {}, conn: {}", msg, connection);
+            return;
+        }
+
+        //3. 响应握手成功信息
+        HandshakeOkMessage okMessage = HandshakeOkMessage.build(connection);
+        connection.sendAsync(okMessage);
+
+        connection.getSessionContext()
+                .setDeviceId(msg.deviceId)
+                .setClientVersion(msg.clientVersion)
+                .setOsVersion(msg.osVersion)
+                .setOsVersion(msg.osVersion)
+                .setHeartbeat(Integer.MAX_VALUE);
+
+        logger.info("handshake success, conn: {}", connection);
+    }
 
 }

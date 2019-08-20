@@ -32,6 +32,8 @@ public class PacketCodec implements Codec {
     private final static byte MAGIC_NUM_H = (byte) (MAGIC_NUM >> 8);
     private final static byte MAGIC_NUM_L = (byte) MAGIC_NUM;
 
+    private Codec codec;
+
     @Override
     public void encode(Connection connection, Object msg, ByteBuf out) throws CodecException {
         if (msg instanceof Packet) {

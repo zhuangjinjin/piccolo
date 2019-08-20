@@ -21,11 +21,19 @@ import io.github.ukuz.piccolo.api.event.RouterChangeEvent;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.router.Router;
 import io.github.ukuz.piccolo.common.event.EventObservable;
+import io.github.ukuz.piccolo.core.PiccoloServer;
 
 /**
  * @author ukuz90
  */
 public class RouterChangeListener extends EventObservable implements MQMessageReceiver {
+
+    private PiccoloServer piccoloServer;
+
+    public RouterChangeListener(PiccoloServer piccoloServer) {
+        this.piccoloServer = piccoloServer;
+        //订阅踢人
+    }
 
     @Subscribe
     @AllowConcurrentEvents

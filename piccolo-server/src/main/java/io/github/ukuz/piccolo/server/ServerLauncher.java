@@ -20,6 +20,11 @@ import io.github.ukuz.piccolo.server.boot.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.net.URL;
+
 /**
  * @author ukuz90
  */
@@ -32,7 +37,17 @@ public class ServerLauncher {
     private BootJob lastJob = new BootJob() {
         @Override
         public void start() {
-            logger.info("server launch success!!!");
+            try {
+                URL url = ServerLauncher.class.getClassLoader().getResource("banner.txt");
+                File file = new File(url.toURI());
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (Exception e) {
+                logger.info("server launch success!!!");
+            }
         }
     };
 
@@ -55,6 +70,7 @@ public class ServerLauncher {
         processChain.addLast(new RouterCenterBoot(server.getRouterCenter()));
         processChain.addLast(new ServerBoot(server.getGatewayServer()));
         processChain.addLast(new ServerBoot(server.getConnectServer()));
+        processChain.addLast(new ServerBoot(server.getWebSocketServer()));
         processChain.addLast(lastJob);
     }
 

@@ -30,6 +30,7 @@ import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.core.router.RouterCenter;
 import io.github.ukuz.piccolo.core.server.ConnectServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
+import io.github.ukuz.piccolo.core.server.WebSocketServer;
 import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
 import io.github.ukuz.piccolo.core.threadpool.ServerExecutorFactory;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
@@ -42,6 +43,7 @@ public class PiccoloServer implements PiccoloContext {
     private final Environment environment;
     private final GatewayServer gatewayServer;
     private final ConnectServer connectServer;
+    private final WebSocketServer webSocketServer;
     private final ReusableSessionManager reusableSessionManager;
     private final CacheManager cacheManager;
     private final ExecutorFactory executorFactory;
@@ -72,6 +74,7 @@ public class PiccoloServer implements PiccoloContext {
 
         gatewayServer = new GatewayServer(this);
         connectServer = new ConnectServer(this);
+        webSocketServer = new WebSocketServer(this);
     }
 
     @Override
@@ -120,6 +123,10 @@ public class PiccoloServer implements PiccoloContext {
 
     public ConnectServer getConnectServer() {
         return connectServer;
+    }
+
+    public WebSocketServer getWebSocketServer() {
+        return webSocketServer;
     }
 
     public ReusableSessionManager getReusableSessionManager() {
