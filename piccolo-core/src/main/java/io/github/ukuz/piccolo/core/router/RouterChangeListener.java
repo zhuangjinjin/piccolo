@@ -17,22 +17,43 @@ package io.github.ukuz.piccolo.core.router;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
+import io.github.ukuz.piccolo.api.connection.Connection;
+import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.event.RouterChangeEvent;
+import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
+import io.github.ukuz.piccolo.api.router.ClientLocator;
 import io.github.ukuz.piccolo.api.router.Router;
+import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.common.event.EventObservable;
+import io.github.ukuz.piccolo.common.json.Jsons;
+import io.github.ukuz.piccolo.common.message.KickUserMessage;
+import io.github.ukuz.piccolo.common.router.KickRemoteMsg;
+import io.github.ukuz.piccolo.common.router.MQKickRemoteMsg;
 import io.github.ukuz.piccolo.core.PiccoloServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author ukuz90
  */
 public class RouterChangeListener extends EventObservable implements MQMessageReceiver {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouterChangeListener.class);
+
     private PiccoloServer piccoloServer;
+    private MQClient mqClient;
+    private String kickUserTopic;
 
     public RouterChangeListener(PiccoloServer piccoloServer) {
         this.piccoloServer = piccoloServer;
         //订阅踢人
+        kickUserTopic = getKickUserTopic(piccoloServer.getGatewayServer().getRegistration().getHostAndPort());
+        mqClient = piccoloServer.getMQClient();
+        mqClient.subscribe(kickUserTopic, this);
     }
 
     @Subscribe
@@ -46,14 +67,65 @@ public class RouterChangeListener extends EventObservable implements MQMessageRe
     }
 
     private void sendKickUserMessageToClient(String userId, LocalRouter localRouter) {
+        Connection connection = localRouter.getRouterValue();
+        SessionContext context = connection.getSessionContext();
+        KickUserMessage msg = KickUserMessage.build(connection);
+        msg.userId(userId).deviceId(context.getDeviceId());
 
+        connection.sendAsync(msg, future -> {
+            if (future.isSuccess()) {
+                LOGGER.info("kick user success, userId: {}", userId);
+            } else {
+                LOGGER.info("kick user failure, userId: {} cause: {}", userId, future.cause());
+            }
+        });
     }
 
     private void sendKickUserMessageToMQClient(String userId, RemoteRouter remoteRouter) {
+        MQKickRemoteMsg msg = new MQKickRemoteMsg();
+        ClientLocator locator = remoteRouter.getRouterValue();
+        msg.setConnId(locator.getConnId());
+        msg.setClientType(locator.getClientType());
+        msg.setDeviceId(locator.getDeviceId());
+        msg.setTargetAddress(locator.getHost());
+        msg.setTargetPort(locator.getPort());
+        msg.setUserId(userId);
+
+        mqClient.publish(getKickUserTopic(locator.getHostAndPort()), Jsons.toJson(msg).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void receiveKickRemoteMsg(KickRemoteMsg msg) {
+        if (!piccoloServer.isTargetMachine(msg.getTargetAddress(), msg.getTargetPort())) {
+            LOGGER.error("receive kick remote msg, target server error, address: {} port: {}", msg.getTargetAddress(), msg.getTargetPort());
+            return;
+        }
+
+        RouterCenter routerCenter = piccoloServer.getRouterCenter();
+        LocalRouter localRouter = routerCenter.lookupLocal(msg.getUserId(), msg.getClientType());
+        if (localRouter != null) {
+            LOGGER.info("receive kick remote msg, msg: {}", msg);
+            if (StringUtils.equals(localRouter.getRouterValue().getId(), msg.getConnId())) {
+                sendKickUserMessageToClient(msg.getUserId(), localRouter);
+            } else {
+                LOGGER.warn("kick router failure target connId not match, localRouter: {}, msg: {}", localRouter, msg);
+            }
+        } else {
+            LOGGER.error("kick router failure can not found local router, msg: {}", msg);
+        }
     }
 
     @Override
     public void receive(String topic, Object message) {
+        if (kickUserTopic.equals(topic)) {
+            byte[] data = (byte[]) message;
+            KickRemoteMsg kickRemoteMsg = Jsons.fromJson(new String(data, StandardCharsets.UTF_8), KickRemoteMsg.class);
+            if (kickRemoteMsg != null) {
+                receiveKickRemoteMsg(kickRemoteMsg);
+            }
+        }
+    }
 
+    private String getKickUserTopic(String hostAndPort) {
+        return "piccolo.kick." + hostAndPort;
     }
 }

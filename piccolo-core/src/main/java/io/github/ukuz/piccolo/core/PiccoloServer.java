@@ -19,10 +19,12 @@ import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
 import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
+import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.Spi;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
@@ -135,5 +137,10 @@ public class PiccoloServer implements PiccoloContext {
 
     public RouterCenter getRouterCenter() {
         return routerCenter;
+    }
+
+    public boolean isTargetMachine(String targetAddress, int targetPort) {
+        Registration registration = gatewayServer.getRegistration();
+        return targetPort == registration.getPort() && StringUtils.equals(targetAddress, registration.getHost());
     }
 }

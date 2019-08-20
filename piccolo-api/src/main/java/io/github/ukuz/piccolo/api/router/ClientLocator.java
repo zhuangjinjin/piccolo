@@ -35,9 +35,9 @@ public final class ClientLocator {
     private String clientVersion;
     private String deviceId;
     private String connId;
-    private transient int clientType;
+    private transient byte clientType;
 
-    public int getClientType() {
+    public byte getClientType() {
         if (clientType == 0) {
             clientType = SpiLoader.getLoader(ClientClassifier.class).getExtension().getClientType(osName);
         }

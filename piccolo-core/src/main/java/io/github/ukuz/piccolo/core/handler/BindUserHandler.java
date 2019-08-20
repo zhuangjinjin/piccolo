@@ -19,6 +19,7 @@ import com.google.common.base.Strings;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
+import io.github.ukuz.piccolo.api.event.UserOfflineEvent;
 import io.github.ukuz.piccolo.api.event.UserOnlineEvent;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
@@ -145,7 +146,7 @@ public class BindUserHandler extends ChannelHandlerDelegateAdapter {
                 context.setUserId(null);
                 context.setTags(null);
                 connection.sendAsync(OkMessage.build(msg).data("unbind success"));
-                EventBus.post(new UserOnlineEvent(userId, connection));
+                EventBus.post(new UserOfflineEvent(userId, connection));
                 logger.info("unbind success, userId: {} conn: {}", userId, connection);
             } else {
                 connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("unbind failure"));

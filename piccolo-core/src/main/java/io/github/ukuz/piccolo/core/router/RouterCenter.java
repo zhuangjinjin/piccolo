@@ -39,6 +39,7 @@ public final class RouterCenter extends AbstractService {
     private LocalRouterManager localRouterManager;
     private RemoteRouterManager remoteRouterManager;
     private RouterChangeListener routerChangeListener;
+    private UserEventListener userEventListener;
 
     private PiccoloServer piccoloServer;
 
@@ -52,6 +53,7 @@ public final class RouterCenter extends AbstractService {
         localRouterManager = new LocalRouterManager();
         remoteRouterManager = new RemoteRouterManager(piccoloServer.getCacheManager());
         routerChangeListener = new RouterChangeListener(piccoloServer);
+        userEventListener = new UserEventListener(piccoloServer.getMQClient());
     }
 
     /**

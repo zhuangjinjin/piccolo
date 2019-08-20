@@ -13,40 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.constants;
+package io.github.ukuz.piccolo.common.router;
+
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 
 /**
  * @author ukuz90
  */
-public enum CommandType {
+public interface KickRemoteMsg {
 
-    ERROR(1),
-    HANDSHAKE(2),
-    HEARTBEAT(3),
-    FAST_CONNECT(4),
-    BIND_USER(5),
-    OK(6),
-    DISPATCH(7),
-    GATEWAY_PUSH(8),
-    KICK(9),
+    String getUserId();
 
-    UNKNOWN(-1);
+    String getDeviceId();
 
-    private final int cmd;
+    String getConnId();
 
-    CommandType(int cmd) {
-        this.cmd = cmd;
+    byte getClientType();
+
+    String getTargetAddress();
+
+    int getTargetPort();
+
+    default boolean isTargetMatch(String host, int port) {
+        return port == getTargetPort() && StringUtils.equals(getTargetAddress(), host);
     }
 
-    public static CommandType toCMD(byte cmd) {
-        CommandType[] values = values();
-        if (cmd > 0 && cmd < values.length) {
-            return values[cmd - 1];
-        }
-        return UNKNOWN;
-    }
-
-    public byte getCmd() {
-        return (byte) cmd;
-    }
 }

@@ -40,7 +40,7 @@ public class RemoteRouter implements Router<ClientLocator> {
     }
 
     public byte getClientType() {
-        return (byte) clientLocator.getClientType();
+        return clientLocator.getClientType();
     }
 
     public boolean isOnline() {

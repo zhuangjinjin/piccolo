@@ -23,6 +23,8 @@ public enum Topics {
      *
      */
     DISPATCH_MESSAGE("piccolo.dispatch", 3, (short) 3),
+    ONLINE_MESSAGE("piccolo.online", 1, (short) 3),
+    OFFLINE_MESSAGE("piccolo.offline", 1, (short) 3)
     ;
 
     private final String topic;
