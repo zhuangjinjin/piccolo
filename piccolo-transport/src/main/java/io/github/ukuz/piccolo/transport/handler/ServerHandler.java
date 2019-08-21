@@ -24,12 +24,14 @@ import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import static io.netty.channel.ChannelHandler.Sharable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author ukuz90
  */
+@Sharable
 public class ServerHandler extends ChannelDuplexHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerHandler.class);
@@ -74,17 +76,19 @@ public class ServerHandler extends ChannelDuplexHandler {
     }
 
     @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         Connection connection = cxnxManager.getConnection(ctx.channel());
         LOGGER.info("handler write ctx: {} connection:{} msg:{}", ctx, connection, msg);
         connection.updateLastWriteTime();
         handler.sent(connection, msg);
+        //fix: invoke next outbound handler
+        ctx.write(msg, promise);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         Connection connection = cxnxManager.removeConnection(ctx.channel());
-        LOGGER.error("handler occupy exception, ctx: {} connection:{} cause: {}", ctx, connection, cause.getMessage());
+        LOGGER.error("handler occupy exception, ctx: {} connection:{} cause: {}", ctx, connection, cause);
         handler.caught(connection, cause);
     }
 }

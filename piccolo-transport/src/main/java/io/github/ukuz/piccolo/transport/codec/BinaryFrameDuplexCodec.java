@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.transport.codec;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
+import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -51,16 +52,18 @@ public class BinaryFrameDuplexCodec {
     }
 
     //    @ChannelHandler.Sharable
-    private class Encoder extends MessageToMessageEncoder {
+    private class Encoder extends MessageToMessageEncoder<BaseMessage> {
 
         @Override
-        protected void encode(ChannelHandlerContext ctx, Object msg, List out) throws Exception {
+        protected void encode(ChannelHandlerContext ctx, BaseMessage msg, List out) throws Exception {
             Connection connection = cxnxManager.getConnection(ctx.channel());
-            ByteBuf buf = ctx.alloc().ioBuffer();
-            codec.encode(connection, msg, buf);
-            if (buf.isReadable()) {
-                BinaryWebSocketFrame frame = new BinaryWebSocketFrame(false, 0, buf);
-                out.add(frame);
+            if (connection != null) {
+                ByteBuf buf = ctx.alloc().ioBuffer();
+                codec.encode(connection, msg, buf);
+                if (buf.isReadable()) {
+                    BinaryWebSocketFrame frame = new BinaryWebSocketFrame(false, 0, buf);
+                    out.add(frame);
+                }
             }
         }
     }
@@ -77,6 +80,9 @@ public class BinaryFrameDuplexCodec {
 
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+            if (ctx.pipeline().get("WS403Responder") == null) {
+                return;
+            }
             Connection connection = cxnxManager.getConnection(ctx.channel());
             Object msg = codec.decode(connection, in);
             if (msg != null) {

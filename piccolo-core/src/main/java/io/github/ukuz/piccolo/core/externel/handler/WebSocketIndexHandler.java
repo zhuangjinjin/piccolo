@@ -22,6 +22,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -41,23 +44,24 @@ import java.io.InputStream;
  */
 public class WebSocketIndexHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketIndexHandler.class);
     private static final String ROOT_PATH = "/";
     private static final String INDEX = "/index.html";
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         if (!req.decoderResult().isSuccess()) {
-            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST, Unpooled.EMPTY_BUFFER));
+            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
             return;
         }
 
         if (!HttpMethod.GET.equals(req.method())) {
-            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN, Unpooled.EMPTY_BUFFER));
+            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN));
             return;
         }
 
         if (ROOT_PATH.equals(req.uri()) || INDEX.equals(req.uri())) {
-            ByteBuf content = getContent("index.html");
+            ByteBuf content = getContent(INDEX);
             FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, OK, content);
 
             res.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
@@ -67,7 +71,7 @@ public class WebSocketIndexHandler extends SimpleChannelInboundHandler<FullHttpR
             sendHttpResponse(ctx, req, res);
         } else {
 
-            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND, Unpooled.EMPTY_BUFFER));
+            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND));
         }
     }
 
@@ -85,6 +89,7 @@ public class WebSocketIndexHandler extends SimpleChannelInboundHandler<FullHttpR
 
     private void sendHttpResponse(ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
         if (res.status().code() != HttpResponseStatus.OK.code()) {
+            LOGGER.error("req error, uri: {} status: {}", req.uri(), res.status().code());
             ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
             res.content().writeBytes(buf);
             buf.release();

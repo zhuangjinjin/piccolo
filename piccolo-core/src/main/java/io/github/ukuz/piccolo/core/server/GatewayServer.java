@@ -34,6 +34,8 @@ import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
@@ -93,6 +95,18 @@ public class GatewayServer extends NettyServer {
             trafficShapingHandler = new GlobalChannelTrafficShapingHandler(executor,
                     traffic.getWriteGlobalLimit(), traffic.getReadGlobalLimit(),
                     traffic.getWriteChannelLimit(), traffic.getReadChannelLimit());
+        }
+    }
+
+    @Override
+    protected void initOptions(ServerBootstrap server) {
+        super.initOptions(server);
+        NetProperties net = piccoloContext.getProperties(NetProperties.class);
+        if (net.getGatewayServer().getRcvBuf() > 0) {
+            server.childOption(ChannelOption.SO_RCVBUF, net.getGatewayServer().getRcvBuf());
+        }
+        if (net.getGatewayServer().getSndBuf() > 0) {
+            server.childOption(ChannelOption.SO_SNDBUF, net.getGatewayServer().getSndBuf());
         }
     }
 

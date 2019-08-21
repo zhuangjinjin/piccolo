@@ -29,7 +29,6 @@ import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.externel.handler.WebSocketIndexHandler;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
-import io.github.ukuz.piccolo.core.handler.WebSocketChannelHandler;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import io.github.ukuz.piccolo.transport.codec.BinaryFrameDuplexCodec;
@@ -56,7 +55,7 @@ public class WebSocketServer extends NettyServer {
     private ZKRegistration serviceInstance;
 
     public WebSocketServer(PiccoloContext piccoloContext) {
-        this(piccoloContext, new WebSocketChannelHandler(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext)), new NettyConnectionManager());
+        this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager());
     }
 
     public WebSocketServer(PiccoloContext piccoloContext, ChannelHandler channelHandler, ConnectionManager cxnxManager) {

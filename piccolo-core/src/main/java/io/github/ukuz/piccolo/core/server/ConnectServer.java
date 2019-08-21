@@ -35,10 +35,13 @@ import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
@@ -95,6 +98,18 @@ public class ConnectServer extends NettyServer {
             channelTrafficShapingHandler = new GlobalChannelTrafficShapingHandler(executor,
                     traffic.getWriteGlobalLimit(), traffic.getReadGlobalLimit(),
                     traffic.getWriteChannelLimit(), traffic.getReadChannelLimit());
+        }
+    }
+
+    @Override
+    protected void initOptions(ServerBootstrap server) {
+        super.initOptions(server);
+        NetProperties net = piccoloContext.getProperties(NetProperties.class);
+        if (net.getConnectServer().getRcvBuf() > 0) {
+            server.childOption(ChannelOption.SO_RCVBUF, net.getConnectServer().getRcvBuf());
+        }
+        if (net.getConnectServer().getSndBuf() > 0) {
+            server.childOption(ChannelOption.SO_SNDBUF, net.getConnectServer().getSndBuf());
         }
     }
 

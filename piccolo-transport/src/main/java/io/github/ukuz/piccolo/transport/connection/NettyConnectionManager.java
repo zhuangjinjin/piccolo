@@ -42,7 +42,7 @@ public class NettyConnectionManager implements ConnectionManager {
 
     @Override
     public Connection removeConnection(Channel channel) {
-        return CONNECTION_MAP.remove(channel);
+        return CONNECTION_MAP.remove(channel.id());
     }
 
     @Override
