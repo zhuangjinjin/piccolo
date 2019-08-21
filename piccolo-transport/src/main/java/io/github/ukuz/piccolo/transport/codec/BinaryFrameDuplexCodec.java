@@ -75,6 +75,7 @@ public class BinaryFrameDuplexCodec {
             if (msg instanceof BinaryWebSocketFrame) {
                 List<Object> out = new ArrayList<>();
                 decode(ctx, ((BinaryWebSocketFrame) msg).content(), out);
+                out.forEach(ctx::fireChannelRead);
             }
         }
 
