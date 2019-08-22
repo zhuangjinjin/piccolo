@@ -21,6 +21,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.MessageToByteEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -30,6 +32,7 @@ import java.util.List;
  */
 public class DuplexCodec {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuplexCodec.class);
     private Codec codec;
     private final ConnectionManager cxnxManager;
 
@@ -64,10 +67,18 @@ public class DuplexCodec {
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
             Connection connection = cxnxManager.getConnection(ctx.channel());
-            Object msg = codec.decode(connection, in);
-            if (msg != null) {
-                out.add(msg);
+            try {
+                Object msg = codec.decode(connection, in);
+                if (msg != null) {
+                    out.add(msg);
+                }
+            } catch (CodecException e) {
+                if (e instanceof PacketUnknownCodecException || e instanceof PacketSizeLimitCodecException) {
+                    LOGGER.error("Duplex decode failure, cause: {}", e);
+                    ctx.pipeline().close();
+                }
             }
+
         }
     }
 }

@@ -37,7 +37,7 @@ public class ChannelHandlers {
     }
 
     public static ChannelHandler newGatewayChannelHandler(PiccoloContext piccoloContext) {
-        return new MultiMessageHandler(piccoloContext, new DispatcherHandler(null));
+        return new MultiMessageHandler(piccoloContext, new PushHandler(piccoloContext));
     }
 
 }

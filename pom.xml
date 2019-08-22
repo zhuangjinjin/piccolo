@@ -48,6 +48,7 @@
         <commons_beanutils_version>1.9.3</commons_beanutils_version>
         <commons_codec_version>1.13</commons_codec_version>
         <commons_lang3_version>3.9</commons_lang3_version>
+        <commons_collections_version>4.3</commons_collections_version>
         <slf4j_version>1.7.25</slf4j_version>
         <logback_version>1.2.2</logback_version>
         <guava_version>28.0-jre</guava_version>
@@ -208,6 +209,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons_lang3_version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons_collections_version}</version>
             </dependency>
 
 

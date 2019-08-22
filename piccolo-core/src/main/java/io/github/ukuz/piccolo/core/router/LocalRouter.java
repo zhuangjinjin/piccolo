@@ -18,6 +18,8 @@ package io.github.ukuz.piccolo.core.router;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.router.Router;
 
+import java.util.Objects;
+
 /**
  * @author ukuz90
  */
@@ -47,5 +49,23 @@ public class LocalRouter implements Router<Connection> {
         return "LocalRouter{" +
                 "connection=" + connection +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LocalRouter that = (LocalRouter) o;
+        return this.hashCode() == that.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(connection.getSessionContext().getUserId());
+        return 31 * result + Objects.hashCode(connection.getSessionContext().getClientType());
     }
 }

@@ -21,14 +21,16 @@ import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.push.PushContext;
-import io.github.ukuz.piccolo.api.push.PushMsg;
-import io.github.ukuz.piccolo.api.router.ClientLocator;
 import io.github.ukuz.piccolo.client.PiccoloClient;
+import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.PushMessage;
 import io.github.ukuz.piccolo.core.router.RemoteRouter;
+import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -60,24 +62,43 @@ public class PushClient {
         Assert.notNull(context, "context must not be null");
         //先查询client所在的网关服务器的地址
         if (context.getUserId() != null) {
-            Set<RemoteRouter> remoteRouters = piccoloClient.getRemoteRouterManager().lookupAll(context.getUserId());
-            remoteRouters.forEach(remoteRouter -> {
-                Connection connection = piccoloClient.getGatewayConnectionFactory().getConnection(remoteRouter.getRouterValue().getHostAndPort());
-                if (connection != null) {
-                    PushMessage msg = PushMessage.build(connection).content(context.getContext());
-                    connection.sendAsync(msg);
-                } else {
-                    LOGGER.error("can not push message to gateway server, is it work, userId: {} server: {}",
-                            context.getUserId(),
-                            remoteRouter.getRouterValue().getHostAndPort());
-                    //TODO 是否重试？
-                }
-            });
-        } else if (context.getUserIds() != null && context.getUserIds().size() > 0) {
-
+            pushSingleUser(context.getUserId(), context.getContext());
+        } else if (context.getUserIds() != null && !CollectionUtils.isEmpty(context.getUserIds())) {
+            context.getUserIds().forEach(userId -> pushSingleUser(userId, context.getContext()));
         } else if (context.isBroadcast()) {
-
+            broadcast(context.getContext());
         }
+    }
+
+    private void pushSingleUser(String userId, byte[] context) {
+        Set<RemoteRouter> remoteRouters = piccoloClient.getRemoteRouterManager().lookupAll(userId);
+        remoteRouters.forEach(remoteRouter -> {
+            Connection connection = piccoloClient.getGatewayConnectionFactory().getConnection(remoteRouter.getRouterValue().getHostAndPort());
+            if (connection != null) {
+                PushMessage msg = PushMessage.build(connection).content(context).userId(userId);
+                connection.sendAsync(msg);
+            } else {
+                LOGGER.error("can not push message to gateway server, is it work, userId: {} server: {}",
+                        userId,
+                        remoteRouter.getRouterValue().getHostAndPort());
+                //TODO 是否重试？
+            }
+        });
+    }
+
+    private void broadcast(byte[] context) {
+        List<ZKRegistration> serviceInstances = piccoloClient.getServiceDiscovery().lookup(ServiceNames.S_GATEWAY);
+        serviceInstances.forEach(serviceInstance -> {
+            Connection connection = piccoloClient.getGatewayConnectionFactory().getConnection(serviceInstance.getHostAndPort());
+            if (connection != null) {
+                PushMessage msg = PushMessage.build(connection).content(context).broadcast(true);
+                connection.sendAsync(msg);
+            } else {
+                LOGGER.error("can not push message to gateway server, is it work, server: {}",
+                        serviceInstance.getHostAndPort());
+                //TODO 是否重试？
+            }
+        });
     }
 
     private void registerHandler(String topic, BaseDispatcherHandler handler) {

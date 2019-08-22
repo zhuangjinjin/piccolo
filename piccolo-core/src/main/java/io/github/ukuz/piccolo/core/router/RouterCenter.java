@@ -27,6 +27,8 @@ import io.github.ukuz.piccolo.core.PiccoloServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -106,6 +108,14 @@ public final class RouterCenter extends AbstractService {
 
     public LocalRouter lookupLocal(String userId, byte clientType) {
         return localRouterManager.lookup(userId, clientType);
+    }
+
+    public Set<LocalRouter> lookupLocal(String userId) {
+        return localRouterManager.lookupAll(userId);
+    }
+
+    public Set<LocalRouter> lookupLocalAll() {
+        return localRouterManager.lookupAll();
     }
 
     public RemoteRouter lookupRemote(String userId, byte clientType) {

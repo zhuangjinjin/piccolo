@@ -46,6 +46,8 @@ public class DefaultPacketToMessageConverter implements PacketToMessageConverter
                 return new FastConnectMessage(connection);
             case BIND_USER:
                 return new BindUserMessage(connection);
+            case DISPATCH:
+                return new DispatcherMessage(connection);
             default:
                 LOGGER.error("packet covert failure, not found mapping cmd: {} packet: {} conn: {}", cmd, packet, connection);
                 return null;

@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 /**
  * @author ukuz90
@@ -59,5 +60,13 @@ public class LocalRouterManager implements RouterManager<LocalRouter> {
         Set<LocalRouter> sets = new HashSet<>(routers.getOrDefault(userId, EMPTY).values());
         logger.info("lookupAll userId: {} router: {}", userId, sets);
         return sets;
+    }
+
+    public Set<LocalRouter> lookupAll() {
+        Map<String, Map<Byte, LocalRouter>> routers = Collections.unmodifiableMap(this.routers);
+        Set<LocalRouter> result = new HashSet<>();
+        routers.forEach((k, v) -> result.addAll(v.values()));
+        logger.info("lookupAll router size: {}", result.size());
+        return result;
     }
 }

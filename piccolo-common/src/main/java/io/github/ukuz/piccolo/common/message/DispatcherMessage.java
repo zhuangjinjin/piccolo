@@ -26,7 +26,7 @@ import io.netty.buffer.ByteBuf;
 public class DispatcherMessage extends ByteBufMessage {
     public byte[] payload;
 
-    public DispatcherMessage(Connection connection, byte commandType) {
+    public DispatcherMessage(Connection connection) {
         super(connection, DISPATCH.getCmd());
     }
 

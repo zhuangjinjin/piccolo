@@ -17,49 +17,37 @@ package io.github.ukuz.piccolo.common.message;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
-import static io.github.ukuz.piccolo.common.constants.CommandType.GATEWAY_PUSH;
 import io.netty.buffer.ByteBuf;
-import lombok.Builder;
+
+import static io.github.ukuz.piccolo.common.constants.CommandType.DISPATCH;
 
 /**
  * @author ukuz90
  */
-public class PushMessage extends ByteBufMessage {
+public class DispatcherResponseMessage extends ByteBufMessage {
 
-    public String userId;
-    public boolean broadcast;
-    public byte[] content;
+    public byte[] payload;
 
-    public PushMessage(Connection connection) {
-        super(connection, GATEWAY_PUSH.getCmd());
+    public DispatcherResponseMessage(Connection connection) {
+        super(connection, DISPATCH.getCmd());
     }
 
     @Override
     protected void decodeBody0(ByteBuf buf) {
-        content = readBytes(buf);
+        payload = readBytes(buf);
     }
 
     @Override
     protected void encodeBody0(ByteBuf buf) {
-        writeBytes(buf, content);
+        writeBytes(buf, payload);
     }
 
-    public static PushMessage build(Connection connection) {
-        return new PushMessage(connection);
+    public static DispatcherResponseMessage build(Connection connection) {
+        return new DispatcherResponseMessage(connection);
     }
 
-    public PushMessage content(byte[] content) {
-        this.content = content;
-        return this;
-    }
-
-    public PushMessage broadcast(boolean broadcast) {
-        this.broadcast = broadcast;
-        return this;
-    }
-
-    public PushMessage userId(String userId) {
-        this.userId = userId;
+    public DispatcherResponseMessage payload(byte[] payload) {
+        this.payload = payload;
         return this;
     }
 
