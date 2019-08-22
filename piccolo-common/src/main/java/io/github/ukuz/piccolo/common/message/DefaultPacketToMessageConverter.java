@@ -21,6 +21,7 @@ import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 
 import io.github.ukuz.piccolo.common.constants.CommandType;
+import io.netty.handler.codec.CodecException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class DefaultPacketToMessageConverter implements PacketToMessageConverter
                 return new DispatcherMessage(connection);
             default:
                 LOGGER.error("packet covert failure, not found mapping cmd: {} packet: {} conn: {}", cmd, packet, connection);
-                return null;
+                throw new IllegalArgumentException("unknown command, cmd:" + cmd);
         }
     }
 }

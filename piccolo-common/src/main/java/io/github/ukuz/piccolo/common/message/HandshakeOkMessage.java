@@ -19,10 +19,12 @@ import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
 import static io.github.ukuz.piccolo.common.constants.CommandType.*;
 import io.netty.buffer.ByteBuf;
+import lombok.ToString;
 
 /**
  * @author ukuz90
  */
+@ToString
 public class HandshakeOkMessage extends ByteBufMessage {
 
     public int heartbeat;

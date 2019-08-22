@@ -92,6 +92,7 @@ public abstract class ByteBufMessage implements BaseMessage {
         }
 
         Packet packet = new Packet();
+        packet.setCmd(commandType);
         packet.setMagic((short) 0xbcc0);
         packet.setFlag(assemblyFlag());
         packet.setSessionId(sessionId);
