@@ -33,6 +33,10 @@ public class MultiPacketCodec extends MessageToPacketCodec {
         super(converter);
     }
 
+    public MultiPacketCodec(PacketToMessageConverter converter, PacketCodec packetCodec) {
+        super(converter, packetCodec);
+    }
+
     @Override
     public void encode(Connection connection, Object message, ByteBuf out) throws CodecException {
         if (message instanceof MultiMessage) {

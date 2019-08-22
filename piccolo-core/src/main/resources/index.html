@@ -57,10 +57,10 @@
         const Command = {
             HANDSHAKE: 2,
             BIND: 5,
-            UNBIND: 6,
-            ERROR: 10,
-            OK: 11,
-            KICK: 13,
+            UNBIND: 10,
+            ERROR: 1,
+            OK: 6,
+            KICK: 9,
             PUSH: 15,
             ACK: 23,
             UNKNOWN: -1
@@ -69,9 +69,9 @@
         function Packet(cmd, body, sessionId) {
             return {
                 cmd: cmd,
-                flags: 16,
+                flag: 0,
                 sessionId: sessionId || ID_SEQ++,
-                body: body
+                payload: body
             }
         }
 

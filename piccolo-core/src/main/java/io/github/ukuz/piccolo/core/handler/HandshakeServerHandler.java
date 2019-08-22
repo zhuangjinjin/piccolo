@@ -164,7 +164,6 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
                 .setDeviceId(msg.deviceId)
                 .setClientVersion(msg.clientVersion)
                 .setOsVersion(msg.osVersion)
-                .setOsVersion(msg.osVersion)
                 .setHeartbeat(Integer.MAX_VALUE);
 
         logger.info("handshake success, conn: {}", connection);

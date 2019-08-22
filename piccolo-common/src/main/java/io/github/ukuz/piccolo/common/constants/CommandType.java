@@ -29,6 +29,7 @@ public enum CommandType {
     DISPATCH(7),
     GATEWAY_PUSH(8),
     KICK(9),
+    UNBIND_USER(10),
 
     UNKNOWN(-1);
 

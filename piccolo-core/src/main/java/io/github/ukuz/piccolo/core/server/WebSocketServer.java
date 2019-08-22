@@ -31,9 +31,7 @@ import io.github.ukuz.piccolo.core.externel.handler.WebSocketIndexHandler;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
-import io.github.ukuz.piccolo.transport.codec.BinaryFrameDuplexCodec;
-import io.github.ukuz.piccolo.transport.codec.Codec;
-import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
+import io.github.ukuz.piccolo.transport.codec.*;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
 import io.netty.channel.ChannelPipeline;
@@ -74,7 +72,7 @@ public class WebSocketServer extends NettyServer {
 
     @Override
     protected Codec newCodec() {
-        return  new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension());
+        return new MultiPacketCodec(SpiLoader.getLoader(PacketToMessageConverter.class).getExtension());
     }
 
     @Override
@@ -100,10 +98,10 @@ public class WebSocketServer extends NettyServer {
         //duplex
         pipeline.addLast(new WebSocketServerCompressionHandler());
         //inbound (webSocket handshake)
-        //Sec-webSocket-version:7 use WebSocketServerhandshaker07
-        //Sec-webSocket-version:8 use WebSocketServerhandshaker08
-        //Sec-webSocket-version:13 use WebSocketServerhandshaker13
-        //header not specified use WebSocketServerhandshaker00
+        //Sec-webSocket-version:7 use WebSocketServerHandshaker07
+        //Sec-webSocket-version:8 use WebSocketServerHandshaker08
+        //Sec-webSocket-version:13 use WebSocketServerHandshaker13
+        //header not specified use WebSocketServerHandshaker00
         pipeline.addLast(new WebSocketServerProtocolHandler(piccoloContext.getProperties(NetProperties.class).getWsPath(), null, true));
         //inbound
         pipeline.addLast(new WebSocketIndexHandler());

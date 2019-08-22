@@ -29,7 +29,7 @@ import lombok.Data;
 @Data
 public class Packet {
 
-    public static final int HEADER_LENGTH = 13;
+    public transient static final int HEADER_LENGTH = 13;
 
     /**
      * magic number
@@ -78,7 +78,7 @@ public class Packet {
     }
 
     public byte getCommandType() {
-        return (byte) (flag >> 3);
+        return cmd;
     }
 
     public byte getCompressType() {

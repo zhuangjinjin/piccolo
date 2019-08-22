@@ -24,27 +24,33 @@ import io.netty.buffer.ByteBuf;
 /**
  * @author ukuz90
  */
-public class MessageToPacketCodec extends PacketCodec {
+public class MessageToPacketCodec implements Codec {
 
-    private PacketToMessageConverter converter;
+    private final PacketToMessageConverter converter;
+    private final PacketCodec packetCodec;
 
     public MessageToPacketCodec(PacketToMessageConverter converter) {
+        this(converter, new BinaryPacketCodec());
+    }
+
+    public MessageToPacketCodec(PacketToMessageConverter converter, PacketCodec packetCodec) {
         this.converter = converter;
+        this.packetCodec = packetCodec;
     }
 
     @Override
     public void encode(Connection connection, Object msg, ByteBuf out) throws CodecException {
         if (msg instanceof BaseMessage) {
             Packet packet = ((BaseMessage) msg).encodeBody();
-            super.encode(connection, packet, out);
+            packetCodec.encode(connection, packet, out);
         } else {
-            super.encode(connection, msg, out);
+            packetCodec.encode(connection, msg, out);
         }
     }
 
     @Override
     public Object decode(Connection connection, ByteBuf in) throws CodecException {
-        Packet packet = (Packet) super.decode(connection, in);
+        Packet packet = (Packet) packetCodec.decode(connection, in);
         if (converter != null) {
             BaseMessage message = converter.convert(packet, connection);
             if (message == null) {

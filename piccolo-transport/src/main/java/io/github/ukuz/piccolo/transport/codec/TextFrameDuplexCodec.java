@@ -17,30 +17,33 @@ package io.github.ukuz.piccolo.transport.codec;
 
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+
+import java.nio.charset.StandardCharsets;
+
 
 /**
  * @author ukuz90
  */
-public class BinaryFrameDuplexCodec extends WebSocketFrameDuplexCodec<BinaryWebSocketFrame> {
+public class TextFrameDuplexCodec extends WebSocketFrameDuplexCodec<TextWebSocketFrame> {
 
-    public BinaryFrameDuplexCodec(ConnectionManager cxnxManager, Codec codec) {
+    public TextFrameDuplexCodec(ConnectionManager cxnxManager, Codec codec) {
         super(cxnxManager, codec);
     }
 
     @Override
-    BinaryWebSocketFrame wrapFrame(ByteBuf buf) {
-        return new BinaryWebSocketFrame(false, 0, buf);
+    TextWebSocketFrame wrapFrame(ByteBuf buf) {
+        byte[] data = new byte[buf.readableBytes()];
+        return new TextWebSocketFrame(false, 0, new String(data, StandardCharsets.UTF_8));
     }
 
     @Override
-    ByteBuf unwrapFrame(BinaryWebSocketFrame frame) {
+    ByteBuf unwrapFrame(TextWebSocketFrame frame) {
         return frame.content();
     }
 
     @Override
     boolean match(Object frame) {
-        return frame instanceof BinaryWebSocketFrame;
+        return frame instanceof TextWebSocketFrame;
     }
-
 }
