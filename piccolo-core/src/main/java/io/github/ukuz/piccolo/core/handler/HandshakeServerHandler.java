@@ -56,9 +56,9 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
             } else {
                 doNotInSecurity(connection, (HandshakeMessage) message);
             }
+        } else {
+            super.received(connection, message);
         }
-
-        super.received(connection, message);
     }
 
     private void doInSecurity(Connection connection, HandshakeMessage msg) {

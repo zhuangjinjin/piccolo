@@ -99,7 +99,7 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     @Override
     public ChannelFuture sendAsync(BaseMessage message, ChannelFutureListener listener) {
         if (channel.isActive()) {
-            ChannelFuture future = channel.write(message).addListener(this);
+            ChannelFuture future = channel.writeAndFlush(message).addListener(this);
 
             if (listener != null) {
                 future.addListener(listener);
@@ -178,8 +178,11 @@ public class NettyConnection implements Connection, ChannelFutureListener {
     public void operationComplete(ChannelFuture future) throws Exception {
         if (future.isSuccess()) {
             lastWriteTime = System.currentTimeMillis();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("connection send msg success, channel: {}", future.channel());
+            }
         } else {
-            LOGGER.error("connection send msg error: {}", future.cause());
+            LOGGER.error("connection send msg error: cause: {}", future.cause().getMessage());
         }
     }
 }

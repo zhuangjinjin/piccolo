@@ -55,8 +55,9 @@ public class BindUserHandler extends ChannelHandlerDelegateAdapter {
             } catch (Exception e) {
                 throw new ExchangeException(e);
             }
+        } else {
+            super.received(connection, message);
         }
-        super.received(connection, message);
     }
 
     private void bind(Connection connection, BindUserMessage msg) throws Exception {
