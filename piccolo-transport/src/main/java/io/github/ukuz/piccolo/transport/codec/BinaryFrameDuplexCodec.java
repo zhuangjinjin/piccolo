@@ -30,7 +30,7 @@ public class BinaryFrameDuplexCodec extends WebSocketFrameDuplexCodec<BinaryWebS
 
     @Override
     BinaryWebSocketFrame wrapFrame(ByteBuf buf) {
-        return new BinaryWebSocketFrame(false, 0, buf);
+        return new BinaryWebSocketFrame(true, 0, buf);
     }
 
     @Override
