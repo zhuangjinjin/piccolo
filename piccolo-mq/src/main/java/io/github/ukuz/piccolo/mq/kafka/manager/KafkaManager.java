@@ -19,16 +19,19 @@ import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
+import io.github.ukuz.piccolo.api.mq.MQTopic;
 import io.github.ukuz.piccolo.mq.kafka.KafkaAdmin;
 import io.github.ukuz.piccolo.mq.kafka.consumer.KafkaConsumerWorker;
 import io.github.ukuz.piccolo.mq.kafka.producer.KafkaProducerSender;
 import io.github.ukuz.piccolo.mq.kafka.properties.KafkaProperties;
+import io.github.ukuz.piccolo.mq.properties.MQTopicProperties;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * @author ukuz90
@@ -49,11 +52,12 @@ public class KafkaManager {
     public void init() {
         executor = context.getExecutorFactory().create(ExecutorFactory.MQ, context.getEnvironment());
         kafkaProperties = context.getProperties(KafkaProperties.class);
+        MQTopicProperties topicProperties = context.getProperties(MQTopicProperties.class);
         Map<String, Object> producerProps = kafkaProperties.buildProducerProperties();
         Map<String, Object> adminClientProps = kafkaProperties.buildAdminClientProperties();
         sender = new KafkaProducerSender(producerProps);
         sender.init();
-        admin = new KafkaAdmin(adminClientProps);
+        admin = new KafkaAdmin(topicProperties, adminClientProps);
         admin.init();
     }
 
@@ -68,12 +72,19 @@ public class KafkaManager {
 
     public void subscribe(String topic, MQMessageReceiver receiver) {
         List<String> topics = Arrays.asList(topic.split(","));
+        List<String> newTopics = topics.stream()
+                .map(MQTopic::getTopic)
+                .collect(Collectors.toList());
         Map<String, Object> properties = kafkaProperties.buildConsumerProperties();
-        KafkaConsumerWorker consumer = new KafkaConsumerWorker(properties, topics, receiver);
+        KafkaConsumerWorker consumer = new KafkaConsumerWorker(properties, newTopics, receiver);
         executor.execute(consumer);
     }
 
     public void publish(String topic, Object message) {
-        sender.send(topic, (byte[])message, null);
+        sender.send(MQTopic.getTopic(topic), (byte[])message, null);
+    }
+
+    public void addTopicIfNeeded(MQTopic topic) {
+        admin.addTopicIfNeeded(topic);
     }
 }

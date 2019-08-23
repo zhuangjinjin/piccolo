@@ -18,6 +18,7 @@ package io.github.ukuz.piccolo.mq.kafka;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
+import io.github.ukuz.piccolo.api.mq.MQTopic;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.mq.kafka.manager.KafkaManager;
@@ -52,6 +53,11 @@ public class KafkaMQClient extends AbstractService implements MQClient {
     @Override
     public void destroy() throws ServiceException {
         kafkaManager.destroy();
+    }
+
+    @Override
+    public void addTopicIfNeeded(MQTopic topic) {
+        kafkaManager.addTopicIfNeeded(topic);
     }
 
     @Override

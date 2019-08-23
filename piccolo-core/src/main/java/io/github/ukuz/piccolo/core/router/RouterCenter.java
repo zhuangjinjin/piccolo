@@ -47,15 +47,16 @@ public final class RouterCenter extends AbstractService {
 
     public RouterCenter(PiccoloServer piccoloServer) {
         this.piccoloServer = piccoloServer;
+        localRouterManager = new LocalRouterManager();
+        remoteRouterManager = new RemoteRouterManager(piccoloServer.getCacheManager());
+        routerChangeListener = new RouterChangeListener(piccoloServer);
+        userEventListener = new UserEventListener(piccoloServer.getMQClient());
     }
 
     @Override
     public void init() throws ServiceException {
         LOGGER.info("router center init.");
-        localRouterManager = new LocalRouterManager();
-        remoteRouterManager = new RemoteRouterManager(piccoloServer.getCacheManager());
-        routerChangeListener = new RouterChangeListener(piccoloServer);
-        userEventListener = new UserEventListener(piccoloServer.getMQClient());
+        routerChangeListener.init();
     }
 
     /**

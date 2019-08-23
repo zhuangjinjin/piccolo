@@ -23,6 +23,7 @@ import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.event.RouterChangeEvent;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
+import io.github.ukuz.piccolo.api.mq.MQTopic;
 import io.github.ukuz.piccolo.api.router.ClientLocator;
 import io.github.ukuz.piccolo.api.router.Router;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
@@ -32,10 +33,13 @@ import io.github.ukuz.piccolo.common.message.KickUserMessage;
 import io.github.ukuz.piccolo.common.router.KickRemoteMsg;
 import io.github.ukuz.piccolo.common.router.MQKickRemoteMsg;
 import io.github.ukuz.piccolo.core.PiccoloServer;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author ukuz90
@@ -46,14 +50,20 @@ public class RouterChangeListener extends EventObservable implements MQMessageRe
 
     private PiccoloServer piccoloServer;
     private MQClient mqClient;
-    private String kickUserTopic;
+    private MQTopic kickUserTopic;
 
     public RouterChangeListener(PiccoloServer piccoloServer) {
         this.piccoloServer = piccoloServer;
+        this.mqClient = piccoloServer.getMQClient();
+    }
+
+    public void init() {
+        LOGGER.info("subscribe topic: {}", kickUserTopic);
         //订阅踢人
-        kickUserTopic = getKickUserTopic(piccoloServer.getGatewayServer().getRegistration().getHostAndPort());
-        mqClient = piccoloServer.getMQClient();
-        mqClient.subscribe(kickUserTopic, this);
+        String topic = getKickUserTopic(piccoloServer.getGatewayServer().getRegistration().getHostAndPort());
+        this.kickUserTopic = new MQTopic(topic);
+        mqClient.addTopicIfNeeded(kickUserTopic);
+        mqClient.subscribe(kickUserTopic.getTopic(), this);
     }
 
     @Subscribe
@@ -125,7 +135,7 @@ public class RouterChangeListener extends EventObservable implements MQMessageRe
         }
     }
 
-    private String getKickUserTopic(String hostAndPort) {
-        return "piccolo.kick." + hostAndPort;
+    public static String getKickUserTopic(String hostAndPort) {
+        return MQTopic.getTopic("kick." + hostAndPort.replaceAll(":", "."));
     }
 }

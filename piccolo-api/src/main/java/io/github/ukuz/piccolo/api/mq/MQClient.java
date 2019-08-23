@@ -24,6 +24,8 @@ import io.github.ukuz.piccolo.api.spi.Spi;
 @Spi(primary = "kafka")
 public interface MQClient extends Service {
 
+    void addTopicIfNeeded(MQTopic topic);
+
     void subscribe(String topic, MQMessageReceiver receiver);
 
     void publish(String topic, Object message);

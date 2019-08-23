@@ -15,8 +15,11 @@
  */
 package io.github.ukuz.piccolo.mq.kafka;
 
+import io.github.ukuz.piccolo.api.mq.MQTopic;
+import io.github.ukuz.piccolo.mq.properties.MQTopicProperties;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.KafkaException;
+import org.apache.kafka.common.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +38,20 @@ public class KafkaAdmin {
     private final Map<String, Object> config;
     private long operationTimeout = 30;
     private long closeTimeout = 10;
+    private MQTopicProperties topicProperties;
 
-    public KafkaAdmin(Map<String, Object> config) {
+    public KafkaAdmin( MQTopicProperties topicProperties, Map<String, Object> config) {
         this.config = config;
+        this.topicProperties = topicProperties;
     }
 
     public void init() {
-        Collection<NewTopic> newTopics = findAllTopics();
-        if (newTopics.size() > 0) {
+        List<NewTopic> newTopics = findAllTopics();
+        checkAndAddTopic(newTopics);
+    }
+
+    private void checkAndAddTopic(List<NewTopic> newTopics) {
+        if (newTopics != null && !newTopics.isEmpty()) {
             AdminClient adminClient = null;
             try {
                 adminClient = AdminClient.create(config);
@@ -64,7 +73,7 @@ public class KafkaAdmin {
         }
     }
 
-    private void addTopicsIfNeeded(AdminClient adminClient, Collection<NewTopic> newTopics) {
+    private void addTopicsIfNeeded(AdminClient adminClient, List<NewTopic> newTopics) {
         if (newTopics.size() > 0) {
             Map<String, NewTopic> topicNameToTopic = new HashMap<>();
             newTopics.forEach(topic -> topicNameToTopic.compute(topic.name(), (k, v) -> topic));
@@ -137,6 +146,7 @@ public class KafkaAdmin {
 
     private void addTopics(AdminClient adminClient, List<NewTopic> topicToAdd) {
         if (topicToAdd.size() > 0) {
+            LOGGER.info("addTopics topics: {}", topicToAdd);
             CreateTopicsResult topicsResult = adminClient.createTopics(topicToAdd);
             try {
                 topicsResult.all().get(this.operationTimeout, TimeUnit.SECONDS);
@@ -154,15 +164,20 @@ public class KafkaAdmin {
         }
     }
 
-    private Collection<NewTopic> findAllTopics() {
-        if (Topics.values().length == 0) {
+    private List<NewTopic> findAllTopics() {
+        List<MQTopic> list = topicProperties.getAllTopics();
+        if (list.isEmpty()) {
             return Collections.emptyList();
         }
-        List<NewTopic> topics = Arrays.asList(Topics.values())
-                .stream()
-                .map(t -> new NewTopic(t.getTopic(), t.getNumOfPartition(), t.getReplicationFactor()))
+        List<NewTopic> topics = list.stream()
+                .map(t -> new NewTopic(t.getTopic(), t.getNumPartitions(), t.getReplicationFactor()))
                 .collect(Collectors.toList());
         return topics;
+    }
+
+    public void addTopicIfNeeded(MQTopic topic) {
+        NewTopic newTopic = new NewTopic(topic.getTopic(), topic.getNumPartitions(), topic.getReplicationFactor());
+        checkAndAddTopic(Collections.singletonList(newTopic));
     }
 
 

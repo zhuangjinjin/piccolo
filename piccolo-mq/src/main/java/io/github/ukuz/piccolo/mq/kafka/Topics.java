@@ -22,30 +22,18 @@ public enum Topics {
     /**
      *
      */
-    DISPATCH_MESSAGE("piccolo.dispatch", 3, (short) 3),
-    ONLINE_MESSAGE("piccolo.online", 1, (short) 3),
-    OFFLINE_MESSAGE("piccolo.offline", 1, (short) 3)
+    DISPATCH_MESSAGE("dispatch"),
+    ONLINE_MESSAGE("online"),
+    OFFLINE_MESSAGE("offline")
     ;
 
     private final String topic;
-    private final int numOfPartition;
-    private final short replicationFactor;
 
-    Topics(String topic, int numOfPartition, short replicationFactor) {
+    Topics(String topic) {
         this.topic = topic;
-        this.numOfPartition = numOfPartition;
-        this.replicationFactor = replicationFactor;
     }
 
     public String getTopic() {
         return topic;
-    }
-
-    public int getNumOfPartition() {
-        return numOfPartition;
-    }
-
-    public short getReplicationFactor() {
-        return replicationFactor;
     }
 }
