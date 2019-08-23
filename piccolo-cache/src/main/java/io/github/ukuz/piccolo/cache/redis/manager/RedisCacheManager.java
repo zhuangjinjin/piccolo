@@ -23,6 +23,7 @@ import io.github.ukuz.piccolo.cache.redis.properties.RedisProperties;
 import io.github.ukuz.piccolo.common.json.Jsons;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCommands;
 
 import java.util.*;
@@ -60,8 +61,9 @@ public class RedisCacheManager implements CacheManager {
                 throw new CacheException("redis call failure", e);
             }
         } else {
-            try {
-                consumer.accept(factory.getJedisConnection());
+            // need call jedis close
+            try (Jedis jedis = factory.getJedisConnection()){
+                consumer.accept(jedis);
             } catch (Exception e) {
                 LOGGER.warn("call failure, cause: {}", e);
                 throw new CacheException("redis call failure", e);
@@ -80,8 +82,9 @@ public class RedisCacheManager implements CacheManager {
                 throw new CacheException("redis call failure", e);
             }
         } else {
-            try {
-                result = function.apply(factory.getJedisConnection());
+            // need call jedis close
+            try (Jedis jedis = factory.getJedisConnection()) {
+                result = function.apply(jedis);
             } catch (Exception e) {
                 LOGGER.warn("call failure, cause: {}", e);
                 throw new CacheException("redis call failure", e);
