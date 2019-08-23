@@ -156,8 +156,13 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
             return;
         }
 
-        //3. 响应握手成功信息
+        //3. 计算心跳时间
+        CoreProperties core = piccoloContext.getProperties(CoreProperties.class);
+        int heartbeat = Math.max(core.getMinHeartbeatTime(), Math.min(msg.maxHeartbeat, core.getMaxHeartbeatTime()));
+
+        //4. 响应握手成功信息
         HandshakeOkMessage okMessage = HandshakeOkMessage.build(connection);
+        okMessage.heartbeat(heartbeat);
         connection.sendAsync(okMessage);
 
         connection.getSessionContext()
