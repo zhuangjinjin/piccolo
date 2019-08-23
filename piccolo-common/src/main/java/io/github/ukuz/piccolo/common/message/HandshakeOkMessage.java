@@ -21,6 +21,8 @@ import static io.github.ukuz.piccolo.common.constants.CommandType.*;
 import io.netty.buffer.ByteBuf;
 import lombok.ToString;
 
+import java.util.Arrays;
+
 /**
  * @author ukuz90
  */
@@ -76,4 +78,13 @@ public class HandshakeOkMessage extends ByteBufMessage {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "HandshakeOkMessage{" +
+                "heartbeat=" + heartbeat +
+                ", expireTime=" + expireTime +
+                ", serverKey=" + Arrays.toString(serverKey) +
+                ", sessionId='" + sessionId + '\'' +
+                '}';
+    }
 }

@@ -49,4 +49,14 @@ public class FastConnectMessage extends ByteBufMessage {
         writeInt(buf, minHeartbeat);
         writeInt(buf, maxHeartbeat);
     }
+
+    @Override
+    public String toString() {
+        return "FastConnectMessage{" +
+                "sessionId='" + sessionId + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                ", minHeartbeat=" + minHeartbeat +
+                ", maxHeartbeat=" + maxHeartbeat +
+                '}';
+    }
 }

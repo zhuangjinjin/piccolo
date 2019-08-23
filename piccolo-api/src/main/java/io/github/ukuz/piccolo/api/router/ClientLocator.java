@@ -18,13 +18,11 @@ package io.github.ukuz.piccolo.api.router;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
-import lombok.Builder;
 import lombok.Getter;
 
 /**
  * @author ukuz90
  */
-@Builder
 @Getter
 public final class ClientLocator {
 
@@ -77,13 +75,13 @@ public final class ClientLocator {
 
     public static ClientLocator from(Connection connection) {
         SessionContext context = connection.getSessionContext();
-        return ClientLocator.builder()
-                .clientVersion(context.getClientVersion())
-                .osName(context.getOsName())
-                .osVersion(context.getOsVersion())
-                .deviceId(context.getDeviceId())
-                .connId(connection.getId())
-                .build();
+        ClientLocator clientLocator = new ClientLocator();
+        clientLocator.clientVersion = context.getClientVersion();
+        clientLocator.osName = context.getOsName();
+        clientLocator.osVersion = context.getOsVersion();
+        clientLocator.deviceId = context.getDeviceId();
+        clientLocator.connId = connection.getId();
+        return clientLocator;
     }
 
     public String toJson() {

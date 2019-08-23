@@ -57,4 +57,12 @@ public class KickUserMessage extends ByteBufMessage {
         this.deviceId = deviceId;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "KickUserMessage{" +
+                "userId='" + userId + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                '}';
+    }
 }

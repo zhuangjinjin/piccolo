@@ -38,4 +38,9 @@ public class HeartbeatMessage extends ByteBufMessage {
     protected void encodeBody0(ByteBuf buf) {
 
     }
+
+    @Override
+    public String toString() {
+        return "HeartbeatMessage{}";
+    }
 }

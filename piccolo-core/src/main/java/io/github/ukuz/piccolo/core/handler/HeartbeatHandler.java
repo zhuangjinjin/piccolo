@@ -21,6 +21,7 @@ import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandlerDelegateAdapter;
 import io.github.ukuz.piccolo.common.message.HeartbeatMessage;
+import io.github.ukuz.piccolo.common.message.OkMessage;
 
 /**
  * @author ukuz90
@@ -36,8 +37,8 @@ public class HeartbeatHandler extends ChannelHandlerDelegateAdapter {
     public void received(Connection connection, Object message) throws ExchangeException {
         if (message instanceof HeartbeatMessage) {
             connection.sendAsync((HeartbeatMessage)message);
-//            connection.sendAsync(new HeartbeatMessage(connection));
+        } else {
+            super.received(connection, message);
         }
-        super.received(connection, message);
     }
 }

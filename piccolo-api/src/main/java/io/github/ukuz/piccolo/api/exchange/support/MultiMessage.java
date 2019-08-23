@@ -84,5 +84,11 @@ public final class MultiMessage implements Iterable {
         return messages.iterator();
     }
 
+    @Override
+    public String toString() {
+        return "MultiMessage{" +
+                "messages=" + messages +
+                '}';
+    }
 }
 

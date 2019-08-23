@@ -120,7 +120,7 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
                 connection.getSessionContext()
                         .setDeviceId(msg.deviceId)
                         .setClientVersion(msg.clientVersion)
-                        .setOsVersion(msg.osVersion)
+                        .setOsName(msg.osName)
                         .setOsVersion(msg.osVersion)
                         .setHeartbeat(heartbeat);
 
@@ -168,6 +168,7 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
         connection.getSessionContext()
                 .setDeviceId(msg.deviceId)
                 .setClientVersion(msg.clientVersion)
+                .setOsName(msg.osName)
                 .setOsVersion(msg.osVersion)
                 .setHeartbeat(Integer.MAX_VALUE);
 

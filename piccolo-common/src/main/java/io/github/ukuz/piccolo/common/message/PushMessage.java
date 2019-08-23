@@ -21,6 +21,8 @@ import static io.github.ukuz.piccolo.common.constants.CommandType.GATEWAY_PUSH;
 import io.netty.buffer.ByteBuf;
 import lombok.Builder;
 
+import java.util.Arrays;
+
 /**
  * @author ukuz90
  */
@@ -63,4 +65,12 @@ public class PushMessage extends ByteBufMessage {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "PushMessage{" +
+                "userId='" + userId + '\'' +
+                ", broadcast=" + broadcast +
+                ", content=" + Arrays.toString(content) +
+                '}';
+    }
 }

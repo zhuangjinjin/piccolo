@@ -21,7 +21,10 @@ import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.mq.kafka.manager.KafkaManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -29,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class KafkaMQClient extends AbstractService implements MQClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaMQClient.class);
     private KafkaManager kafkaManager;
 
     @Override
@@ -57,7 +61,14 @@ public class KafkaMQClient extends AbstractService implements MQClient {
 
     @Override
     public void publish(String topic, Object message) {
-        kafkaManager.publish(topic, message);
+        if (message instanceof String) {
+            kafkaManager.publish(topic, ((String) message).getBytes(StandardCharsets.UTF_8));
+        } else if (message instanceof byte[]) {
+            kafkaManager.publish(topic, message);
+        } else {
+            LOGGER.warn("publish failure with a unsupported wire type, topic: {}, message: {}", topic, message);
+        }
+
     }
 
     @Override

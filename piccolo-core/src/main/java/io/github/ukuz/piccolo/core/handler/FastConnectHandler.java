@@ -83,7 +83,8 @@ public class FastConnectHandler extends ChannelHandlerDelegateAdapter {
                 });
 
             }
+        } else {
+            super.received(connection, message);
         }
-        super.received(connection, message);
     }
 }

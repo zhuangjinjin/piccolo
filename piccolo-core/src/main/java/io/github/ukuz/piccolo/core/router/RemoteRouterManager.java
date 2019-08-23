@@ -53,6 +53,7 @@ public class RemoteRouterManager extends EventObservable implements RouterManage
         //TODO need atomic?
         ClientLocator old = cacheManager.hget(key, field, ClientLocator.class);
         cacheManager.hset(key, field, router);
+        logger.info("register userId: {} clientType: {} router: {} old: {}", userId, router.getClientType(), router, old);
         return old == null ? null : new RemoteRouter(old);
     }
 

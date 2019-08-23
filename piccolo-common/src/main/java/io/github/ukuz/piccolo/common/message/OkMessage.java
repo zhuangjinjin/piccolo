@@ -69,4 +69,13 @@ public class OkMessage extends ByteBufMessage {
         Assert.notNull(message, "message must not null");
         return new OkMessage(message.getConnection()).cmd(message.getCommandType());
     }
+
+    @Override
+    public String toString() {
+        return "OkMessage{" +
+                "cmd=" + cmd +
+                ", code=" + code +
+                ", data='" + data + '\'' +
+                '}';
+    }
 }

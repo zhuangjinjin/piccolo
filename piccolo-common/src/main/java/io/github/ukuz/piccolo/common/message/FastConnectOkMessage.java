@@ -50,4 +50,10 @@ public class FastConnectOkMessage extends ByteBufMessage {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "FastConnectOkMessage{" +
+                "heartbeat=" + heartbeat +
+                '}';
+    }
 }

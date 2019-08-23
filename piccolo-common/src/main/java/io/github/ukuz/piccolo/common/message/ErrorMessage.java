@@ -75,4 +75,13 @@ public class ErrorMessage extends ByteBufMessage {
         return new ErrorMessage(message.getConnection()).cmd(message.getCommandType());
     }
 
+    @Override
+    public String toString() {
+        return "ErrorMessage{" +
+                "cmd=" + cmd +
+                ", code=" + code +
+                ", reason='" + reason + '\'' +
+                ", data='" + data + '\'' +
+                '}';
+    }
 }

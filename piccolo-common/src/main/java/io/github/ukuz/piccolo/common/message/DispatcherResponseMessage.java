@@ -19,6 +19,8 @@ import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
 import io.netty.buffer.ByteBuf;
 
+import java.util.Arrays;
+
 import static io.github.ukuz.piccolo.common.constants.CommandType.DISPATCH;
 
 /**
@@ -51,4 +53,10 @@ public class DispatcherResponseMessage extends ByteBufMessage {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "DispatcherResponseMessage{" +
+                "payload=" + Arrays.toString(payload) +
+                '}';
+    }
 }

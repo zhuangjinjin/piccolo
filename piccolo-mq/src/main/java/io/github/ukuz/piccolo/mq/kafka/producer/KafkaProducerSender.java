@@ -39,7 +39,7 @@ public class KafkaProducerSender {
         this.producerProps = producerProps;
     }
 
-    void init() {
+    public void init() {
         producer = new KafkaProducer(producerProps);
     }
 

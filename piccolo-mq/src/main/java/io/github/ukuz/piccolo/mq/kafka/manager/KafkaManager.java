@@ -52,6 +52,7 @@ public class KafkaManager {
         Map<String, Object> producerProps = kafkaProperties.buildProducerProperties();
         Map<String, Object> adminClientProps = kafkaProperties.buildAdminClientProperties();
         sender = new KafkaProducerSender(producerProps);
+        sender.init();
         admin = new KafkaAdmin(adminClientProps);
         admin.init();
     }

@@ -20,6 +20,8 @@ import io.github.ukuz.piccolo.api.exchange.support.ByteBufMessage;
 import static io.github.ukuz.piccolo.common.constants.CommandType.*;
 import io.netty.buffer.ByteBuf;
 
+import java.util.Arrays;
+
 /**
  * @author ukuz90
  */
@@ -38,5 +40,12 @@ public class DispatcherMessage extends ByteBufMessage {
     @Override
     protected void encodeBody0(ByteBuf buf) {
         writeBytes(buf, payload);
+    }
+
+    @Override
+    public String toString() {
+        return "DispatcherMessage{" +
+                "payload=" + Arrays.toString(payload) +
+                '}';
     }
 }

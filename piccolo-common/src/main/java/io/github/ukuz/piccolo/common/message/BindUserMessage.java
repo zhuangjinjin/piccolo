@@ -46,4 +46,13 @@ public class BindUserMessage extends ByteBufMessage {
         writeString(buf, tags);
         writeString(buf, data);
     }
+
+    @Override
+    public String toString() {
+        return "BindUserMessage{" +
+                "userId='" + userId + '\'' +
+                ", tags='" + tags + '\'' +
+                ", data='" + data + '\'' +
+                '}';
+    }
 }

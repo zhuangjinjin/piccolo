@@ -33,7 +33,8 @@ public final class EventBus {
 
     public static void create(Executor executor) {
         delegate = new AsyncEventBus(executor, ((exception, context) -> {
-            LOGGER.error("event bus subscriber failure, cause: {} context: {}", exception, context);
+            exception.printStackTrace();
+            LOGGER.error("event bus subscriber failure, cause: {} context: {}", exception, context.toString());
         }));
     }
 
