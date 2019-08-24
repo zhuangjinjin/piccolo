@@ -8,6 +8,199 @@
 
 <script type="text/javascript">
     "use strict";
+    class ByteBuf {
+        constructor() {
+            this.readIndex = 0;
+            this.writeIndex = 0;
+            this.capacity = 128;
+            let buf = new ArrayBuffer(128);
+            this.data = new DataView(buf);
+        }
+
+        writeByte(v) {
+            this.resize(1);
+            this.data.setInt8(this.writeIndex++, v);
+        }
+
+        writeShort(v) {
+            this.resize(2);
+            this.data.setInt16(this.writeIndex, v);
+            this.writeIndex+=2;
+        }
+
+        writeInt(v) {
+            this.resize(4);
+            this.data.setInt32(this.writeIndex, v);
+            this.writeIndex+=4;
+        }
+
+        writeLong(v) {
+            this.resize(8);
+            this.data.setBigInt64(this.writeIndex, v);
+            this.writeIndex+=8;
+        }
+
+        writeDouble(v) {
+            this.resize(8);
+            this.data.setFloat64(this.writeIndex, v);
+            this.writeIndex+=8;
+        }
+
+        writeBytes(v) {
+            let dataView = new DataView(v);
+            this.resize(dataView.byteLength);
+            for (let i = 0; i < dataView.byteLength; i++) {
+                this.data.setInt8(this.writeIndex++, dataView.getInt8(i));
+            }
+        }
+
+        readByte() {
+            return this.data.getInt8(this.readIndex++);
+        }
+
+        readShort() {
+            let val = this.data.getInt16(this.readIndex);
+            this.readIndex+=2;
+            return val;
+        }
+
+        readInt() {
+            let val = this.data.getInt32(this.readIndex);
+            this.readIndex+=4;
+            return val;
+        }
+
+        readLong() {
+            let val = this.data.getBigInt64(this.readIndex);
+            this.readIndex+=8;
+            return val;
+        }
+
+        readDouble() {
+            let val = this.data.getFloat64(this.readIndex);
+            this.readIndex+=8;
+            return val;
+        }
+
+        readBytes(len) {
+            let buf = new ArrayBuffer(len);
+            let dataView = new DataView(buf);
+            for (let i = 0; i < dataView.byteLength; i++) {
+                dataView.setInt8(i, this.data.getInt8(this.readIndex++));
+            }
+            return buf;
+        }
+
+        resize(len) {
+            if (len + this.writeIndex > this.capacity) {
+                this.capacity <<= 1;
+                let buf = this.copyArrayBuffer(this.capacity);
+                this.data = new DataView(buf);
+            }
+        }
+
+        getArrayBuffer() {
+            return this.copyArrayBuffer(this.writeIndex)
+        }
+
+        copyArrayBuffer(len) {
+            let buf = new ArrayBuffer(len);
+            let data = new DataView(buf);
+            for (let i = 0; i < this.writeIndex; i++) {
+                data.setInt8(i, this.data.getInt8(i));
+            }
+            return buf;
+        }
+    }
+
+    class AbstractMessage {
+        constructor(buf) {
+            this.decoder = new TextDecoder();
+            this.encoder = new TextEncoder();
+            this.byteBuf = buf != null ? buf : new ByteBuf();
+        }
+
+        writeString(str) {
+            let buf = this.getByte(str);
+            if (buf.byteLength == 0) {
+                this.byteBuf.writeShort(0);
+            } else if (buf.byteLength <= 0x7FFF) {
+                this.byteBuf.writeShort(buf.byteLength);
+                this.byteBuf.writeBytes(buf);
+            } else if (buf > 0x7FFF) {
+                this.byteBuf.writeShort(0x7FFF);
+                this.byteBuf.writeInt(buf.byteLength - 0x7FFF);
+                this.byteBuf.writeBytes(buf);
+            }
+        }
+
+        writeByte(v) {
+            this.byteBuf.writeByte(v);
+        }
+
+        writeShort(v) {
+            this.byteBuf.writeShort(v);
+        }
+
+        writeInt(v) {
+            this.byteBuf.writeInt(v);
+        }
+
+        writeLong(v) {
+            this.byteBuf.writeLong(v);
+        }
+
+        writeDouble(v) {
+            this.byteBuf.writeDouble(v);
+        }
+
+        readString() {
+            let len = this.byteBuf.readShort();
+            if (len == 0) {
+                return "";
+            } else if (len <= 0x7FFF) {
+                return this.getString(this.byteBuf.readBytes(len));
+            } else if (len > 0x7FFF) {
+                len += this.byteBuf.readInt();
+                return this.getString(this.byteBuf.readBytes(len));
+            }
+            return "";
+        }
+
+        readByte() {
+            return this.byteBuf.readByte();
+        }
+
+        readShort() {
+            return this.byteBuf.readShort();
+        }
+
+        readInt() {
+            return this.byteBuf.readInt();
+        }
+
+        readLong() {
+            return this.byteBuf.readLong();
+        }
+
+        readDouble() {
+            return this.byteBuf.readDouble();
+        }
+
+        getByte(str) {
+            let uint8array = this.encoder.encode(str);
+            return uint8array.buffer;
+        }
+
+        getString(bytes) {
+            return this.decoder.decode(bytes);
+        }
+
+        getArrayBuffer() {
+            return this.byteBuf.getArrayBuffer();
+        }
+    }
+
     (function (window) {
         let socket, session = {}, ID_SEQ = 1;
         let config = {listener: null, log: console};
@@ -76,14 +269,27 @@
         }
 
         function handshake() {
-            config.log.info("<<< send handshake message, deviceId=" + config.deviceId);
-            send(Packet(Command.HANDSHAKE, {
-                    deviceId: config.deviceId,
-                    osName: config.osName,
-                    osVersion: config.osVersion,
-                    clientVersion: config.clientVersion
-                })
-            );
+            let handshakeMsg = new AbstractMessage();
+            let deviceId = "xdr2342";
+            let osName = "web";
+            let osVersion = "10";
+            let clientVersion = "1.0";
+            let iv = "";
+            let clientKey = "";
+            let minHeartbeat = 5;
+            let maxHeartbeat = 10;
+            let timestamp = new Date().getTime();
+            handshakeMsg.writeString(deviceId);
+            handshakeMsg.writeString(osName);
+            handshakeMsg.writeString(osVersion);
+            handshakeMsg.writeString(clientVersion);
+            handshakeMsg.writeString(iv);
+            handshakeMsg.writeString(clientKey);
+            handshakeMsg.writeInt(minHeartbeat);
+            handshakeMsg.writeInt(maxHeartbeat);
+            handshakeMsg.writeDouble(timestamp);
+
+            sendMessage(handshakeMsg, Command.HANDSHAKE)
         }
 
         function bindUser(userId, tags) {
@@ -91,7 +297,12 @@
                 config.log.info("<<< send bindUser message, userId=" + userId);
                 session.userId = userId;
                 session.tags = tags;
-                send(Packet(Command.BIND, {userId: userId, tags: tags}));
+                let bindUserMsg = new AbstractMessage();
+                bindUserMsg.writeString(userId);
+                bindUserMsg.writeString(tags);
+                bindUserMsg.writeString("");
+                sendMessage(bindUserMsg, Command.BIND);
+                // send(Packet(Command.BIND, {userId: userId, tags: tags}));
             } else {
                 config.log.error("user " + userId + " already bind");
             }
@@ -115,6 +326,53 @@
             }
         }
 
+        function sendMessage(message, cmd) {
+            let buf = encodeMessage(cmd, message)
+            sendBinary(buf);
+        }
+
+        function sendBinary(packet) {
+            if (!socket) {
+                return;
+            }
+            config.log.info("<<< send msg....")
+            if (socket.readyState == WebSocket.OPEN) {
+                socket.send(packet);
+                config.log.debug("<<< send message to server, message=" + packet);
+            } else {
+                config.log.error("The socket is not open. message=" + packet);
+            }
+        }
+
+        function encodeMessage(cmd, message) {
+            let packet = new ByteBuf();
+            let payload = message.getArrayBuffer();
+            packet.writeShort(0xBCC0);
+            packet.writeByte(cmd);
+            packet.writeByte(0);
+            packet.writeInt(0);
+            packet.writeByte(0);
+            packet.writeInt(payload.byteLength);
+            packet.writeBytes(payload);
+
+            return packet.getArrayBuffer()
+        }
+
+        function decodeByteBuf(data) {
+            let byteBuf = new ByteBuf();
+            byteBuf.writeBytes(data);
+            let magic = byteBuf.readShort();
+            let cmd = byteBuf.readByte();
+            let flag = byteBuf.readByte();
+            let sessionId = byteBuf.readInt();
+            let lrc = byteBuf.readByte();
+            let payloadLen = byteBuf.readInt();
+            let payload = byteBuf.readBytes(payloadLen);
+
+            return Packet(cmd, payload, sessionId)
+
+        }
+
         function dispatch(packet) {
             switch (packet.cmd) {
                 case Command.HANDSHAKE: {
@@ -123,8 +381,15 @@
                     break;
                 }
                 case Command.OK: {
-                    if (packet.body.cmd == Command.BIND) {
+                    let byteBuf = new ByteBuf();
+                    byteBuf.writeBytes(packet.payload);
+                    let okMsg = new AbstractMessage(byteBuf);
+                    let subCmd = okMsg.readByte();
+                    let code = okMsg.readByte();
+                    let msg = okMsg.readString();
+                    if (subCmd == Command.BIND) {
                         config.log.info(">>> bind user ok.");
+                        config.log.info(msg);
                         listener.onBindUser(true);
                     }
                     break;
@@ -161,7 +426,13 @@
 
         function onReceive(event) {
             config.log.debug(">>> receive packet=" + event.data);
-            dispatch(JSON.parse(event.data))
+            let fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(event.data);
+            fileReader.onload = function(e) {
+                let packet = decodeByteBuf(fileReader.result)
+                dispatch(packet)
+            }
+            // dispatch(JSON.parse(event.data))
         }
 
         function onOpen(event) {
@@ -187,6 +458,8 @@
         function doConnect(cfg) {
             config = copy(cfg);
             socket = new WebSocket(config.url);
+            // socket.binaryType = "arraybuffer";
+            // socket.onmessage = onReceive;
             socket.onmessage = onReceive;
             socket.onopen = onOpen;
             socket.onclose = onClose;
