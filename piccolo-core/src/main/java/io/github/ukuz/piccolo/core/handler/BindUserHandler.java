@@ -28,6 +28,7 @@ import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.common.message.BindUserMessage;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import io.github.ukuz.piccolo.common.message.OkMessage;
+import io.github.ukuz.piccolo.common.message.UnbindUserMessage;
 import io.github.ukuz.piccolo.core.PiccoloServer;
 import io.github.ukuz.piccolo.core.router.LocalRouter;
 import io.github.ukuz.piccolo.core.router.RemoteRouter;
@@ -49,9 +50,14 @@ public class BindUserHandler extends ChannelHandlerDelegateAdapter {
 
     @Override
     public void received(Connection connection, Object message) throws ExchangeException {
-        if (message instanceof BindUserMessage) {
+        if (message instanceof BindUserMessage || message instanceof UnbindUserMessage) {
             try {
-                bind(connection, (BindUserMessage)message);
+                if (message instanceof BindUserMessage) {
+                    bind(connection, (BindUserMessage)message);
+                } else if (message instanceof UnbindUserMessage) {
+                    unbind(connection, (UnbindUserMessage) message);
+                }
+
             } catch (Exception e) {
                 throw new ExchangeException(e);
             }
@@ -78,7 +84,7 @@ public class BindUserHandler extends ChannelHandlerDelegateAdapter {
                     logger.info("bind user success, userId: {} conn: {}", msg.userId, connection);
                     return;
                 } else {
-                    unbind(connection, msg);
+                    unbind(connection, UnbindUserMessage.from(connection, msg));
                 }
             }
 
@@ -109,7 +115,7 @@ public class BindUserHandler extends ChannelHandlerDelegateAdapter {
         }
     }
 
-    private void unbind(Connection connection, BindUserMessage msg) {
+    private void unbind(Connection connection, UnbindUserMessage msg) {
         if (Strings.isNullOrEmpty(msg.userId)) {
             connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("invalid param"));
             logger.error("unbind user failure or invalid param, conn: {}", connection);

@@ -16,10 +16,12 @@
 package io.github.ukuz.piccolo.transport.handler;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.event.ConnectionCloseEvent;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -64,6 +66,7 @@ public class ServerHandler extends ChannelDuplexHandler {
     public void channelInactive(ChannelHandlerContext ctx) {
         Connection connection = cxnxManager.removeConnection(ctx.channel());
         LOGGER.info("handler inactive ctx: {} connection:{}", ctx, connection);
+        EventBus.post(new ConnectionCloseEvent(connection));
         handler.disconnected(connection);
     }
 

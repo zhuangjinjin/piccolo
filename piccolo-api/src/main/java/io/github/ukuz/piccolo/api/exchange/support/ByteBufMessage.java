@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author ukuz90
@@ -36,6 +37,7 @@ public abstract class ByteBufMessage implements BaseMessage {
     private boolean encrypt = true;
     private int sessionId;
     private Connection connection;
+    private static final AtomicInteger ID_SEQ = new AtomicInteger();
 
     public ByteBufMessage(Connection connection, byte commandType) {
         this.connection = connection;

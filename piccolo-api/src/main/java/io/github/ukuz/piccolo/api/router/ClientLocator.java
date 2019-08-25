@@ -17,13 +17,14 @@ package io.github.ukuz.piccolo.api.router;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
+import io.github.ukuz.piccolo.api.service.Client;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author ukuz90
  */
-@Getter
 public final class ClientLocator {
 
     private String host;
@@ -70,6 +71,63 @@ public final class ClientLocator {
 
     public ClientLocator setPort(int port) {
         this.port = port;
+        return this;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getOsName() {
+        return osName;
+    }
+
+    public void setOsName(String osName) {
+        this.osName = osName;
+    }
+
+    public String getOsVersion() {
+        return osVersion;
+    }
+
+    public ClientLocator setOsVersion(String osVersion) {
+        this.osVersion = osVersion;
+        return this;
+    }
+
+    public String getClientVersion() {
+        return clientVersion;
+    }
+
+    public ClientLocator setClientVersion(String clientVersion) {
+        this.clientVersion = clientVersion;
+        return this;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public ClientLocator setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+        return this;
+    }
+
+    public String getConnId() {
+        return connId;
+    }
+
+    public ClientLocator setConnId(String connId) {
+        this.connId = connId;
+        return this;
+    }
+
+    public ClientLocator setClientType(byte clientType) {
+        this.clientType = clientType;
         return this;
     }
 
