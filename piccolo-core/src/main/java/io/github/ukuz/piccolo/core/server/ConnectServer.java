@@ -16,6 +16,7 @@
 package io.github.ukuz.piccolo.core.server;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
@@ -38,6 +39,8 @@ import io.github.ukuz.piccolo.transport.server.NettyServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.WriteBufferWaterMark;
+import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.handler.traffic.GlobalChannelTrafficShapingHandler;
 
 import java.net.InetSocketAddress;
@@ -50,8 +53,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public class ConnectServer extends NettyServer {
 
     private InetSocketAddress address;
-    private final String host;
-    private final int port;
     private GlobalChannelTrafficShapingHandler channelTrafficShapingHandler;
     private ZKRegistration serviceInstance;
 
@@ -69,10 +70,8 @@ public class ConnectServer extends NettyServer {
                          ChannelHandler channelHandler, ConnectionManager cxnxManager,
                          String host, int port) {
         super(piccoloContext, channelHandler, cxnxManager);
-        Assert.notEmptyString(host, "host must not be empty");
         Assert.isTrue(port >= 0, "port was invalid port: " + port);
-        this.host = host;
-        this.port = port;
+        this.address = StringUtils.hasText(host) ? new InetSocketAddress(host, port) : new InetSocketAddress(port);
     }
 
     @Override
@@ -82,15 +81,6 @@ public class ConnectServer extends NettyServer {
 
     @Override
     protected void doInit() {
-        this.address = new InetSocketAddress(this.host, this.port);
-
-        ServiceInstance si = DefaultServiceInstance.builder()
-                .host(host)
-                .port(port)
-                .isPersistent(false)
-                .serviceId(ServiceNames.S_CONNECT)
-                .build();
-        serviceInstance = ZKRegistration.build(si);
         //限流
         NetProperties.TrafficNestedProperties traffic = piccoloContext.getProperties(NetProperties.class).getConnectServerTraffic();
         if (traffic.isEnabled()) {
@@ -102,14 +92,32 @@ public class ConnectServer extends NettyServer {
     }
 
     @Override
+    protected void doStartComplete(ServerSocketChannel channel) {
+        ServiceInstance si = DefaultServiceInstance.builder()
+                .host(channel.localAddress().getHostName())
+                .port(channel.localAddress().getPort())
+                .isPersistent(false)
+                .serviceId(ServiceNames.S_CONNECT)
+                .build();
+        serviceInstance = new ZKRegistration(si);
+    }
+
+
+    @Override
     protected void initOptions(ServerBootstrap server) {
         super.initOptions(server);
+        server.option(ChannelOption.SO_BACKLOG, 10240);
         NetProperties net = piccoloContext.getProperties(NetProperties.class);
         if (net.getConnectServer().getRcvBuf() > 0) {
             server.childOption(ChannelOption.SO_RCVBUF, net.getConnectServer().getRcvBuf());
         }
         if (net.getConnectServer().getSndBuf() > 0) {
             server.childOption(ChannelOption.SO_SNDBUF, net.getConnectServer().getSndBuf());
+        }
+
+        if (net.getConnectServer().getWriteWaterMarkLow() > 0 && net.getConnectServer().getWriteWaterMarkHigh() > 0) {
+            server.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK,
+                    new WriteBufferWaterMark(net.getConnectServer().getWriteWaterMarkLow(), net.getConnectServer().getWriteWaterMarkHigh()));
         }
     }
 

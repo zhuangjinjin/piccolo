@@ -21,6 +21,9 @@ import io.github.ukuz.piccolo.api.event.UserOfflineEvent;
 import io.github.ukuz.piccolo.api.event.UserOnlineEvent;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.common.event.EventObservable;
+import io.github.ukuz.piccolo.core.PiccoloServer;
+import io.github.ukuz.piccolo.core.user.UserManager;
+
 import static io.github.ukuz.piccolo.mq.kafka.Topics.ONLINE_MESSAGE;
 import static io.github.ukuz.piccolo.mq.kafka.Topics.OFFLINE_MESSAGE;
 
@@ -30,21 +33,28 @@ import static io.github.ukuz.piccolo.mq.kafka.Topics.OFFLINE_MESSAGE;
 public class UserEventListener extends EventObservable {
 
     private MQClient mqClient;
+    private UserManager userManager;
 
-    public UserEventListener(MQClient mqClient) {
-        this.mqClient = mqClient;
+    public UserEventListener(PiccoloServer piccoloServer) {
+        this.mqClient = piccoloServer.getMQClient();
+        this.userManager = new UserManager(piccoloServer);
     }
 
     @Subscribe
     @AllowConcurrentEvents
     public void on(UserOnlineEvent event) {
+        userManager.addToOnlineList(event.getUserId());
         mqClient.publish(ONLINE_MESSAGE.getTopic(), event.getUserId());
     }
 
     @Subscribe
     @AllowConcurrentEvents
     public void on(UserOfflineEvent event) {
+        userManager.removeFromOnlineList(event.getUserId());
         mqClient.publish(OFFLINE_MESSAGE.getTopic(), event.getUserId());
     }
 
+    public UserManager getUserManager() {
+        return userManager;
+    }
 }

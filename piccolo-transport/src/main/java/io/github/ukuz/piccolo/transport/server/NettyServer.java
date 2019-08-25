@@ -126,7 +126,7 @@ public abstract class NettyServer extends AbstractService implements Server {
         ChannelFuture channelFuture = server.bind(getInetSocketAddress());
         channelFuture.addListener( future ->  {
             if (future.isSuccess()) {
-
+                doStartComplete((ServerSocketChannel) channelFuture.channel());
                 serverState.set(State.Started);
                 logger.info("server start async success: {}", channelFuture.channel().localAddress().toString().replace("/",""));
                 result.complete(true);
@@ -198,6 +198,8 @@ public abstract class NettyServer extends AbstractService implements Server {
     protected abstract Codec newCodec();
 
     protected abstract void doInit();
+
+    protected abstract void doStartComplete(ServerSocketChannel channel);
 
     protected abstract void doDestroy();
 

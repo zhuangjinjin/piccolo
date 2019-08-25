@@ -50,13 +50,14 @@ public final class RouterCenter extends AbstractService {
         localRouterManager = new LocalRouterManager();
         remoteRouterManager = new RemoteRouterManager(piccoloServer.getCacheManager());
         routerChangeListener = new RouterChangeListener(piccoloServer);
-        userEventListener = new UserEventListener(piccoloServer.getMQClient());
+        userEventListener = new UserEventListener(piccoloServer);
     }
 
     @Override
     public void init() throws ServiceException {
         LOGGER.info("router center init.");
         routerChangeListener.init();
+        userEventListener.getUserManager().clearOnlineList();
     }
 
     /**
@@ -96,6 +97,11 @@ public final class RouterCenter extends AbstractService {
         return true;
     }
 
+    @Override
+    public void destroy() throws ServiceException {
+        userEventListener.getUserManager().clearOnlineList();
+    }
+
     /**
      * unregister
      *
@@ -121,6 +127,10 @@ public final class RouterCenter extends AbstractService {
 
     public RemoteRouter lookupRemote(String userId, byte clientType) {
         return remoteRouterManager.lookup(userId, clientType);
+    }
+
+    public Set<RemoteRouter> lookupRemote(String userId) {
+        return remoteRouterManager.lookupAll(userId);
     }
 
     public boolean unRegisterLocal(String userId, byte clientType) {

@@ -24,30 +24,50 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ServerBoot implements BootJob {
     private NettyServer server;
+    private boolean sync;
 
     public ServerBoot(NettyServer server) {
+        this(server, false);
+    }
+
+    public ServerBoot(NettyServer server, boolean sync) {
         this.server = server;
+        this.sync = sync;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void start() {
-        CompletableFuture<Boolean> future = this.server.startAsync();
-        future.whenCompleteAsync((success, throwable) -> {
-            if (success && server.getRegistration() != null) {
+        if (sync) {
+            if (server.start() && server.getRegistration() != null) {
                 server.getPiccoloContext().getServiceRegistry().registry(server.getRegistration());
             }
-        });
+        } else {
+            CompletableFuture<Boolean> future = server.startAsync();
+            future.whenCompleteAsync((success, throwable) -> {
+                if (success && server.getRegistration() != null) {
+                    server.getPiccoloContext().getServiceRegistry().registry(server.getRegistration());
+                }
+            });
+        }
+
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void stop() {
-        CompletableFuture<Boolean> future = this.server.stopAsync();
-        future.whenCompleteAsync((success, throwable) -> {
-            if (success && server.getRegistration() != null) {
+        if (sync) {
+            if (server.stop() && server.getRegistration() != null) {
                 server.getPiccoloContext().getServiceRegistry().deregistry(server.getRegistration());
             }
-        });
+        } else {
+            CompletableFuture<Boolean> future = server.stopAsync();
+            future.whenCompleteAsync((success, throwable) -> {
+                if (success && server.getRegistration() != null) {
+                    server.getPiccoloContext().getServiceRegistry().deregistry(server.getRegistration());
+                }
+            });
+        }
+
     }
 }

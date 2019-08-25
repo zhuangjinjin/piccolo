@@ -35,6 +35,6 @@ public class RouterCenterBoot implements BootJob {
 
     @Override
     public void stop() {
-        this.routerCenter.startAsync();
+        this.routerCenter.stopAsync();
     }
 }

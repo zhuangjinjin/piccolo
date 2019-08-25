@@ -16,6 +16,7 @@
 package io.github.ukuz.piccolo.core.server;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
@@ -34,7 +35,10 @@ import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import io.github.ukuz.piccolo.transport.codec.*;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
@@ -48,8 +52,6 @@ import java.net.InetSocketAddress;
 public class WebSocketServer extends NettyServer {
 
     private InetSocketAddress address;
-    private final String host;
-    private final int port;
     private ZKRegistration serviceInstance;
 
     public WebSocketServer(PiccoloContext piccoloContext) {
@@ -64,10 +66,8 @@ public class WebSocketServer extends NettyServer {
 
     public WebSocketServer(PiccoloContext piccoloContext, ChannelHandler channelHandler, ConnectionManager cxnxManager, String host, int port) {
         super(piccoloContext, channelHandler, cxnxManager);
-        Assert.notEmptyString(host, "host must not be empty");
         Assert.isTrue(port >= 0, "port was invalid port: " + port);
-        this.host = host;
-        this.port = port;
+        address = StringUtils.hasText(host) ? new InetSocketAddress(host, port) : new InetSocketAddress(port);
     }
 
     @Override
@@ -77,11 +77,14 @@ public class WebSocketServer extends NettyServer {
 
     @Override
     protected void doInit() {
-        address = new InetSocketAddress(host, port);
+    }
 
+    @Override
+    protected void doStartComplete(ServerSocketChannel channel) {
         ServiceInstance si = DefaultServiceInstance.builder()
-                .host(host)
-                .port(port)
+                .host(channel.localAddress().getHostName())
+//                .host(channel.localAddress().getAddress().getHostAddress())
+                .port(channel.localAddress().getPort())
                 .isPersistent(false)
                 .serviceId(ServiceNames.S_WS)
                 .build();
@@ -109,6 +112,17 @@ public class WebSocketServer extends NettyServer {
         pipeline.addLast(codec.getEncoder());
         //duplex
         pipeline.addLast(getServerHandler());
+    }
+
+    @Override
+    protected void initOptions(ServerBootstrap server) {
+        super.initOptions(server);
+        server.option(ChannelOption.SO_BACKLOG, 10240);
+
+        NetProperties net = piccoloContext.getProperties(NetProperties.class);
+
+        server.childOption(ChannelOption.SO_SNDBUF, net.getWsServer().getSndBuf() > 0 ? net.getWsServer().getSndBuf() : 32 * 1024);
+        server.childOption(ChannelOption.SO_RCVBUF, net.getWsServer().getRcvBuf() > 0 ? net.getWsServer().getRcvBuf() : 32 * 1024);
     }
 
     @Override

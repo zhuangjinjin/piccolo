@@ -22,9 +22,11 @@ public final class CacheKeys {
 
     private static final String USER_PREFIX = "piccolo:ur:";
 
-    private static final String SESSION_PREFIX = "piccolo:rs:";
+    private static final String SESSION_PREFIX = "piccolo:sk:";
 
     private static final String FAST_CONNECTION_DEVICE_PREFIX = "piccolo:fcd:";
+
+    private static final String ONLINE_USER_LIST_KEY_PREFIX = "piccolo:oul:";
 
     public static String getSessionKey(String sessionId) {
         return SESSION_PREFIX + sessionId;
@@ -36,5 +38,9 @@ public final class CacheKeys {
 
     public static String getUserRouteKey(String userId) {
         return USER_PREFIX + userId;
+    }
+
+    public static String getOnlineUserListKey(String publicIP) {
+        return ONLINE_USER_LIST_KEY_PREFIX + publicIP;
     }
 }

@@ -15,6 +15,8 @@
  */
 package io.github.ukuz.piccolo.common.properties;
 
+import io.github.ukuz.piccolo.api.common.utils.NetworkUtils;
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
 import io.github.ukuz.piccolo.api.config.Properties;
 import lombok.Data;
@@ -56,6 +58,22 @@ public class NetProperties implements Properties {
         private int readGlobalLimit;
         private int writeChannelLimit;
         private int readChannelLimit;
+    }
+
+    public String getLocalIp() {
+        if (StringUtils.hasText(localIp)) {
+            return localIp;
+        }
+        return NetworkUtils.getLocalAddress();
+    }
+
+    public String getPublicIp() {
+        if (StringUtils.hasText(publicIp)) {
+            return publicIp;
+        }
+        String localAddress = getLocalIp();
+        String publicAddress = NetworkUtils.getExtranetAddress();
+        return StringUtils.hasText(publicAddress) ? publicAddress : localAddress;
     }
 
 }
