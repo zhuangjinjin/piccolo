@@ -55,6 +55,7 @@
         <jedis_version>2.9.0</jedis_version>
         <fastjson_version>1.2.47</fastjson_version>
         <kafka_version>2.0.0</kafka_version>
+        <protobuf_version>3.9.1</protobuf_version>
 
         <!-- Maven plugins -->
         <maven_compiler_version>3.6.0</maven_compiler_version>
@@ -62,6 +63,7 @@
         <maven_apache_rat_version>0.12</maven_apache_rat_version>
         <maven_surefire_verson>3.0.0-M3</maven_surefire_verson>
         <maven_failsafe_version>3.0.0-M3</maven_failsafe_version>
+        <maven_flatten_version>1.1.0</maven_flatten_version>
 
         <!--<os_detected_classifier>linux-x86_64</os_detected_classifier>-->
     </properties>
@@ -216,6 +218,11 @@
                 <version>${commons_collections_version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java-util</artifactId>
+                <version>${protobuf_version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -329,6 +336,7 @@
                                 <exclude>**/logback.xml</exclude>
                                 <exclude>**/*.html</exclude>
                                 <exclude>**/*.txt</exclude>
+                                <exclude>**/*.xml</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -360,6 +368,31 @@
                         <id>default-verify</id>
                         <goals>
                             <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${maven_flatten_version}</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
                         </goals>
                     </execution>
                 </executions>

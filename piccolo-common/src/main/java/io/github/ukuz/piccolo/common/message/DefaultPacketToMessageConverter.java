@@ -21,7 +21,6 @@ import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 
 import io.github.ukuz.piccolo.common.constants.CommandType;
-import io.netty.handler.codec.CodecException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

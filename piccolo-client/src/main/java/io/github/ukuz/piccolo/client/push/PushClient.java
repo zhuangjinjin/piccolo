@@ -121,7 +121,9 @@ public class PushClient {
 
         @Override
         public void receive(String topic, byte[] message) {
-            dispatchHandlerExecutor.execute(() -> handler.onDispatch(message));
+            DispatcherMqMessage msg = new DispatcherMqMessage();
+            msg.decode(message);
+            dispatchHandlerExecutor.execute(() -> handler.onDispatch(msg));
         }
     }
 

@@ -15,11 +15,41 @@
  */
 package io.github.ukuz.piccolo.client.push;
 
+import io.github.ukuz.piccolo.common.message.BaseMqMessage;
+
 /**
  * @author ukuz90
  */
-public interface BaseDispatcherHandler {
+public class DispatcherMqMessage extends BaseMqMessage {
 
-    void onDispatch(DispatcherMqMessage message);
+    private long xid;
+    private byte[] payload;
 
+    public long getXid() {
+        return xid;
+    }
+
+    public void setXid(long xid) {
+        this.xid = xid;
+    }
+
+    public byte[] getPayload() {
+        return payload;
+    }
+
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
+    }
+
+    @Override
+    protected void doEncode() {
+        writeLong(xid);
+        writeBytes(payload);
+    }
+
+    @Override
+    protected void doDecode() {
+        xid = readLong();
+        payload = readBytes();
+    }
 }

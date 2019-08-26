@@ -15,6 +15,10 @@
  */
 package io.github.ukuz.piccolo.api.common.utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author ukuz90
  */
@@ -69,6 +73,45 @@ public final class StringUtils {
             return false;
         }
         return str1.equals(str2);
+    }
+
+    public static byte[][] split(byte[] buf, char separator, int segmentNum) {
+        if (segmentNum <= 1) {
+            return new byte[][]{buf};
+        }
+        byte[][] list = new byte[segmentNum][];
+        int cursor = 0;
+        int j = 0;
+        for (int i = 0; i < buf.length; i++) {
+            if (j == segmentNum - 1) {
+                byte[] segment = new byte[buf.length - cursor];
+                System.arraycopy(buf, cursor, segment, 0, segment.length);
+                list[j] = segment;
+                break;
+            }
+            if (buf[i] == separator) {
+                byte[] segment = new byte[i - cursor];
+                System.arraycopy(buf, cursor, segment, 0, segment.length);
+                list[j] = segment;
+                cursor = i + 1;
+                j++;
+            }
+        }
+        return list;
+    }
+
+    public static List<byte[]> split(byte[] buf, char separator) {
+        List<byte[]> list = new ArrayList<>();
+        int cursor = 0;
+        for (int i = 0; i < buf.length; i++) {
+            if (buf[i] == separator) {
+                byte[] segment = new byte[i - cursor];
+                System.arraycopy(buf, cursor, segment, 0, segment.length);
+                list.add(segment);
+                cursor = i + 1;
+            }
+        }
+        return list;
     }
 
 }
