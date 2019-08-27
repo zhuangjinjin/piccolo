@@ -23,6 +23,7 @@ import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.message.DispatcherMessage;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
+import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,10 +67,13 @@ public class DispatcherHandler implements ChannelHandler {
             SessionContext context = connection.getSessionContext();
             if (context.getUserId() == null) {
                 connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("not bind user"));
-                LOGGER.error("dispatcher ");
+                LOGGER.error("dispatcher failure, cause: not bind user");
             }
             MQClient client = SpiLoader.getLoader(MQClient.class).getExtension();
-            client.publish(DISPATCH_MESSAGE.getTopic(), msg.payload);
+            DispatcherMqMessage mqMessage = new DispatcherMqMessage();
+//            mqMessage.setXid();
+            mqMessage.setPayload(msg.payload);
+            client.publish(DISPATCH_MESSAGE.getTopic(), mqMessage.encode());
         } else {
             connection.close();
             LOGGER.error("handler unknown message, message: {} conn: {}", message, connection);

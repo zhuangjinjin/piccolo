@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.push;
-
-import io.github.ukuz.piccolo.common.message.BaseMqMessage;
+package io.github.ukuz.piccolo.common.message.push;
 
 /**
  * @author ukuz90

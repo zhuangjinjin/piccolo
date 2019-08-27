@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.push;
-
-import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
+package io.github.ukuz.piccolo.api.id;
 
 /**
  * @author ukuz90
  */
-public interface BaseDispatcherHandler {
+public interface IdGen {
 
-    void onDispatch(DispatcherMqMessage message);
+    boolean init();
+
+    long get(String tag) throws Exception;
 
 }

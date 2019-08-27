@@ -58,12 +58,14 @@
         <protobuf_version>3.9.1</protobuf_version>
 
         <!-- Maven plugins -->
+        <maven_source_version>3.1.0</maven_source_version>
         <maven_compiler_version>3.6.0</maven_compiler_version>
         <maven_jacoco_version>0.8.2</maven_jacoco_version>
         <maven_apache_rat_version>0.12</maven_apache_rat_version>
         <maven_surefire_verson>3.0.0-M3</maven_surefire_verson>
         <maven_failsafe_version>3.0.0-M3</maven_failsafe_version>
         <maven_flatten_version>1.1.0</maven_flatten_version>
+        <maven_jar_version>3.0.2</maven_jar_version>
 
         <!--<os_detected_classifier>linux-x86_64</os_detected_classifier>-->
     </properties>
@@ -275,7 +277,53 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>${maven.MultiModuleProjectDirectory}</directory>
+                <targetPath>META-INF/</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>LICENSE</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven_source_version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven_jar_version}</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <index>true</index>
+                        <manifest>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Specification-Version>${project.version}</Specification-Version>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
