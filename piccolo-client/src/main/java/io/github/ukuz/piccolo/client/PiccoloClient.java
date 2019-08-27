@@ -29,6 +29,8 @@ import io.github.ukuz.piccolo.client.gateway.connection.GatewayConnectionFactory
 import io.github.ukuz.piccolo.client.gateway.connection.GatewayTcpConnectionFactory;
 import io.github.ukuz.piccolo.client.router.CachedRemoteRouterManager;
 import io.github.ukuz.piccolo.client.threadpool.ClientExecutorFactory;
+import io.github.ukuz.piccolo.common.event.EventBus;
+import io.github.ukuz.piccolo.core.threadpool.ServerExecutorFactory;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
 
 /**
@@ -47,16 +49,20 @@ public class PiccoloClient implements PiccoloContext {
     public PiccoloClient() {
         //initialize config
         environment = SpiLoader.getLoader(Environment.class).getExtension();
-        environment.scanAllProperties();
+//        environment.scanAllProperties();
         environment.load("piccolo-client.properties");
 
         //initialize executor
         executorFactory = new ClientExecutorFactory();
+        //initialize eventBus
+        EventBus.create(executorFactory.create(ExecutorFactory.EVENT_BUS, environment));
 
         cacheManager = SpiLoader.getLoader(CacheManager.class).getExtension();
+        cacheManager.init(this);
         remoteRouterManager = new CachedRemoteRouterManager(cacheManager);
 
         srd = (ZKServiceRegistryAndDiscovery) SpiLoader.getLoader(ServiceRegistry.class).getExtension("zk");
+        srd.start();
 
         gatewayConnectionFactory = new GatewayTcpConnectionFactory(this);
 
@@ -94,7 +100,7 @@ public class PiccoloClient implements PiccoloContext {
 
     @Override
     public <T extends Properties> T getProperties(Class<T> clazz) {
-        return null;
+        return environment.getProperties(clazz);
     }
 
     @Override

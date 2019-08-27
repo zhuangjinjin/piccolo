@@ -20,6 +20,7 @@ import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.client.common.MultiMessageClientHandler;
 import io.github.ukuz.piccolo.client.connect.ClientConfig;
 import io.github.ukuz.piccolo.client.connect.ConnectClientHandler;
+import io.github.ukuz.piccolo.client.gateway.GatewayClientHandler;
 
 /**
  * @author ukuz90
@@ -34,7 +35,8 @@ public final class ChannelHandlers {
     }
 
     public static ChannelHandler newGatewayClientHandler(Environment environment) {
-        return new MultiMessageClientHandler(null);
+        GatewayClientHandler handler = new GatewayClientHandler();
+        return new MultiMessageClientHandler(handler);
     }
 
 }
