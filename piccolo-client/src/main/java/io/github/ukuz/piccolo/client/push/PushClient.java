@@ -25,7 +25,7 @@ import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.PushMessage;
 import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
-import io.github.ukuz.piccolo.core.router.RemoteRouter;
+import io.github.ukuz.piccolo.common.router.RemoteRouter;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;

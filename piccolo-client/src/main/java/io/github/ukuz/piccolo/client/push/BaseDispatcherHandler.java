@@ -20,6 +20,7 @@ import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
 /**
  * @author ukuz90
  */
+@FunctionalInterface
 public interface BaseDispatcherHandler {
 
     void onDispatch(DispatcherMqMessage message);

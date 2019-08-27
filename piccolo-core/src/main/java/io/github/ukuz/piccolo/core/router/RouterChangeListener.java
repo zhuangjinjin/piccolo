@@ -26,20 +26,17 @@ import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.mq.MQTopic;
 import io.github.ukuz.piccolo.api.router.ClientLocator;
 import io.github.ukuz.piccolo.api.router.Router;
-import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.common.event.EventObservable;
 import io.github.ukuz.piccolo.common.json.Jsons;
 import io.github.ukuz.piccolo.common.message.KickUserMessage;
 import io.github.ukuz.piccolo.common.router.KickRemoteMsg;
 import io.github.ukuz.piccolo.common.router.MQKickRemoteMsg;
+import io.github.ukuz.piccolo.common.router.RemoteRouter;
 import io.github.ukuz.piccolo.core.PiccoloServer;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author ukuz90

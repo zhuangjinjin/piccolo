@@ -18,8 +18,8 @@ package io.github.ukuz.piccolo.client.router;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
-import io.github.ukuz.piccolo.core.router.RemoteRouter;
-import io.github.ukuz.piccolo.core.router.RemoteRouterManager;
+import io.github.ukuz.piccolo.common.router.RemoteRouter;
+import io.github.ukuz.piccolo.common.router.RemoteRouterManager;
 
 import java.time.Duration;
 import java.util.Set;

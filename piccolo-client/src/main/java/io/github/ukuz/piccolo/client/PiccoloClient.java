@@ -30,7 +30,6 @@ import io.github.ukuz.piccolo.client.gateway.connection.GatewayTcpConnectionFact
 import io.github.ukuz.piccolo.client.router.CachedRemoteRouterManager;
 import io.github.ukuz.piccolo.client.threadpool.ClientExecutorFactory;
 import io.github.ukuz.piccolo.common.event.EventBus;
-import io.github.ukuz.piccolo.core.threadpool.ServerExecutorFactory;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
 
 /**
@@ -44,6 +43,7 @@ public class PiccoloClient implements PiccoloContext {
     private final CacheManager cacheManager;
     private final CachedRemoteRouterManager remoteRouterManager;
     private final GatewayConnectionFactory gatewayConnectionFactory;
+    private final MQClient mqClient;
 
 
     public PiccoloClient() {
@@ -56,6 +56,9 @@ public class PiccoloClient implements PiccoloContext {
         executorFactory = new ClientExecutorFactory();
         //initialize eventBus
         EventBus.create(executorFactory.create(ExecutorFactory.EVENT_BUS, environment));
+
+        mqClient = SpiLoader.getLoader(MQClient.class).getExtension();
+        mqClient.startAsync(this).join();
 
         cacheManager = SpiLoader.getLoader(CacheManager.class).getExtension();
         cacheManager.init(this);
@@ -90,7 +93,7 @@ public class PiccoloClient implements PiccoloContext {
 
     @Override
     public MQClient getMQClient() {
-        return null;
+        return mqClient;
     }
 
     @Override

@@ -41,8 +41,8 @@ public class SpiLoader<T> {
 
     private static final ConcurrentHashMap<Class<?>, SpiLoader> LOADERS = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<Class<?>, Holder<Object>> INSTANCES = new ConcurrentHashMap<>();
-    private static final String PLUGIN_SERVICES = "META-INF" + File.separator + "services";
-    private static final String PLUGIN_PICCOLO = "META-INF" + File.separator + "piccolo";
+    private static final String PLUGIN_SERVICES = "META-INF/services/";
+    private static final String PLUGIN_PICCOLO = "META-INF/piccolo/";
 
 
     private final Holder<Map<String, Class<T>>> cachedClassHolder = new Holder<>();
@@ -188,7 +188,7 @@ public class SpiLoader<T> {
     }
 
     private void loadDirectory(Map<String, Class<T>> extensionClassMap, String dir) {
-        String fileName = dir + File.separator + type.getName();
+        String fileName = dir + type.getName();
         Enumeration<URL> urls = null;
 
         try {

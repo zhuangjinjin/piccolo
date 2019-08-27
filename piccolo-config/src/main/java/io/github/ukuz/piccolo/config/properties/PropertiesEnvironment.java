@@ -52,8 +52,9 @@ public class PropertiesEnvironment implements Environment {
     private final ConcurrentMap<String, Properties> configMap = new ConcurrentHashMap<>();
     private final AtomicBoolean isScan = new AtomicBoolean();
 
+    private static final String RESOURCE_SEPARATOR = "/";
     private static final String CONF_DIR_NAME = "conf";
-    private static final String CONF_FILE_NAME = CONF_DIR_NAME + File.separator + "piccolo.properties";
+    private static final String CONF_FILE_NAME = CONF_DIR_NAME + RESOURCE_SEPARATOR + "piccolo.properties";
     private static final Properties EMPTY = new EmptyProperties();
 
     private Holder<Configuration> config = new Holder<>();
@@ -105,7 +106,7 @@ public class PropertiesEnvironment implements Environment {
     @Override
     public void load(String configFileName) throws EnvironmentException {
         if (!StringUtil.isNullOrEmpty(configFileName)) {
-            configFileName = CONF_DIR_NAME + File.separator + configFileName;
+            configFileName = CONF_DIR_NAME + RESOURCE_SEPARATOR + configFileName;
         } else {
             configFileName = CONF_FILE_NAME;
         }

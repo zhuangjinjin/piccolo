@@ -15,21 +15,19 @@
  */
 package io.github.ukuz.piccolo.core.router;
 
-import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.event.RouterChangeEvent;
 import io.github.ukuz.piccolo.api.router.ClientLocator;
-import io.github.ukuz.piccolo.api.router.Router;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.common.event.EventBus;
+import io.github.ukuz.piccolo.common.router.RemoteRouter;
+import io.github.ukuz.piccolo.common.router.RemoteRouterManager;
 import io.github.ukuz.piccolo.core.PiccoloServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author ukuz90

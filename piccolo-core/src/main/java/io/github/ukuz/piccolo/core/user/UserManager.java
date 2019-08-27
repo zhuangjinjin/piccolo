@@ -15,11 +15,10 @@
  */
 package io.github.ukuz.piccolo.core.user;
 
-import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.common.cache.CacheKeys;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
+import io.github.ukuz.piccolo.common.router.RemoteRouter;
 import io.github.ukuz.piccolo.core.PiccoloServer;
-import io.github.ukuz.piccolo.core.router.RemoteRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

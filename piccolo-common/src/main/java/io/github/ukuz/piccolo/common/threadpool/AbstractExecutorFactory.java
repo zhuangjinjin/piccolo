@@ -68,6 +68,15 @@ public  class AbstractExecutorFactory implements ExecutorFactory {
                         .build();
 
                 return createExecutor(config);
+            case MQ:
+                config = ThreadPoolConfig.builder()
+                        .name(ThreadNames.T_MQ)
+                        .coreSize(tp.getMq().getCoreSize())
+                        .maxSize(tp.getMq().getMaxSize())
+                        .queueCapacity(tp.getMq().getQueueSize())
+                        .keepAliveSeconds(tp.getMq().getKeepAliveSeconds())
+                        .build();
+                return createExecutor(config);
             default:
                 throw new IllegalArgumentException("invalid name: " + name);
         }
