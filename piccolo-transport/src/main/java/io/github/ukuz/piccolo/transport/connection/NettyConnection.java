@@ -182,7 +182,7 @@ public class NettyConnection implements Connection, ChannelFutureListener {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("connection send msg success, channel: {}", future.channel());
             }
-            LOGGER.warn("connection send msg success, channel: {}", future.channel());
+//            LOGGER.warn("connection send msg success, channel: {}", future.channel());
         } else {
             LOGGER.error("connection send msg error: cause: {}", future.cause().getMessage());
         }

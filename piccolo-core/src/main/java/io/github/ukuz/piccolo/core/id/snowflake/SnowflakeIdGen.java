@@ -71,7 +71,7 @@ public class SnowflakeIdGen implements IdGen {
                 timestamp = nextMillis();
             }
         } else {
-            //时间回拨
+            //时钟回拨
             long offset = lastTimestamp - timestamp;
             if (offset <= 5) {
                 try {

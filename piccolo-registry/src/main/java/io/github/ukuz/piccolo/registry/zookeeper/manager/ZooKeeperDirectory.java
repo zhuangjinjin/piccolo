@@ -168,19 +168,9 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
         return null;
     }
 
-    public List<String> getChildren(String path) {
-        try {
-            path = getFullPath(path);
-            if (existed(path)) {
-                return client.getChildren().forPath(path);
-            }
-        } catch (Exception e) {
-            logger.error("getChildren failure, path: {} cause: {}", path, e);
-        }
-        return null;
-    }
 
-    private void updateData(String path, String data) {
+
+    public void updateData(String path, String data) {
         try {
 //            client.inTransaction()
 //                    .check().forPath(path)
@@ -221,21 +211,23 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
         }
     }
 
-    public void registerPersistSequentialNode(String path, String val) {
-        registerPersistSequentialNode(path, val, true);
+    public String registerPersistSequentialNode(String path, String data) {
+        return registerPersistSequentialNode(path, data, true);
     }
 
-    void registerPersistSequentialNode(String path, String val, boolean cacheNode) {
+    String registerPersistSequentialNode(String path, String data, boolean cacheNode) {
         try {
             path = getFullPath(path);
-            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT_SEQUENTIAL).forPath(path, val.getBytes(StandardCharsets.UTF_8));
+            String newPath = client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT_SEQUENTIAL).forPath(path, data.getBytes(StandardCharsets.UTF_8));
 
             if (cacheNode) {
-                persistSequentialNodes.put(path, val);
+                persistSequentialNodes.put(path, data);
             }
+            return newPath;
         } catch (Exception e) {
-            logger.warn("registerEphemeralSequentialNode failure, path: {} val: {} cacheNode: {} cause: {}", path, val, cacheNode, e);
+            logger.warn("registerEphemeralSequentialNode failure, path: {} val: {} cacheNode: {} cause: {}", path, data, cacheNode, e);
         }
+        return path;
     }
 
     public String getFullPath(String path) {

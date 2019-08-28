@@ -28,12 +28,9 @@ import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.IdGenMessage;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;

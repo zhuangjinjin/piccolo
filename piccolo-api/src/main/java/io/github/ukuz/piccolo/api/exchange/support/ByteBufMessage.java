@@ -73,34 +73,42 @@ public abstract class ByteBufMessage implements BaseMessage {
     @Override
     public Packet encodeBody() {
 //        ByteBuf buf = PooledByteBufAllocator.DEFAULT.buffer();
-        ByteBuf buf = connection.getChannel().alloc().buffer();
-        encodeBody0(buf);
-        byte[] payload = new byte[buf.readableBytes()];
-        buf.readBytes(payload);
-        if (encrypt) {
-            // 加密
-            byte[] tmp = null;
-            if (getCipher() != null) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("decodeBody use encrypt, cipher: {} cmd:{}", getCipher(), commandType);
+        ByteBuf buf = null;
+        try {
+            buf = connection.getChannel().alloc().buffer();
+            encodeBody0(buf);
+            byte[] payload = new byte[buf.readableBytes()];
+            buf.readBytes(payload);
+            if (encrypt) {
+                // 加密
+                byte[] tmp = null;
+                if (getCipher() != null) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("decodeBody use encrypt, cipher: {} cmd:{}", getCipher(), commandType);
+                    }
+                    tmp = getCipher().encrypt(payload);
                 }
-                tmp = getCipher().encrypt(payload);
+                if (tmp != null && tmp.length > 0) {
+                    payload = tmp;
+                } else {
+                    encrypt = false;
+                }
             }
-            if (tmp != null && tmp.length > 0) {
-                payload = tmp;
-            } else {
-                encrypt = false;
+
+            Packet packet = new Packet();
+            packet.setCmd(commandType);
+            packet.setMagic((short) 0xbcc0);
+            packet.setFlag(assemblyFlag());
+            packet.setSessionId(sessionId);
+            packet.setPayload(payload);
+            packet.setLength(payload.length);
+            return packet;
+        } finally {
+            if (buf != null) {
+                buf.release();
             }
         }
 
-        Packet packet = new Packet();
-        packet.setCmd(commandType);
-        packet.setMagic((short) 0xbcc0);
-        packet.setFlag(assemblyFlag());
-        packet.setSessionId(sessionId);
-        packet.setPayload(payload);
-        packet.setLength(payload.length);
-        return packet;
     }
 
     public void writeByte(ByteBuf buf, byte b) {

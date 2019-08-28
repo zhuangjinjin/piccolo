@@ -32,15 +32,15 @@ public class ServerExecutorFactory extends AbstractExecutorFactory {
         ThreadPoolProperties tp = environment.getProperties(ThreadPoolProperties.class);
         ThreadPoolConfig config;
         switch (name) {
-            case MQ:
+            case ID_GEN:
                 config = ThreadPoolConfig.builder()
-                        .name(ThreadNames.T_MQ)
-                        .coreSize(tp.getMq().getCoreSize())
-                        .maxSize(tp.getMq().getMaxSize())
-                        .queueCapacity(tp.getMq().getQueueSize())
-                        .keepAliveSeconds(tp.getMq().getKeepAliveSeconds())
+                        .name(ThreadNames.T_ID_GEN)
+                        .coreSize(tp.getIdGen().getCoreSize())
+                        .maxSize(tp.getIdGen().getMaxSize())
+                        .queueCapacity(tp.getIdGen().getQueueSize())
+                        .keepAliveSeconds(tp.getIdGen().getKeepAliveSeconds())
                         .build();
-                return createExecutor(config);
+                return createScheduledExecutor(config);
             default:
                 return super.create(name, environment);
         }
