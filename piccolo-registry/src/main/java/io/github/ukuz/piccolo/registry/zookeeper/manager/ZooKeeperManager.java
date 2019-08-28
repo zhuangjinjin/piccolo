@@ -49,9 +49,11 @@ public final class ZooKeeperManager extends AbstractService {
      * local cache
      */
     private ZooKeeperDirectory directory;
+    private final String watchPath;
 
-    public ZooKeeperManager(ZooKeeperProperties zkProp) {
+    public ZooKeeperManager(ZooKeeperProperties zkProp, String watchPath) {
         this.zkProp = zkProp;
+        this.watchPath = watchPath;
     }
 
     @Override
@@ -105,7 +107,7 @@ public final class ZooKeeperManager extends AbstractService {
                 throw new ZooKeeperInitialingException( getName() + " init failure, config: " + zkProp);
             }
 
-            initLocalCache("/");
+            initLocalCache(watchPath);
             LOGGER.info("{} start success, server lists is: {}", getName(), zkProp.getHost());
             CompletableFuture future = new CompletableFuture();
             future.complete(true);

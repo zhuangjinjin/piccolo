@@ -19,6 +19,7 @@ import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceListener;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
@@ -48,7 +49,7 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
     @Override
     public void init() throws ServiceException {
         Environment environment = SpiLoader.getLoader(Environment.class).getExtension();
-        zkManager = new ZooKeeperManager(environment.getProperties(ZooKeeperProperties.class));
+        zkManager = new ZooKeeperManager(environment.getProperties(ZooKeeperProperties.class), "/srd");
         zkManager.init();
     }
 
@@ -75,9 +76,9 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
         return childrenKeys.stream()
                 .map(key -> serviceId + ZKPaths.PATH_SEPARATOR + key)
                 .map(zkManager.getDirectory()::getData)
-                .filter(Objects::isNull)
-                .map(childData -> Jsons.fromJson(childData, ZKRegistration.class))
-                .filter(Objects::isNull)
+                .filter(Objects::nonNull)
+                .map(childData -> new ZKRegistration(Jsons.fromJson(childData, DefaultServiceInstance.class)))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -110,4 +111,5 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
         Assert.notNull(registration, "registration must not be null");
         zkManager.getDirectory().removePath(registration.getServicePath());
     }
+
 }

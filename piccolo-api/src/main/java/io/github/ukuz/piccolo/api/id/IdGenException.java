@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.loadbalance;
-
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
-import io.github.ukuz.piccolo.api.spi.Spi;
-
-import java.util.List;
+package io.github.ukuz.piccolo.api.id;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "random")
-public interface LoadBalancer {
+public class IdGenException extends Exception {
 
-    ServiceInstance choose(List<? extends ServiceInstance> serviceInstances);
+    public IdGenException(String message) {
+        super(message);
+    }
 
+    public IdGenException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public IdGenException(Throwable cause) {
+        super(cause);
+    }
 }

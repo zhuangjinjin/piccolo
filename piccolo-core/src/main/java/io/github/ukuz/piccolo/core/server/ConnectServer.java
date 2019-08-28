@@ -93,12 +93,11 @@ public class ConnectServer extends NettyServer {
 
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
-        ServiceInstance si = DefaultServiceInstance.builder()
+        ServiceInstance si = DefaultServiceInstance.build()
                 .host(channel.localAddress().getHostName())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
-                .serviceId(ServiceNames.S_CONNECT)
-                .build();
+                .serviceId(ServiceNames.S_CONNECT);
         serviceInstance = new ZKRegistration(si);
     }
 

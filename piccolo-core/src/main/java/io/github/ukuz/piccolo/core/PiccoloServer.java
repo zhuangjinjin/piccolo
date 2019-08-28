@@ -22,13 +22,15 @@ import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
+import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.api.spi.Spi;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.event.EventBus;
+import io.github.ukuz.piccolo.core.id.snowflake.SnowflakeIdGen;
+import io.github.ukuz.piccolo.core.id.snowflake.ZooKeeperWorkerIdHolder;
 import io.github.ukuz.piccolo.core.router.RouterCenter;
 import io.github.ukuz.piccolo.core.server.ConnectServer;
 import io.github.ukuz.piccolo.core.server.GatewayServer;
@@ -53,6 +55,7 @@ public class PiccoloServer implements PiccoloContext {
     private final ZKServiceRegistryAndDiscovery srd;
 
     private final RouterCenter routerCenter;
+    private final IdGen idGen;
 
     public PiccoloServer() {
         //initialize config
@@ -74,9 +77,13 @@ public class PiccoloServer implements PiccoloContext {
 
         routerCenter = new RouterCenter(this);
 
+        ZooKeeperWorkerIdHolder workerIdHolder = new ZooKeeperWorkerIdHolder(this);
+        idGen = new SnowflakeIdGen(workerIdHolder);
+
         gatewayServer = new GatewayServer(this);
         connectServer = new ConnectServer(this);
         webSocketServer = new WebSocketServer(this);
+
     }
 
     @Override
@@ -117,6 +124,11 @@ public class PiccoloServer implements PiccoloContext {
     @Override
     public ExecutorFactory getExecutorFactory() {
         return executorFactory;
+    }
+
+    @Override
+    public IdGen getIdGen() {
+        return idGen;
     }
 
     public GatewayServer getGatewayServer() {

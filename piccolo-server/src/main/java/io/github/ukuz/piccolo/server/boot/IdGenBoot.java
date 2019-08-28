@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.loadbalance;
+package io.github.ukuz.piccolo.server.boot;
 
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
-import io.github.ukuz.piccolo.api.spi.Spi;
-
-import java.util.List;
+import io.github.ukuz.piccolo.api.id.IdGen;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "random")
-public interface LoadBalancer {
+public class IdGenBoot implements BootJob {
 
-    ServiceInstance choose(List<? extends ServiceInstance> serviceInstances);
+    private IdGen idGen;
 
+    public IdGenBoot(IdGen idGen) {
+        this.idGen = idGen;
+    }
+
+    @Override
+    public void start() {
+        idGen.init();
+    }
+
+    @Override
+    public void stop() {
+        idGen.destroy();
+    }
 }

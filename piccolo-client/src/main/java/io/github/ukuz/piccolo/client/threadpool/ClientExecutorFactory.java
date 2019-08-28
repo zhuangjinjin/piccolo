@@ -41,6 +41,15 @@ public class ClientExecutorFactory extends AbstractExecutorFactory {
                         .keepAliveSeconds(tp.getPushClient().getKeepAliveSeconds())
                         .build();
                 return createScheduledExecutor(config);
+            case ID_GEN:
+                config = ThreadPoolConfig.builder()
+                        .name(ThreadNames.T_ID_GEN)
+                        .coreSize(tp.getIdGen().getCoreSize())
+                        .maxSize(tp.getIdGen().getMaxSize())
+                        .queueCapacity(tp.getIdGen().getQueueSize())
+                        .keepAliveSeconds(tp.getIdGen().getKeepAliveSeconds())
+                        .build();
+                return createScheduledExecutor(config);
             default:
                 return super.create(name, environment);
         }

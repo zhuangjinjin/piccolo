@@ -16,16 +16,24 @@
 package io.github.ukuz.piccolo.api.loadbalance;
 
 import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
-import io.github.ukuz.piccolo.api.spi.Spi;
 
 import java.util.List;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "random")
-public interface LoadBalancer {
+public abstract class AbstractLoadbalancer implements LoadBalancer {
 
-    ServiceInstance choose(List<? extends ServiceInstance> serviceInstances);
+    @Override
+    public ServiceInstance choose(List<? extends ServiceInstance> serviceInstances) {
+        if (serviceInstances == null || serviceInstances.isEmpty()) {
+            return null;
+        }
+        if (serviceInstances.size() == 1) {
+            return serviceInstances.get(0);
+        }
+        return doChoose(serviceInstances);
+    }
 
+    protected abstract ServiceInstance doChoose(List<? extends ServiceInstance> serviceInstances);
 }

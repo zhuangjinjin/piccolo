@@ -30,6 +30,7 @@ public enum CommandType {
     GATEWAY_PUSH(8),
     KICK(9),
     UNBIND_USER(10),
+    ID_GEN(11),
 
     UNKNOWN(-1);
 

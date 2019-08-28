@@ -53,6 +53,7 @@ public class NettyConnection implements Connection, ChannelFutureListener {
             throw new IllegalArgumentException("channel is not active, state: {}");
         }
         this.channel = channel;
+        this.state = STATE_CONNECTED;
         if (isSecurity) {
             SecurityProperties security = environment.getProperties(SecurityProperties.class);
             this.context.changeCipher(new RSACipher(security.getPublicKey(), security.getPrivateKey()));
@@ -181,6 +182,7 @@ public class NettyConnection implements Connection, ChannelFutureListener {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("connection send msg success, channel: {}", future.channel());
             }
+            LOGGER.warn("connection send msg success, channel: {}", future.channel());
         } else {
             LOGGER.error("connection send msg error: cause: {}", future.cause().getMessage());
         }

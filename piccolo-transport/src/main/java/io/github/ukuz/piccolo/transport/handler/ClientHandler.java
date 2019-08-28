@@ -75,6 +75,7 @@ public class ClientHandler extends ChannelDuplexHandler {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         Connection connection = cxnxManager.getConnection(ctx.channel());
         handler.sent(connection, msg);
+        ctx.write(msg, promise);
     }
 
     @Override

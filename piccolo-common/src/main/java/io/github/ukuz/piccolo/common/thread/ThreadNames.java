@@ -48,5 +48,6 @@ public final class ThreadNames {
     public static final String T_HTTP_DNS_TIMER = NS + "-http-dns-timer";
     public static final String T_MONITOR = "monitor";
     public static final String T_ZK = NS + "-zk";
+    public static final String T_ID_GEN = NS + "-id-gen";
 
 }

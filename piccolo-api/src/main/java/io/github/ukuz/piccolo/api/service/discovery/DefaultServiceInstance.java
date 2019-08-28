@@ -15,14 +15,15 @@
  */
 package io.github.ukuz.piccolo.api.service.discovery;
 
-import lombok.Builder;
+import lombok.Setter;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author ukuz90
  */
-@Builder
+@Setter
 public class DefaultServiceInstance implements ServiceInstance {
 
     private String serviceId;
@@ -31,6 +32,40 @@ public class DefaultServiceInstance implements ServiceInstance {
     private int port;
     private boolean isPersistent;
     private Map<String, String> metaData;
+
+    public DefaultServiceInstance serviceId(String serviceId) {
+        this.serviceId = serviceId;
+        return this;
+    }
+
+    public DefaultServiceInstance instanceId(String instanceId) {
+        this.instanceId = instanceId;
+        return this;
+    }
+
+    public DefaultServiceInstance host(String host) {
+        this.host = host;
+        return this;
+    }
+
+    public DefaultServiceInstance port(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public DefaultServiceInstance isPersistent(boolean persistent) {
+        isPersistent = persistent;
+        return this;
+    }
+
+    public DefaultServiceInstance metaData(Map<String, String> metaData) {
+        this.metaData = metaData;
+        return this;
+    }
+
+    public static DefaultServiceInstance build() {
+        return new DefaultServiceInstance();
+    }
 
     @Override
     public String getServiceId() {
@@ -60,6 +95,35 @@ public class DefaultServiceInstance implements ServiceInstance {
     @Override
     public boolean isPersistent() {
         return isPersistent;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultServiceInstance{" +
+                "serviceId='" + serviceId + '\'' +
+                ", instanceId='" + instanceId + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DefaultServiceInstance that = (DefaultServiceInstance) o;
+        return port == that.port &&
+                Objects.equals(host, that.host);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(host);
+        return result * 31 + port;
     }
 
 }

@@ -58,7 +58,7 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
     public GatewayTcpConnectionFactory(PiccoloClient piccoloClient) {
         this.piccoloClient = piccoloClient;
 
-        this.gatewayClient = new GatewayClient(piccoloClient.getEnvironment());
+        this.gatewayClient = new GatewayClient(piccoloClient);
         this.gatewayClient.start();
         EventBus.register(this);
         piccoloClient.getServiceDiscovery().subscribe(ServiceNames.S_GATEWAY, this);

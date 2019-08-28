@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.loadbalance;
+package io.github.ukuz.piccolo.core.id.snowflake;
 
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
-import io.github.ukuz.piccolo.api.spi.Spi;
-
-import java.util.List;
+import io.github.ukuz.piccolo.api.id.IdGenException;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "random")
-public interface LoadBalancer {
+public class SnowflakeIdGenException extends IdGenException {
+    public SnowflakeIdGenException(String message) {
+        super(message);
+    }
 
-    ServiceInstance choose(List<? extends ServiceInstance> serviceInstances);
+    public SnowflakeIdGenException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
+    public SnowflakeIdGenException(Throwable cause) {
+        super(cause);
+    }
 }

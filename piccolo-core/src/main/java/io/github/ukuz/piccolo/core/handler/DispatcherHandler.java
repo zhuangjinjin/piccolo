@@ -15,15 +15,21 @@
  */
 package io.github.ukuz.piccolo.core.handler;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.common.remote.FailoverInvoker;
+import io.github.ukuz.piccolo.api.common.remote.InvocationHandler;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
+import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.message.DispatcherMessage;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
+import io.github.ukuz.piccolo.core.PiccoloServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +42,14 @@ public class DispatcherHandler implements ChannelHandler {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DispatcherHandler.class);
 
-    private ChannelHandler channelHandler;
+    private final ChannelHandler channelHandler;
+    private final PiccoloContext piccoloContext;
 
-    public DispatcherHandler(ChannelHandler channelHandler) {
+    public DispatcherHandler(PiccoloContext piccoloContext, ChannelHandler channelHandler) {
+        Assert.notNull(piccoloContext, "piccoloContext must not be null");
         this.channelHandler = channelHandler;
+        this.piccoloContext = piccoloContext;
     }
-
 
     @Override
     public void connected(Connection connection) throws ExchangeException {
@@ -69,11 +77,20 @@ public class DispatcherHandler implements ChannelHandler {
                 connection.sendAsyncAndClose(ErrorMessage.build(msg).reason("not bind user"));
                 LOGGER.error("dispatcher failure, cause: not bind user");
             }
-            MQClient client = SpiLoader.getLoader(MQClient.class).getExtension();
-            DispatcherMqMessage mqMessage = new DispatcherMqMessage();
-//            mqMessage.setXid();
-            mqMessage.setPayload(msg.payload);
-            client.publish(DISPATCH_MESSAGE.getTopic(), mqMessage.encode());
+            FailoverInvoker invoker = new FailoverInvoker();
+            try {
+                invoker.invoke(() -> {
+                    MQClient client = SpiLoader.getLoader(MQClient.class).getExtension();
+                    long xid = piccoloContext.getIdGen().get("dispatch");
+                    DispatcherMqMessage mqMessage = new DispatcherMqMessage();
+                    mqMessage.setXid(xid);
+                    mqMessage.setPayload(msg.payload);
+                    client.publish(DISPATCH_MESSAGE.getTopic(), mqMessage.encode());
+                    return null;
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             connection.close();
             LOGGER.error("handler unknown message, message: {} conn: {}", message, connection);

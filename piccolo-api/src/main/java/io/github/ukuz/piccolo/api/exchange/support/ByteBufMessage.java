@@ -119,6 +119,21 @@ public abstract class ByteBufMessage implements BaseMessage {
         buf.writeLong(l);
     }
 
+    public void writeLongs(ByteBuf buf, long[] l) {
+        if (l == null || l.length == 0) {
+            buf.writeShort(0);
+            return;
+        }
+        if (l.length < Short.MAX_VALUE) {
+            buf.writeShort(l.length);
+        } else {
+            buf.writeShort(Short.MAX_VALUE).writeInt(l.length - Short.MAX_VALUE);
+        }
+        for (int i = 0; i < l.length; i++) {
+            buf.writeLong(l[i]);
+        }
+    }
+
     public void writeFloat(ByteBuf buf, float f) {
         buf.writeInt(Float.floatToIntBits(f));
     }
@@ -159,6 +174,18 @@ public abstract class ByteBufMessage implements BaseMessage {
 
     public long readLong(ByteBuf buf) {
         return buf.readLong();
+    }
+
+    public long[] readLongs(ByteBuf buf) {
+        int len = buf.readShort();
+        if (len > Short.MAX_VALUE) {
+            len += buf.readInt();
+        }
+        long[] ret = new long[len];
+        for (int i = 0; i < len; i++) {
+            ret[i] = buf.readLong();
+        }
+        return ret;
     }
 
     public float readFloat(ByteBuf buf) {

@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.loadbalance;
+package io.github.ukuz.piccolo.common.loadbalance;
 
+import io.github.ukuz.piccolo.api.loadbalance.AbstractLoadbalancer;
+import io.github.ukuz.piccolo.api.loadbalance.LoadBalancer;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
-import io.github.ukuz.piccolo.api.spi.Spi;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author ukuz90
  */
-@Spi(primary = "random")
-public interface LoadBalancer {
-
-    ServiceInstance choose(List<? extends ServiceInstance> serviceInstances);
-
+public class RandomLoadbalancer extends AbstractLoadbalancer implements LoadBalancer {
+    @Override
+    protected ServiceInstance doChoose(List<? extends ServiceInstance> serviceInstances) {
+        Random random = new Random();
+        int index = random.nextInt(serviceInstances.size());
+        return serviceInstances.get(index);
+    }
 }

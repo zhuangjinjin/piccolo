@@ -22,6 +22,8 @@ public interface IdGen {
 
     boolean init();
 
-    long get(String tag) throws Exception;
+    boolean destroy();
+
+    long get(String tag) throws IdGenException;
 
 }

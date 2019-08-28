@@ -15,12 +15,13 @@
  */
 package io.github.ukuz.piccolo.client;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.client.common.MultiMessageClientHandler;
 import io.github.ukuz.piccolo.client.connect.ClientConfig;
 import io.github.ukuz.piccolo.client.connect.ConnectClientHandler;
-import io.github.ukuz.piccolo.client.gateway.GatewayClientHandler;
+import io.github.ukuz.piccolo.client.id.snowflake.IdGenClientHandler;
 
 /**
  * @author ukuz90
@@ -34,8 +35,8 @@ public final class ChannelHandlers {
         return new MultiMessageClientHandler(handler);
     }
 
-    public static ChannelHandler newGatewayClientHandler(Environment environment) {
-        GatewayClientHandler handler = new GatewayClientHandler();
+    public static ChannelHandler newGatewayClientHandler(PiccoloClient context) {
+        IdGenClientHandler handler = new IdGenClientHandler(context);
         return new MultiMessageClientHandler(handler);
     }
 

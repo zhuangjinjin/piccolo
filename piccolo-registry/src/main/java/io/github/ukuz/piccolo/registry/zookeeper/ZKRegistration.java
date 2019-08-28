@@ -70,4 +70,28 @@ public class ZKRegistration implements Registration, ServiceInstance {
     public static ZKRegistration build(ServiceInstance instance) {
         return new ZKRegistration(instance);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ZKRegistration that = (ZKRegistration) o;
+        return instance.equals(that.instance);
+    }
+
+    @Override
+    public int hashCode() {
+        return instance.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "ZKRegistration{" +
+                "instance=" + instance +
+                '}';
+    }
 }

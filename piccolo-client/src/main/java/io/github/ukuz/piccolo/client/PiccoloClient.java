@@ -21,12 +21,14 @@ import io.github.ukuz.piccolo.api.common.Monitor;
 import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
+import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.client.gateway.connection.GatewayConnectionFactory;
 import io.github.ukuz.piccolo.client.gateway.connection.GatewayTcpConnectionFactory;
+import io.github.ukuz.piccolo.client.id.snowflake.SnowflakeIdGenDelegate;
 import io.github.ukuz.piccolo.client.router.CachedRemoteRouterManager;
 import io.github.ukuz.piccolo.client.threadpool.ClientExecutorFactory;
 import io.github.ukuz.piccolo.common.event.EventBus;
@@ -44,7 +46,7 @@ public class PiccoloClient implements PiccoloContext {
     private final CachedRemoteRouterManager remoteRouterManager;
     private final GatewayConnectionFactory gatewayConnectionFactory;
     private final MQClient mqClient;
-
+    private final IdGen idGen;
 
     public PiccoloClient() {
         //initialize config
@@ -68,6 +70,9 @@ public class PiccoloClient implements PiccoloContext {
         srd.start();
 
         gatewayConnectionFactory = new GatewayTcpConnectionFactory(this);
+
+        idGen = new SnowflakeIdGenDelegate(this);
+        idGen.init();
 
     }
 
@@ -111,11 +116,23 @@ public class PiccoloClient implements PiccoloContext {
         return executorFactory;
     }
 
+    @Override
+    public IdGen getIdGen() {
+        return idGen;
+    }
+
     public CachedRemoteRouterManager getRemoteRouterManager() {
         return remoteRouterManager;
     }
 
     public GatewayConnectionFactory getGatewayConnectionFactory() {
         return gatewayConnectionFactory;
+    }
+
+    public void destroy() {
+        mqClient.destroy();
+        cacheManager.destroy();
+        srd.destroy();
+        idGen.destroy();
     }
 }

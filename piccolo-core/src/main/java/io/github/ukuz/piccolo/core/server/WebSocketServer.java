@@ -81,13 +81,12 @@ public class WebSocketServer extends NettyServer {
 
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
-        ServiceInstance si = DefaultServiceInstance.builder()
+        ServiceInstance si = DefaultServiceInstance.build()
                 .host(channel.localAddress().getHostName())
 //                .host(channel.localAddress().getAddress().getHostAddress())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
-                .serviceId(ServiceNames.S_WS)
-                .build();
+                .serviceId(ServiceNames.S_WS);
         serviceInstance = new ZKRegistration(si);
     }
 

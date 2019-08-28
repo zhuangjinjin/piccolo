@@ -19,6 +19,7 @@ import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.*;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.push.PushContext;
 import io.github.ukuz.piccolo.client.PiccoloClient;
@@ -35,23 +36,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import static io.github.ukuz.piccolo.mq.kafka.Topics.*;
 
 /**
  * @author ukuz90
  */
-public class PushClient {
+public class PushClient implements AutoCloseable {
 
     private ConcurrentMap<String, NestedMessageReceiver> topicsHandler = new ConcurrentHashMap<>();
     private PiccoloClient piccoloClient;
     private static final Logger LOGGER = LoggerFactory.getLogger(PushClient.class);
-    private Executor dispatchHandlerExecutor;
+    private ExecutorService dispatchHandlerExecutor;
 
     public PushClient() {
         piccoloClient = new PiccoloClient();
-        dispatchHandlerExecutor = piccoloClient.getExecutorFactory().create(PUSH_CLIENT, piccoloClient.getEnvironment());
+        dispatchHandlerExecutor = (ExecutorService) piccoloClient.getExecutorFactory().create(PUSH_CLIENT, piccoloClient.getEnvironment());
     }
 
     public void registerHandler(BaseDispatcherHandler handler) {
@@ -69,6 +70,10 @@ public class PushClient {
         } else if (context.isBroadcast()) {
             broadcast(context.getContext());
         }
+    }
+
+    public long getXid() throws IdGenException {
+        return piccoloClient.getIdGen().get(null);
     }
 
     private void pushSingleUser(String userId, byte[] context) {
@@ -109,6 +114,12 @@ public class PushClient {
 
         topicsHandler.computeIfAbsent(topic, t -> new NestedMessageReceiver(handler));
         piccoloClient.getMQClient().subscribe(topic, topicsHandler.get(topic));
+    }
+
+    @Override
+    public void close() throws Exception {
+        dispatchHandlerExecutor.shutdown();
+        piccoloClient.destroy();
     }
 
     private class NestedMessageReceiver implements MQMessageReceiver<byte[]> {

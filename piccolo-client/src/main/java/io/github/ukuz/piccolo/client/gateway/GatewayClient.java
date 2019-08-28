@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.client.gateway;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
@@ -23,6 +24,7 @@ import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.client.ChannelHandlers;
+import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.client.gateway.connection.GatewayConnectionFactory;
 import io.github.ukuz.piccolo.client.properties.ClientProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
@@ -42,18 +44,18 @@ public class GatewayClient extends NettyClient {
     private final int port;
     private InetSocketAddress socketAddress;
 
-    public GatewayClient(Environment environment) {
-        this(environment,
-                environment.getProperties(ClientProperties.class).getGatewayServerHost(),
-                environment.getProperties(ClientProperties.class).getConnectServerPort());
+    public GatewayClient(PiccoloClient context) {
+        this(context,
+                context.getProperties(ClientProperties.class).getGatewayServerHost(),
+                context.getProperties(ClientProperties.class).getConnectServerPort());
     }
 
-    public GatewayClient(Environment environment, String host, int port) {
-        this(environment, new NettyConnectionManager(), ChannelHandlers.newGatewayClientHandler(environment), host, port);
+    public GatewayClient(PiccoloClient context, String host, int port) {
+        this(context, new NettyConnectionManager(), ChannelHandlers.newGatewayClientHandler(context), host, port);
     }
 
-    public GatewayClient(Environment environment, ConnectionManager cxnxManager, ChannelHandler handler, String host, int port) {
-        super(environment, cxnxManager, handler);
+    public GatewayClient(PiccoloClient context, ConnectionManager cxnxManager, ChannelHandler handler, String host, int port) {
+        super(context.getEnvironment(), cxnxManager, handler);
         Assert.notEmptyString(host, "host must not be empty");
         Assert.isTrue(port >= 0, "port was invalid port: " + port);
         this.host = host;

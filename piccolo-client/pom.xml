@@ -168,6 +168,9 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/piccolo/io.github.ukuz.piccolo.api.mq.MQClient</resource>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/piccolo/io.github.ukuz.piccolo.api.loadbalance.LoadBalancer</resource>
+                                </transformer>
                             </transformers>
                         </configuration>
                     </execution>

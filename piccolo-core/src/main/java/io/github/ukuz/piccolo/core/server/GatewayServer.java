@@ -93,12 +93,11 @@ public class GatewayServer extends NettyServer {
 
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
-        ServiceInstance si = DefaultServiceInstance.builder()
+        ServiceInstance si = DefaultServiceInstance.build()
                 .host(channel.localAddress().getHostName())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
-                .serviceId(ServiceNames.S_GATEWAY)
-                .build();
+                .serviceId(ServiceNames.S_GATEWAY);
         serviceInstance = ZKRegistration.build(si);
     }
 

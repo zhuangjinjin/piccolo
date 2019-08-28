@@ -70,6 +70,7 @@ public class ServerLauncher {
         processChain.addLast(new ServerBoot(server.getConnectServer()));
         processChain.addLast(new ServerBoot(server.getWebSocketServer()));
         processChain.addLast(new RouterCenterBoot(server.getRouterCenter()));
+        processChain.addLast(new IdGenBoot(server.getIdGen()));
         processChain.addLast(lastJob);
     }
 

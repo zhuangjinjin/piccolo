@@ -18,6 +18,7 @@ package io.github.ukuz.piccolo.core.handler;
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.MultiMessageHandler;
+import io.github.ukuz.piccolo.common.message.IdGenMessage;
 
 /**
  * @author ukuz90
@@ -27,7 +28,7 @@ public class ChannelHandlers {
     private ChannelHandlers() {}
 
     public static ChannelHandler newConnectChannelHandler(PiccoloContext piccoloContext) {
-        DispatcherHandler dispatcherHandler = new DispatcherHandler(null);
+        DispatcherHandler dispatcherHandler = new DispatcherHandler(piccoloContext, null);
         BindUserHandler bindUserHandler = new BindUserHandler(piccoloContext, dispatcherHandler);
         FastConnectHandler fastConnectHandler = new FastConnectHandler(piccoloContext, bindUserHandler);
         HandshakeServerHandler handshakeServerHandler = new HandshakeServerHandler(piccoloContext, fastConnectHandler);
@@ -36,7 +37,8 @@ public class ChannelHandlers {
     }
 
     public static ChannelHandler newGatewayChannelHandler(PiccoloContext piccoloContext) {
-        return new MultiMessageHandler(piccoloContext, new PushHandler(piccoloContext));
+        PushHandler pushHandler = new PushHandler(piccoloContext);
+        return new MultiMessageHandler(piccoloContext, new IdGenHandler(piccoloContext, pushHandler));
     }
 
 }

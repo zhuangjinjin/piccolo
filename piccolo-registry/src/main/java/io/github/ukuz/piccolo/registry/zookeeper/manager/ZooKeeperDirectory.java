@@ -39,7 +39,8 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 
     private CuratorFramework client;
     private Map<String, String> ephemeralNodes = new LinkedHashMap<>(4);
-    private Map<String, String> ephemaralSequentialNodes = new LinkedHashMap<>(1);
+    private Map<String, String> ephemeralSequentialNodes = new LinkedHashMap<>(1);
+    private Map<String, String> persistSequentialNodes = new LinkedHashMap<>(4);
     private final String watchPath;
     private TreeCache localCache;
 
@@ -64,6 +65,7 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 
     void registerEphemeralNode(String path, String val, boolean cahceNode) {
         try {
+            path = getFullPath(path);
             if (existed(path)) {
                 client.delete().deletingChildrenIfNeeded().forPath(path);
             }
@@ -87,17 +89,19 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 
     void registerEphemeralSequentialNode(String path, String val, boolean cacheNode) {
         try {
+            path = getFullPath(path);
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(path, val.getBytes(StandardCharsets.UTF_8));
 
             if (cacheNode) {
-                ephemaralSequentialNodes.put(path, val);
+                ephemeralSequentialNodes.put(path, val);
             }
         } catch (Exception e) {
             logger.warn("registerEphemeralSequentialNode failure, path: {} val: {} cacheNode: {} cause: {}", path, val, cacheNode, e);
         }
     }
 
-    private boolean existed(String path) throws Exception {
+    public boolean existed(String path) throws Exception {
+        path = getFullPath(path);
         Stat stat = client.checkExists().forPath(path);
         return stat != null;
     }
@@ -107,7 +111,7 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
         logger.info("zk stateChanged newState: {} isConnected: {}", newState, newState.isConnected());
         if (newState == ConnectionState.RECONNECTED) {
             ephemeralNodes.forEach(this::reRegisterEphemeralNode);
-            ephemaralSequentialNodes.forEach(this::reRegisterEphemeralSequentialNode);
+            ephemeralSequentialNodes.forEach(this::reRegisterEphemeralSequentialNode);
         }
     }
 
@@ -127,6 +131,7 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 
     public List<String> getChildrenKeys(String path) {
         try {
+            path = getFullPath(path);
             if (!existed(path)) {
                 return Collections.emptyList();
             }
@@ -143,6 +148,7 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
         if (localCache == null) {
             return null;
         }
+        path = getFullPath(path);
         ChildData data = localCache.getCurrentData(path);
         if (data != null) {
             return data.getData() == null ? null : new String(data.getData(), StandardCharsets.UTF_8);
@@ -152,11 +158,24 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 
     private String getDataFromRemote(String path) {
         try {
+            path = getFullPath(path);
             if (existed(path)) {
                 return new String(client.getData().forPath(path), StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
             logger.error("getDataFromRemote failure, path: {} cause: {}", path, e);
+        }
+        return null;
+    }
+
+    public List<String> getChildren(String path) {
+        try {
+            path = getFullPath(path);
+            if (existed(path)) {
+                return client.getChildren().forPath(path);
+            }
+        } catch (Exception e) {
+            logger.error("getChildren failure, path: {} cause: {}", path, e);
         }
         return null;
     }
@@ -168,6 +187,7 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 //                    .and()
 //                    .setData().forPath(path, data.getBytes(StandardCharsets.UTF_8))
 //                    .and().commit();
+            path = getFullPath(path);
             CuratorOp check = client.transactionOp().check().forPath(path);
             CuratorOp setData = client.transactionOp().setData().forPath(path, data.getBytes(StandardCharsets.UTF_8));
             client.transaction().forOperations(check, setData);
@@ -179,6 +199,7 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 
     public void removePath(String path) throws ZooKeeperException {
         try {
+            path = getFullPath(path);
             client.delete().deletingChildrenIfNeeded().forPath(path);
         } catch (Exception e) {
             logger.error("removePath failure, path: {} cause: {}", path, e);
@@ -188,6 +209,7 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
 
     public void registerPersistNode(String path, String data) throws ZooKeeperException {
         try {
+            path = getFullPath(path);
             if (existed(path)) {
                 updateData(path, data);
             } else {
@@ -197,6 +219,30 @@ public class ZooKeeperDirectory implements ConnectionStateListener {
             logger.error("registerPersist failure, path: {} data: {} cause: {}", path, data, e);
             throw new ZooKeeperException("registerPersist failure path: " + path + " data: " + data, e);
         }
+    }
+
+    public void registerPersistSequentialNode(String path, String val) {
+        registerPersistSequentialNode(path, val, true);
+    }
+
+    void registerPersistSequentialNode(String path, String val, boolean cacheNode) {
+        try {
+            path = getFullPath(path);
+            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT_SEQUENTIAL).forPath(path, val.getBytes(StandardCharsets.UTF_8));
+
+            if (cacheNode) {
+                persistSequentialNodes.put(path, val);
+            }
+        } catch (Exception e) {
+            logger.warn("registerEphemeralSequentialNode failure, path: {} val: {} cacheNode: {} cause: {}", path, val, cacheNode, e);
+        }
+    }
+
+    public String getFullPath(String path) {
+        if (path.indexOf(watchPath) != 0) {
+            path = path.charAt(0) == '/' ? watchPath + path : watchPath + "/" + path;
+        }
+        return path;
     }
 
 }

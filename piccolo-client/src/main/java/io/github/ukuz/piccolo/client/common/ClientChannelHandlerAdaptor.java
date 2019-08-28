@@ -13,43 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.gateway;
+package io.github.ukuz.piccolo.client.common;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 /**
  * @author ukuz90
  */
-public class GatewayClientHandler implements ChannelHandler {
+public class ClientChannelHandlerAdaptor implements ChannelHandler {
 
-    private final Logger logger = LoggerFactory.getLogger(GatewayClientHandler.class);
+    private ChannelHandler delegate;
+
+    public ClientChannelHandlerAdaptor() {}
+
+    public ClientChannelHandlerAdaptor(ChannelHandler delegate) {
+        this.delegate = delegate;
+    }
 
     @Override
     public void connected(Connection connection) throws ExchangeException {
-
+        Optional.ofNullable(delegate).ifPresent((d) -> d.connected(connection));
     }
 
     @Override
     public void disconnected(Connection connection) throws ExchangeException {
-
+        Optional.ofNullable(delegate).ifPresent((d) -> d.disconnected(connection));
     }
 
     @Override
     public void sent(Connection connection, Object message) throws ExchangeException {
-
+        Optional.ofNullable(delegate).ifPresent((d) -> d.sent(connection, message));
     }
 
     @Override
     public void received(Connection connection, Object message) throws ExchangeException {
-
+        Optional.ofNullable(delegate).ifPresent((d) -> d.received(connection, message));
     }
 
     @Override
     public void caught(Connection connection, Throwable exception) throws ExchangeException {
-
+        Optional.ofNullable(delegate).ifPresent((d) -> d.caught(connection, exception));
     }
 }
