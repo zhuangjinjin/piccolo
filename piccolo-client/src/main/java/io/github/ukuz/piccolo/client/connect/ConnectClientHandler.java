@@ -112,7 +112,7 @@ public class ConnectClientHandler implements ChannelHandler {
             int connectedNum = STATISTICS.increaseConnectedNum();
             byte[] sessionKey = CipherBox.I.mixKey(clientConfig.getClientKey(), msg.serverKey);
 
-            context.changeCipher(new AESCipher(1024, sessionKey, clientConfig.getIv()));
+            context.changeCipher(new AESCipher(sessionKey, clientConfig.getIv()));
             context.setHeartbeat(msg.heartbeat);
             startHeartbeat(msg.heartbeat - 1000);
 
@@ -127,11 +127,10 @@ public class ConnectClientHandler implements ChannelHandler {
             int connectedNum = STATISTICS.increaseConnectedNum();
             String cipherStr = clientConfig.getCipher();
             String[] cs = cipherStr.split(",");
-            int keyLen = Integer.parseInt(cs[2]);
-            byte[] key = AESCipher.toArray(cs[0], keyLen);
-            byte[] iv = AESCipher.toArray(cs[1], keyLen);
+            byte[] key = AESCipher.toArray(cs[0]);
+            byte[] iv = AESCipher.toArray(cs[1]);
 
-            connection.getSessionContext().changeCipher(new AESCipher(keyLen, key, iv));
+            connection.getSessionContext().changeCipher(new AESCipher(key, iv));
             context.setHeartbeat(msg.heartbeat);
             startHeartbeat(msg.heartbeat - 1000);
 
@@ -157,7 +156,7 @@ public class ConnectClientHandler implements ChannelHandler {
         connection.sendAsync(message, future -> {
             if (future.isSuccess()) {
                 //切换RSA=>AES(ClientKey)
-                context.changeCipher(new AESCipher(properties.getAesKeyLength(), message.clientKey, message.iv));
+                context.changeCipher(new AESCipher(message.clientKey, message.iv));
                 logger.info("handshake success, message: {} conn: {}", message, connection);
             } else {
                 logger.warn("handshake failure, message: {} conn: {} cause: {}", message, connection, future.cause());

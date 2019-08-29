@@ -94,8 +94,7 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
         }
 
         //3. 更换为对称加密算法 RSA=>AES(clientKey)
-        SecurityProperties security = piccoloContext.getProperties(SecurityProperties.class);
-        context.changeCipher(new AESCipher(security, clientKey, iv));
+        context.changeCipher(new AESCipher(clientKey, iv));
 
         //4. 生成可复用的session, 用于快速重连
         ReusableSessionManager reusableSessionManager = ((PiccoloServer)piccoloContext).getReusableSessionManager();
@@ -115,7 +114,7 @@ public class HandshakeServerHandler extends ChannelHandlerDelegateAdapter {
         connection.sendAsync(okMessage, future -> {
             if (future.isSuccess()) {
                 //7. 更换为对称加密算法 RSA=>AES(sessionKey)
-                context.changeCipher(new AESCipher(security, sessionKey, iv));
+                context.changeCipher(new AESCipher(sessionKey, iv));
                 //8. 保存当前信息到SessionContext中
                 connection.getSessionContext()
                         .setDeviceId(msg.deviceId)

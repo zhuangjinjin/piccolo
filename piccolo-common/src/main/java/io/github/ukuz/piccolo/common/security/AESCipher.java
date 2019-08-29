@@ -17,17 +17,17 @@ package io.github.ukuz.piccolo.common.security;
 
 import io.github.ukuz.piccolo.api.connection.Cipher;
 import io.github.ukuz.piccolo.api.external.common.Assert;
-import io.github.ukuz.piccolo.common.properties.SecurityProperties;
-import org.apache.commons.crypto.cipher.CryptoCipher;
-import org.apache.commons.crypto.utils.Utils;
-import sun.nio.ch.DirectBuffer;
+import org.apache.commons.crypto.stream.CryptoInputStream;
+import org.apache.commons.crypto.stream.CryptoOutputStream;
 
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Properties;
-
 /**
  * @author ukuz90
  */
@@ -39,97 +39,57 @@ public class AESCipher implements Cipher {
     public static final String KEY_ALGORITHM = "AES";
     public static final String KEY_ALGORITHM_TRANSFORM = "AES/CBC/PKCS5Padding";
 
-    private static final int AES_KEY_LENGTH = 1024;
-
-    public final int keyLength;
     public final byte[] keyB;
     public final byte[] ivB;
 
     public AESCipher(String key, String iv) {
-        this(0, getUTF8Bytes(key), getUTF8Bytes(iv));
+        this(getUTF8Bytes(key), getUTF8Bytes(iv));
     }
 
-    public AESCipher(SecurityProperties security, byte[] key, byte[] iv) {
-        this(security.getAesKeyLength(), key, iv);
-    }
-
-    public AESCipher(int keyLength, byte[] key, byte[] iv) {
+    public AESCipher(byte[] key, byte[] iv) {
         Assert.notNull(key, "key must not empty");
         Assert.notNull(iv, "iv must not empty");
         this.keyB = key;
         this.ivB = iv;
         this.key = new SecretKeySpec(key, KEY_ALGORITHM);
         this.iv = new IvParameterSpec(iv);
-        if (keyLength <= 0) {
-            this.keyLength = AES_KEY_LENGTH;
-        } else {
-            this.keyLength = keyLength;
-        }
     }
 
     @Override
     public byte[] decrypt(byte[] encryptData) {
         Properties properties = new Properties();
-        ByteBuffer in = null;
-        ByteBuffer out = null;
-        try (CryptoCipher decipher = Utils.getCipherInstance(KEY_ALGORITHM_TRANSFORM, properties)) {
-            out = ByteBuffer.allocateDirect(keyLength);
-            in = ByteBuffer.allocateDirect(encryptData.length);
-//            out = PooledByteBufAllocator.DEFAULT.directBuffer(keyLength).nioBuffer();
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(encryptData);
+             CryptoInputStream cis = new CryptoInputStream(KEY_ALGORITHM_TRANSFORM, properties, inputStream, key, iv)) {
 
-            in.put(encryptData);
-            in.flip();
-
-            decipher.init(javax.crypto.Cipher.DECRYPT_MODE, key, iv);
-            decipher.update(in, out);
-            decipher.doFinal(in, out);
-
-            out.flip();
-            byte[] result = new byte[out.remaining()];
-            out.duplicate().get(result);
-
-            return result;
-
-        } catch (Exception e) {
+            byte[] decryptedData = new byte[cis.available()];
+            int decryptedLen = 0;
+            int i;
+            while ((i = cis.read(decryptedData, decryptedLen, decryptedData.length - decryptedLen)) > -1) {
+                decryptedLen += i;
+            }
+            return Arrays.copyOf(decryptedData, decryptedLen);
+        } catch (IOException e) {
             throw new CryptoException(e);
-        } finally {
-            close(in);
-            close(out);
         }
     }
 
     @Override
     public byte[] encrypt(byte[] originData) {
         Properties properties = new Properties();
-        ByteBuffer in = null;
-        ByteBuffer out = null;
-        try (CryptoCipher encipher = Utils.getCipherInstance(KEY_ALGORITHM_TRANSFORM, properties)) {
-            in = ByteBuffer.allocateDirect(keyLength);
-            out = ByteBuffer.allocateDirect(keyLength);
-
-            in.put(originData);
-            in.flip();
-
-            encipher.init(javax.crypto.Cipher.ENCRYPT_MODE, key, iv);
-            int updateBytes = encipher.update(in, out);
-            int finalBytes = encipher.doFinal(in, out);
-            byte[] result = new byte[updateBytes + finalBytes];
-            out.flip();
-            out.duplicate().get(result);
-
-            return result;
-        } catch (Exception e) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            try (CryptoOutputStream cos = new CryptoOutputStream(KEY_ALGORITHM_TRANSFORM, properties, outputStream, key, iv)) {
+                cos.write(originData);
+                cos.flush();
+            }
+            return outputStream.toByteArray();
+        } catch (IOException e) {
             throw new CryptoException(e);
-        } finally {
-            close(in);
-            close(out);
         }
-
     }
 
     @Override
     public String toString() {
-        return toString(keyB) + "," + toString(ivB) + "," + String.valueOf(keyLength);
+        return toString(keyB) + "," + toString(ivB);
     }
 
     private String toString(byte[] bytes) {
@@ -143,11 +103,8 @@ public class AESCipher implements Cipher {
         return sb.toString();
     }
 
-    public static byte[] toArray(String str, int keyLength) {
+    public static byte[] toArray(String str) {
         String[] arr = str.split("|");
-        if (arr.length != keyLength) {
-            return null;
-        }
         byte[] bytes = new byte[arr.length];
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = Byte.parseByte(arr[i]);
@@ -157,12 +114,6 @@ public class AESCipher implements Cipher {
 
     private static byte[] getUTF8Bytes(String content) {
         return content.getBytes(StandardCharsets.UTF_8);
-    }
-
-    private void close(ByteBuffer buffer) {
-        if (buffer instanceof DirectBuffer) {
-            ((DirectBuffer) buffer).cleaner().clean();
-        }
     }
 
 }

@@ -28,6 +28,5 @@ public class SecurityProperties implements Properties {
 
     private String publicKey;
     private String privateKey;
-    private int aesKeyLength;
 
 }

@@ -52,6 +52,8 @@ public class DefaultPacketToMessageConverter implements PacketToMessageConverter
                 return new UnbindUserMessage(connection);
             case ID_GEN:
                 return new IdGenMessage(connection);
+            case GATEWAY_PUSH:
+                return new PushMessage(connection);
             default:
                 LOGGER.error("packet covert failure, not found mapping cmd: {} packet: {} conn: {}", cmd, packet, connection);
                 throw new IllegalArgumentException("unknown command, cmd:" + cmd);

@@ -15,8 +15,10 @@
  */
 package io.github.ukuz.piccolo.mq.kafka.consumer;
 
+import com.google.common.collect.Maps;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
@@ -27,6 +29,8 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author ukuz90
@@ -38,11 +42,13 @@ public class KafkaConsumerWorker implements Runnable {
     private List<String> topics;
     private volatile boolean running = true;
     private final MQMessageReceiver receiver;
+    private final ConcurrentMap<TopicPartition, Set<ConsumerRecord>> pendingRecords;
 
     public KafkaConsumerWorker(Map<String, Object> properties, List<String> topics, MQMessageReceiver receiver) {
         this.properties = properties;
         this.topics = topics;
         this.receiver = receiver;
+        this.pendingRecords = Maps.newConcurrentMap();
     }
 
     @SuppressWarnings("unchecked")
@@ -64,6 +70,7 @@ public class KafkaConsumerWorker implements Runnable {
                 while (isRunning()) {
                     ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(20));
                     records.forEach(record -> {
+                        LOGGER.info("topic: {} partition: {} offset: {} ", record.topic(), record.partition(), record.offset());
                         receiver.receive(record.topic(), record.value());
                     });
 

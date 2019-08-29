@@ -86,6 +86,7 @@ public class KafkaProperties implements Properties {
     }
 
     @Data
+
     public class ConsumerNestedProperties implements Properties {
 
         private String bootstrapServers;

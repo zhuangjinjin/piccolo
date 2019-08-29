@@ -38,11 +38,16 @@ public class PushMessage extends ByteBufMessage {
 
     @Override
     protected void decodeBody0(ByteBuf buf) {
+        userId = readString(buf);
+        broadcast = readBoolean(buf);
         content = readBytes(buf);
+
     }
 
     @Override
     protected void encodeBody0(ByteBuf buf) {
+        writeString(buf, userId);
+        writeBoolean(buf, broadcast);
         writeBytes(buf, content);
     }
 

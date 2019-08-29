@@ -102,10 +102,18 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
         List<Connection> list = get(hostAndPort);
         if (list.isEmpty()) {
             synchronized (list) {
-                //TODO zk补偿一次
+                //zk补偿一次
                 if (list.isEmpty()) {
-                    return null;
+                    List<ServiceInstance> serviceInstances = piccoloClient.getServiceDiscovery().lookup(ServiceNames.S_GATEWAY);
+                            serviceInstances.stream()
+                            .filter(si -> si.getHostAndPort().equals(hostAndPort))
+                            .forEach(this::syncAddConnection);
+
+                    if (list.isEmpty()) {
+                        return null;
+                    }
                 }
+
             }
         }
         int length = list.size();
@@ -131,7 +139,7 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
 
     @Override
     public <T extends BaseMessage> boolean send(String hostAndPort, Function<Connection, T> creator, Consumer<T> sender) {
-        Connection connection = getConnection(hostAndPort);
+//        Connection connection = getConnection(hostAndPort);
 
         return false;
     }
