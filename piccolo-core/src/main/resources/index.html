@@ -250,6 +250,7 @@
         const Command = {
             HANDSHAKE: 2,
             BIND: 5,
+            DISPATCH: 7,
             UNBIND: 10,
             ERROR: 1,
             OK: 6,
@@ -306,6 +307,20 @@
             } else {
                 config.log.error("user " + userId + " already bind");
             }
+        }
+
+        function unbindUser(userId, tags) {
+            let unbindUserMsg = new AbstractMessage();
+            unbindUserMsg.writeString(userId);
+            unbindUserMsg.writeString(tags);
+            unbindUserMsg.writeString("");
+            sendMessage(unbindUserMsg, Command.UNBIND);
+        }
+
+        function dispatchMessage(payload) {
+            let unbindUserMsg = new AbstractMessage();
+            unbindUserMsg.writeString(payload);
+            sendMessage(unbindUserMsg, Command.DISPATCH);
         }
 
         function ack(sessionId) {
@@ -401,6 +416,10 @@
                     }
                     break;
                 }
+                case Command.DISPATCH: {
+                    config.log.info(">>> dispatch ok.");
+                    break;
+                }
 
                 case Command.KICK: {
                     if (session.userId == packet.body.userId && config.deviceId == packet.body.deviceId) {
@@ -479,7 +498,9 @@
         window.piccolo = {
             connect: doConnect,
             close: doClose,
-            bindUser: bindUser
+            bindUser: bindUser,
+            unbindUser: unbindUser,
+            dispatch: dispatchMessage,
         }
     })(window);
 
@@ -510,6 +531,14 @@
         piccolo.bindUser($("userId").value)
     }
 
+    function unbind() {
+        piccolo.unbindUser($("userId").value)
+    }
+
+    function dispatch() {
+        piccolo.dispatch($("message").value)
+    }
+
 </script>
 <form onsubmit="return false;">
     <label> Server Url:
@@ -517,10 +546,14 @@
     </label>
     <input type="button" value="Connect" onclick="connect()">
     <br>
-    <label> Bind User:
+    <label> Unbind User:
         <input type="text" id="userId" value="user-0">
     </label>
-    <input type="button" value="bind" onclick="bind()">
+    <input type="button" value="unbind" onclick="unbind()">
+    <label> Dispatcher Message:
+        <input type="text" id="message" value="Hello, piccolo">
+    </label>
+    <input type="button" value="dispatch" onclick="dispatch()">
     <h3><label for="responseText">Output</label></h3>
     <textarea id="responseText" style="width:100%;height:500px;"></textarea>
 </form>
