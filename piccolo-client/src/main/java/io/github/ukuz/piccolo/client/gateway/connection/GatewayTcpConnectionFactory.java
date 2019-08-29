@@ -27,6 +27,7 @@ import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.client.gateway.GatewayClient;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.event.EventBus;
+import io.github.ukuz.piccolo.common.loadbalance.RandomLoadbalancer;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author ukuz90
@@ -132,9 +134,13 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
 
     private void reconnect(Connection connection, String hostAndPort, boolean sync) {
         HostAndPort h_p = HostAndPort.fromString(hostAndPort);
-        get(hostAndPort).remove(connection);
-        connection.close();
-        addConnection(h_p.getHost(), h_p.getPort(), sync);
+        List<Connection> connections = get(hostAndPort);
+        synchronized (connections) {
+            if (connections.remove(connection)) {
+                connection.close();
+                addConnection(h_p.getHost(), h_p.getPort(), sync);
+            }
+        }
     }
 
     @Override

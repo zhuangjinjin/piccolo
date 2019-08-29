@@ -15,7 +15,6 @@
  */
 package io.github.ukuz.piccolo.transport.handler;
 
-import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.event.ConnectionConnectEvent;
@@ -26,6 +25,7 @@ import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import static io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelPromise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author ukuz90
  */
+@Sharable
 public class ClientHandler extends ChannelDuplexHandler {
 
     private final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
