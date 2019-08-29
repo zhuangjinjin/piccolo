@@ -57,6 +57,7 @@ public class ClientHandler extends ChannelDuplexHandler {
         connection.init(ctx.channel(), false);
         cxnxManager.add(connection);
         handler.connected(connection);
+        logger.info("handler active ctx: {} connection:{}", ctx, connection);
         EventBus.post(new ConnectionConnectEvent(connection));
     }
 

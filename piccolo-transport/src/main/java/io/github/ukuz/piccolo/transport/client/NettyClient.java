@@ -110,10 +110,12 @@ public abstract class NettyClient extends AbstractService implements Service {
     }
 
     public ChannelFuture connect(String host, int port) {
+        logger.info("connect host: {} port: {}", host, port );
         return bootstrap.connect(new InetSocketAddress(host, port));
     }
 
     public ChannelFuture connect(String host, int port, Callback callback) {
+        logger.info("connect host: {} port: {} callback: {}", host, port, callback);
         ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress(host, port));
         channelFuture.addListener(future -> {
             if (future.isSuccess()) {

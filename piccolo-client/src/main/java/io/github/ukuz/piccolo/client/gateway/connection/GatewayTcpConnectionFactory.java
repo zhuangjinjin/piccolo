@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,14 +48,14 @@ import java.util.stream.Collectors;
  */
 public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
 
-    private final Logger logger = LoggerFactory.getLogger(GatewayConnectionFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(GatewayTcpConnectionFactory.class);
 
     private final AttributeKey<String> attrKey = AttributeKey.valueOf("host_port");
     private PiccoloClient piccoloClient;
     private GatewayClient gatewayClient;
     private int gatewayClientNum = 1;
 
-    private ConcurrentMap<String, Holder<List<Connection>>> connections = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, ConnectionList> connections = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
     public GatewayTcpConnectionFactory(PiccoloClient piccoloClient) {
@@ -68,30 +69,12 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
     }
 
     private void asyncAddConnection(ServiceInstance serviceInstance) {
-        for (int i = 0; i < gatewayClientNum; i++) {
-            addConnection(serviceInstance.getHost(), serviceInstance.getPort(), false);
-        }
+        get(serviceInstance.getHostAndPort()).asyncAddConnection();
     }
 
     private void syncAddConnection(ServiceInstance serviceInstance) {
-        for (int i = 0; i < gatewayClientNum; i++) {
-            addConnection(serviceInstance.getHost(), serviceInstance.getPort(), true);
-        }
-    }
-
-    private void addConnection(String host, int port, boolean sync) {
-        ChannelFuture future = gatewayClient.connect(host, port);
-        future.channel().attr(attrKey).set(getHostAndPort(host, port));
-        future.addListener(f -> {
-            if (f.isSuccess()) {
-                logger.info("add connection success, host: {} port: {}", host, port);
-            } else {
-                logger.error("add connection failure, host: {} port: {} cause: {}", host, port, f.cause());
-            }
-        });
-        if (sync) {
-            future.awaitUninterruptibly();
-        }
+        logger.info("syncAddConnection");
+        get(serviceInstance.getHostAndPort()).syncAddConnection();
     }
 
     private String getHostAndPort(String host, int port) {
@@ -101,46 +84,33 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
 
     @Override
     public Connection getConnection(String hostAndPort) {
-        List<Connection> list = get(hostAndPort);
-        if (list.isEmpty()) {
-            synchronized (list) {
-                //zk补偿一次
-                if (list.isEmpty()) {
+        Connection connection = get(hostAndPort).getConnection();
+        if (connection == null) {
+            synchronized (hostAndPort.intern()) {
+                connection = get(hostAndPort).getConnection();
+                if (connection == null) {
+                    logger.warn("zk 补偿");
                     List<ServiceInstance> serviceInstances = piccoloClient.getServiceDiscovery().lookup(ServiceNames.S_GATEWAY);
-                            serviceInstances.stream()
+                    serviceInstances.stream()
                             .filter(si -> si.getHostAndPort().equals(hostAndPort))
                             .forEach(this::syncAddConnection);
 
-                    if (list.isEmpty()) {
-                        return null;
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(300);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    connection = get(hostAndPort).getConnection();
                 }
-
             }
         }
-        int length = list.size();
-        Connection connection;
-        if (length == 1) {
-            connection = list.get(0);
+        if (connection != null && connection.isConnected()) {
+            logger.info("getConnection success, conn: {}", connection);
         } else {
-            connection = list.get((int) (Math.random() * length % length));
+            logger.error("getConnection failure, conn: {}", connection);
         }
-        if (connection.isConnected()) {
-            return connection;
-        }
-        reconnect(connection, hostAndPort, length <= 1);
-        return getConnection(hostAndPort);
-    }
 
-    private void reconnect(Connection connection, String hostAndPort, boolean sync) {
-        HostAndPort h_p = HostAndPort.fromString(hostAndPort);
-        List<Connection> connections = get(hostAndPort);
-        synchronized (connections) {
-            if (connections.remove(connection)) {
-                connection.close();
-                addConnection(h_p.getHost(), h_p.getPort(), sync);
-            }
-        }
+        return connection;
     }
 
     @Override
@@ -172,11 +142,9 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
     }
 
     private void removeClient(ServiceInstance serviceInstance) {
-        Holder<List<Connection>> holder = connections.remove(serviceInstance.getHostAndPort());
-        if (holder != null) {
-            if (holder.getValue() != null) {
-                holder.getValue().forEach(Connection::close);
-            }
+        ConnectionList connectionList = connections.remove(serviceInstance.getHostAndPort());
+        if (connectionList != null) {
+            connectionList.close();
         }
     }
 
@@ -187,20 +155,14 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
         String hostAndPort = connection.getChannel().attr(attrKey).get();
         if (hostAndPort == null) {
             InetSocketAddress remoteAddress = (InetSocketAddress) connection.getChannel().remoteAddress();
-            hostAndPort = getHostAndPort(remoteAddress.getAddress().getHostAddress(), remoteAddress.getPort());
+            hostAndPort = getHostAndPort(remoteAddress.getHostName(), remoteAddress.getPort());
         }
-        get(hostAndPort).add(connection);
+        logger.warn("received ConnectionConnectEvent hostAndPort: {} conn: {}", hostAndPort, event.getConnection());
+        get(hostAndPort).addConnection(connection);
     }
 
-    private List<Connection> get(String hostAndPort) {
-        Holder<List<Connection>> holder = connections.computeIfAbsent(hostAndPort, key -> new Holder<>());
-        if (holder.getValue() == null) {
-            synchronized (holder) {
-                if (holder.getValue() == null) {
-                    holder.setValue(new ArrayList<>(gatewayClientNum));
-                }
-            }
-        }
-        return holder.getValue();
+    private ConnectionList get(String hostAndPort) {
+        return connections.computeIfAbsent(hostAndPort, key -> new ConnectionList(key, gatewayClientNum, gatewayClient));
     }
+
 }

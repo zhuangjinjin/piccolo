@@ -133,15 +133,21 @@ public class SnowflakeIdGenDelegate implements IdGen {
                         ServiceInstance si = loadBalancer.choose(serviceInstances);
                         try {
                             Connection connection = piccoloClient.getGatewayConnectionFactory().getConnection(si.getHostAndPort());
-                            IdGenMessage idGenMessage = new IdGenMessage(connection);
-                            idGenMessage.tag = isInit ? INIT_TAG : null;
-                            idGenMessage.batchSize = BUFFER_SIZE;
-                            connection.sendAsync(idGenMessage, future -> {
-                                if (!future.isSuccess()) {
-                                    LOGGER.warn("get xid async send failure, cause: {}", future.cause());
-                                    sending.set(false);
-                                }
-                            });
+                            if (connection != null) {
+                                IdGenMessage idGenMessage = new IdGenMessage(connection);
+                                idGenMessage.tag = isInit ? INIT_TAG : null;
+                                idGenMessage.batchSize = BUFFER_SIZE;
+                                connection.sendAsync(idGenMessage, future -> {
+                                    if (!future.isSuccess()) {
+                                        LOGGER.warn("get xid async send failure, cause: {}", future.cause());
+                                        sending.set(false);
+                                    }
+                                });
+                            } else {
+                                LOGGER.error("can not get id to gateway server, is it work, server: {}",
+                                        si.getHostAndPort());
+                            }
+
                         } catch (Exception e) {
                             serviceInstances.remove(si);
                             throw e;
