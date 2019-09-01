@@ -49,6 +49,7 @@ public class ZooKeeperWorkerIdHolder implements WorkerIdHolder {
     private PiccoloContext context;
     private long lastUpdateTime;
     private String realPath;
+    private ScheduledThreadPoolExecutor pool;
 
     public ZooKeeperWorkerIdHolder(PiccoloContext context) {
         this.context = context;
@@ -93,6 +94,14 @@ public class ZooKeeperWorkerIdHolder implements WorkerIdHolder {
         return workerId;
     }
 
+    @Override
+    public void destroy() {
+        uploadData();
+        if (pool != null) {
+            pool.shutdown();
+        }
+    }
+
     private boolean checkInitTimeStamp() {
         String data = zkManager.getDirectory().getData(realPath);
         EndPoint endPoint = Jsons.fromJson(data, EndPoint.class);
@@ -102,7 +111,7 @@ public class ZooKeeperWorkerIdHolder implements WorkerIdHolder {
 
 
     private void scheduledUploadData() {
-        ScheduledThreadPoolExecutor pool = (ScheduledThreadPoolExecutor) context.getExecutorFactory().create(ExecutorFactory.ID_GEN, context.getEnvironment());
+        pool = (ScheduledThreadPoolExecutor) context.getExecutorFactory().create(ExecutorFactory.ID_GEN, context.getEnvironment());
         pool.scheduleWithFixedDelay(this::uploadData, 1, 3, TimeUnit.SECONDS);
     }
 

@@ -23,7 +23,7 @@ import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 public class KafkaMQMessageReceiver implements MQMessageReceiver {
 
     @Override
-    public void receive(String topic, Object message) {
+    public void receive(String topic, Object message, Object... attachment) {
 
     }
 }

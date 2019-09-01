@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.common.message.push;
+package io.github.ukuz.piccolo.api.mq;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
@@ -30,11 +30,12 @@ import java.util.function.Consumer;
 /**
  * @author ukuz90
  */
-public abstract class BaseMqMessage {
+public abstract class GenericMqMessage implements MQMessage {
 
     private CodedOutputStream outputStream;
     private CodedInputStream inputStream;
 
+    @Override
     public byte[] encode() {
         ByteBuf output = PooledByteBufAllocator.DEFAULT.buffer();
         this.outputStream = CodedOutputStream.newInstance(new ByteBufOutputStream(output));
@@ -51,6 +52,7 @@ public abstract class BaseMqMessage {
         return bytes;
     }
 
+    @Override
     public void decode(byte[] in) {
         this.inputStream = CodedInputStream.newInstance(in);
         doDecode();

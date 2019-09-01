@@ -30,4 +30,6 @@ public interface MQClient extends Service {
 
     void publish(String topic, Object message);
 
+    void commitMessage(MQMessage message);
+
 }

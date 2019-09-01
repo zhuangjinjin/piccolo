@@ -15,10 +15,12 @@
  */
 package io.github.ukuz.piccolo.common.router;
 
+import io.github.ukuz.piccolo.mq.kafka.KafkaMqMessage;
+
 /**
  * @author ukuz90
  */
-public class MQKickRemoteMsg implements KickRemoteMsg {
+public class KafkaKickMqMessage extends KafkaMqMessage implements KickMqMessage {
 
     private String userId;
     private String deviceId;
@@ -27,28 +29,29 @@ public class MQKickRemoteMsg implements KickRemoteMsg {
     private String targetAddress;
     private int targetPort;
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    @Override
+    protected void doEncode0() {
+        writeString(userId);
+        writeString(deviceId);
+        writeString(connId);
+        writeByte(clientType);
+        writeString(targetAddress);
+        writeInt(targetPort);
     }
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
+    @Override
+    protected void doDecode0() {
+        userId = readString();
+        deviceId = readString();
+        connId = readString();
+        clientType = readByte();
+        targetAddress = readString();
+        targetPort = readInt();
     }
 
-    public void setConnId(String connId) {
-        this.connId = connId;
-    }
-
-    public void setClientType(byte clientType) {
-        this.clientType = clientType;
-    }
-
-    public void setTargetAddress(String targetAddress) {
-        this.targetAddress = targetAddress;
-    }
-
-    public void setTargetPort(int targetPort) {
-        this.targetPort = targetPort;
+    @Override
+    public long getXid() {
+        return xid;
     }
 
     @Override
@@ -81,4 +84,27 @@ public class MQKickRemoteMsg implements KickRemoteMsg {
         return targetPort;
     }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public void setConnId(String connId) {
+        this.connId = connId;
+    }
+
+    public void setClientType(byte clientType) {
+        this.clientType = clientType;
+    }
+
+    public void setTargetAddress(String targetAddress) {
+        this.targetAddress = targetAddress;
+    }
+
+    public void setTargetPort(int targetPort) {
+        this.targetPort = targetPort;
+    }
 }

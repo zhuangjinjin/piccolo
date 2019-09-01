@@ -13,32 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.service;
+package io.github.ukuz.piccolo.common.message.push;
 
-import java.util.function.BiFunction;
+import io.github.ukuz.piccolo.mq.kafka.KafkaMqMessage;
 
 /**
  * @author ukuz90
  */
-public interface Callback<T> {
+public class KafkaDispatcherMqMessage extends KafkaMqMessage implements DispatcherMqMessage {
 
-    /**
-     * 成功回调
-     * @param args
-     */
-    void success(T... args);
+    private byte[] payload;
 
-    /**
-     * 失败回调
-     * @param throwable
-     * @param args
-     */
-    void failure(Throwable throwable, T... args);
+    @Override
+    public byte[] getPayload() {
+        return payload;
+    }
 
-    /**
-     *
-     * @param function
-     */
-    void callback(BiFunction<T, Throwable, Void> function);
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
+    }
+
+    @Override
+    protected void doEncode0() {
+        writeBytes(payload);
+    }
+
+    @Override
+    protected void doDecode0() {
+        payload = readBytes();
+    }
 
 }

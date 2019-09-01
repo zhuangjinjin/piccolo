@@ -17,14 +17,16 @@ package io.github.ukuz.piccolo.api.service;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 
 /**
  * @author ukuz90
  */
-public class ServiceCallback extends CompletableFuture<Boolean> implements Callback {
+public class ServiceCallback extends CompletableFuture<Boolean> implements Callback<Boolean> {
 
     private AtomicBoolean result;
     private Callback callback;
+    private BiFunction<Boolean, Throwable, Void> function;
 
     public ServiceCallback(AtomicBoolean result) {
         this.result = result;
@@ -36,26 +38,38 @@ public class ServiceCallback extends CompletableFuture<Boolean> implements Callb
     }
 
     @Override
-    public void success(Object... args) {
+    public void success(Boolean... args) {
         if (this.isDone()) {
             return;
         }
 
         this.complete(result.get());
+
+        if (function != null) {
+            function.apply(result.get(), null);
+        }
         if (callback != null) {
             callback.success(args);
         }
     }
 
     @Override
-    public void failure(Throwable throwable, Object... args) {
+    public void failure(Throwable throwable, Boolean... args) {
         if (this.isDone()) {
             return;
         }
         this.completeExceptionally(throwable);
 
+        if (function != null) {
+            function.apply(null, throwable);
+        }
         if (callback != null) {
             callback.failure(throwable, args);
         }
+    }
+
+    @Override
+    public void callback(BiFunction<Boolean, Throwable, Void> function) {
+        this.function = function;
     }
 }

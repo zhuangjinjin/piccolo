@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.client.push;
 
 import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.*;
 
+import com.sun.scenario.effect.Offset;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.id.IdGenException;
@@ -25,10 +26,12 @@ import io.github.ukuz.piccolo.api.push.PushContext;
 import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.PushMessage;
-import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
+import io.github.ukuz.piccolo.common.message.push.KafkaDispatcherMqMessage;
 import io.github.ukuz.piccolo.common.router.RemoteRouter;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,8 +135,16 @@ public class PushClient implements AutoCloseable {
         }
 
         @Override
-        public void receive(String topic, byte[] message) {
-            DispatcherMqMessage msg = new DispatcherMqMessage();
+        public void receive(String topic, byte[] message, Object... attachment) {
+            Assert.isTrue(attachment[0] instanceof TopicPartition, "attachment[0] must be TopicPartition");
+            Assert.isTrue(attachment[1] instanceof OffsetAndMetadata, "attachment[1] must be OffsetAndMetadata");
+            TopicPartition topicPartition = (TopicPartition) attachment[0];
+            OffsetAndMetadata offsetAndMetadata = (OffsetAndMetadata) attachment[1];
+            KafkaDispatcherMqMessage msg = new KafkaDispatcherMqMessage();
+            msg.setMqClient(piccoloClient.getMQClient());
+            msg.setTopic(topicPartition.topic());
+            msg.setPartition(topicPartition.partition());
+            msg.setOffset(offsetAndMetadata.offset());
             msg.decode(message);
             dispatchHandlerExecutor.execute(() -> handler.onDispatch(msg));
         }

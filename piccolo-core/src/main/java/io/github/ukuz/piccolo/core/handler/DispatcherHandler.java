@@ -29,6 +29,7 @@ import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.message.DispatcherMessage;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
 import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
+import io.github.ukuz.piccolo.common.message.push.KafkaDispatcherMqMessage;
 import io.github.ukuz.piccolo.core.PiccoloServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,10 +81,11 @@ public class DispatcherHandler implements ChannelHandler {
             FailoverInvoker invoker = new FailoverInvoker();
             try {
                 invoker.invoke(() -> {
-                    MQClient client = SpiLoader.getLoader(MQClient.class).getExtension();
+                    MQClient client = piccoloContext.getMQClient();
                     long xid = piccoloContext.getIdGen().get("dispatch");
-                    DispatcherMqMessage mqMessage = new DispatcherMqMessage();
+                    KafkaDispatcherMqMessage mqMessage = new KafkaDispatcherMqMessage();
                     mqMessage.setXid(xid);
+                    mqMessage.setMqClient(client);
                     mqMessage.setPayload(msg.payload);
                     client.publish(DISPATCH_MESSAGE.getTopic(), mqMessage.encode());
                     return null;

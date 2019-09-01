@@ -17,17 +17,12 @@ package io.github.ukuz.piccolo.client.gateway.connection;
 
 import com.google.common.net.HostAndPort;
 import io.github.ukuz.piccolo.api.connection.Connection;
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.client.gateway.GatewayClient;
 import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

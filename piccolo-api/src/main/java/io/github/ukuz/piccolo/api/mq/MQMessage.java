@@ -13,32 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.service;
-
-import java.util.function.BiFunction;
+package io.github.ukuz.piccolo.api.mq;
 
 /**
  * @author ukuz90
  */
-public interface Callback<T> {
+public interface MQMessage {
 
     /**
-     * 成功回调
-     * @param args
+     * get transaction id
+     * @return
      */
-    void success(T... args);
+    long getXid();
 
     /**
-     * 失败回调
-     * @param throwable
-     * @param args
+     * commit when complete consume
      */
-    void failure(Throwable throwable, T... args);
+    void completeConsume();
 
     /**
-     *
-     * @param function
+     * encode message
+     * @return
      */
-    void callback(BiFunction<T, Throwable, Void> function);
+    byte[] encode();
+
+    /**
+     * decode message
+     * @param in
+     */
+    void decode(byte[] in);
 
 }

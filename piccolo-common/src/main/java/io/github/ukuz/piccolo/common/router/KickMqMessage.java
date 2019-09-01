@@ -16,11 +16,13 @@
 package io.github.ukuz.piccolo.common.router;
 
 import io.github.ukuz.piccolo.api.common.utils.StringUtils;
+import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.mq.MQMessage;
 
 /**
  * @author ukuz90
  */
-public interface KickRemoteMsg {
+public interface KickMqMessage extends MQMessage {
 
     String getUserId();
 
@@ -33,6 +35,10 @@ public interface KickRemoteMsg {
     String getTargetAddress();
 
     int getTargetPort();
+
+    void setXid(long xid);
+
+    void setMqClient(MQClient mqClient);
 
     default boolean isTargetMatch(String host, int port) {
         return port == getTargetPort() && StringUtils.equals(getTargetAddress(), host);

@@ -29,6 +29,8 @@ public interface GatewayConnectionFactory extends ServiceListener {
 
     Connection getConnection(String hostAndPort);
 
+//    Callback<Connection> getConnectionAsync(String hostAndPort);
+
     <T extends BaseMessage> boolean send(String hostAndPort, Function<Connection, T> creator, Consumer<T> sender);
 
     <T extends BaseMessage> boolean broadcast(Function<Connection, T> creator, Consumer<T> sender);

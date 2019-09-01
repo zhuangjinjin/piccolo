@@ -17,11 +17,14 @@ package io.github.ukuz.piccolo.mq.kafka;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.mq.MQMessage;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.mq.MQTopic;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.mq.kafka.manager.KafkaManager;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +78,17 @@ public class KafkaMQClient extends AbstractService implements MQClient {
             LOGGER.warn("publish failure with a unsupported wire type, topic: {}, message: {}", topic, message);
         }
 
+    }
+
+    @Override
+    public void commitMessage(MQMessage message) {
+        if (message instanceof KafkaMqMessage) {
+            KafkaMqMessage kafkaMqMessage = (KafkaMqMessage)message;
+            kafkaManager.commitOffset(new TopicPartition(kafkaMqMessage.getTopic(), kafkaMqMessage.getPartition()),
+                    new OffsetAndMetadata(kafkaMqMessage.getOffset()));
+        } else {
+            LOGGER.error("commit unsupported wire type: {}", message);
+        }
     }
 
     @Override

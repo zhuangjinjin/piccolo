@@ -25,10 +25,18 @@ import io.github.ukuz.piccolo.mq.kafka.consumer.KafkaConsumerWorker;
 import io.github.ukuz.piccolo.mq.kafka.producer.KafkaProducerSender;
 import io.github.ukuz.piccolo.mq.kafka.properties.KafkaProperties;
 import io.github.ukuz.piccolo.mq.properties.MQTopicProperties;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -38,15 +46,19 @@ import java.util.stream.Collectors;
  */
 public class KafkaManager {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaManager.class);
+
     private Executor executor;
     private PiccoloContext context;
     private KafkaProperties kafkaProperties;
     private KafkaProducerSender sender;
     private KafkaAdmin admin;
+    private ConcurrentMap<String, KafkaConsumerWorker> consumers;
 
     public KafkaManager(PiccoloContext context) {
         Assert.notNull(context, "context must not be null");
         this.context = context;
+        this.consumers = new ConcurrentHashMap<>();
     }
 
     public void init() {
@@ -68,6 +80,7 @@ public class KafkaManager {
         if (executor instanceof ExecutorService) {
             ((ExecutorService) executor).shutdown();
         }
+        consumers.forEach((k, consumer) -> consumer.destroy());
     }
 
     public void subscribe(String topic, MQMessageReceiver receiver) {
@@ -77,6 +90,7 @@ public class KafkaManager {
                 .collect(Collectors.toList());
         Map<String, Object> properties = kafkaProperties.buildConsumerProperties();
         KafkaConsumerWorker consumer = new KafkaConsumerWorker(properties, newTopics, receiver);
+        newTopics.forEach(t -> consumers.computeIfAbsent(t, k -> consumer));
         executor.execute(consumer);
     }
 
@@ -86,5 +100,18 @@ public class KafkaManager {
 
     public void addTopicIfNeeded(MQTopic topic) {
         admin.addTopicIfNeeded(topic);
+    }
+
+    public void commitOffset(TopicPartition topicPartition, OffsetAndMetadata offsetAndMetadata) {
+        Assert.notNull(topicPartition, "topicPartition must not be null");
+        Assert.notNull(offsetAndMetadata, "offsetAndMetadata must not be null");
+        String topic = topicPartition.topic();
+        KafkaConsumerWorker consumer = consumers.get(topic);
+        if (consumer == null) {
+            LOGGER.error("can not found topic: {}'s consumer", topic);
+        } else {
+            LOGGER.info("commitOffset topicPartition: {} offsetAndMetadata: {}", topicPartition, offsetAndMetadata);
+            consumer.commit(topicPartition, offsetAndMetadata);
+        }
     }
 }

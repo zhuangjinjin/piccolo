@@ -21,18 +21,18 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DispatcherMqMessageTest {
+class KafkaDispatcherMqMessageTest {
 
     @Test
     void doDecode() {
         long xid = 1000L;
         String msg = "你好，piccolo";
-        DispatcherMqMessage encodeMsg = new DispatcherMqMessage();
+        KafkaDispatcherMqMessage encodeMsg = new KafkaDispatcherMqMessage();
         encodeMsg.setXid(xid);
         encodeMsg.setPayload(msg.getBytes(StandardCharsets.UTF_8));
         byte[] buf = encodeMsg.encode();
 
-        DispatcherMqMessage decodeMsg = new DispatcherMqMessage();
+        KafkaDispatcherMqMessage decodeMsg = new KafkaDispatcherMqMessage();
         decodeMsg.decode(buf);
         assertEquals(xid, decodeMsg.getXid());
         assertEquals(msg, new String(decodeMsg.getPayload(), StandardCharsets.UTF_8));

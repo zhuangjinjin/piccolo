@@ -23,4 +23,6 @@ public interface WorkerIdHolder {
     void init();
 
     long getWorkerId();
+
+    void destroy();
 }

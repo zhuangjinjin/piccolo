@@ -17,8 +17,6 @@ package io.github.ukuz.piccolo.client.gateway.connection;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import com.google.common.net.HostAndPort;
-import io.github.ukuz.piccolo.api.common.Holder;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.event.ConnectionConnectEvent;
 import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
@@ -27,21 +25,17 @@ import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.client.gateway.GatewayClient;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.event.EventBus;
-import io.github.ukuz.piccolo.common.loadbalance.RandomLoadbalancer;
-import io.netty.channel.ChannelFuture;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author ukuz90

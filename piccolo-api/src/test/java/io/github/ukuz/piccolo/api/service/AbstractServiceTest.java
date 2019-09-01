@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ResourceAccessMode.*;
@@ -162,6 +163,11 @@ class AbstractServiceTest {
 
         @Override
         public void failure(Throwable throwable, Object... args) {
+
+        }
+
+        @Override
+        public void callback(BiFunction function) {
 
         }
     }

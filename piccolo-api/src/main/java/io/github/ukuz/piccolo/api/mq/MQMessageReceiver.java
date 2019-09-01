@@ -20,6 +20,12 @@ package io.github.ukuz.piccolo.api.mq;
  */
 public interface MQMessageReceiver<T> {
 
-    void receive(String topic, T message);
+    /**
+     * mq message receive
+     * @param topic
+     * @param message
+     * @param attachment
+     */
+    void receive(String topic, T message, Object... attachment);
 
 }
