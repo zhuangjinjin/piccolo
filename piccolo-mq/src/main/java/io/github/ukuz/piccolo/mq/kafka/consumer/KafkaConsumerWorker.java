@@ -33,7 +33,6 @@ import java.util.concurrent.ConcurrentMap;
 public class KafkaConsumerWorker implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumerWorker.class);
-    private final Map<String, Object> properties;
     private List<String> topics;
     private volatile boolean running = true;
     private final MQMessageReceiver receiver;
@@ -41,7 +40,6 @@ public class KafkaConsumerWorker implements Runnable {
     private final KafkaConsumer consumer;
 
     public KafkaConsumerWorker(Map<String, Object> properties, List<String> topics, MQMessageReceiver receiver) {
-        this.properties = properties;
         this.topics = topics;
         this.receiver = receiver;
         this.offsetMap = Maps.newConcurrentMap();
