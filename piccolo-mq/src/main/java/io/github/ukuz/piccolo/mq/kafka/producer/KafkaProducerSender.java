@@ -44,8 +44,8 @@ public class KafkaProducerSender {
     }
 
     @SuppressWarnings("unchecked")
-    public void send(String topic, byte[] content, Callback callback) {
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, content);
+    public void send(String topic, String key, byte[] content, Callback callback) {
+        ProducerRecord<String, byte[]> record = new ProducerRecord<>(topic, key, content);
         producer.send(record, ((metadata, exception) -> {
             if (exception == null) {
                 if (LOGGER.isDebugEnabled()) {

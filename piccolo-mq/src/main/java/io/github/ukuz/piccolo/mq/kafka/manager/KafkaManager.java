@@ -94,8 +94,8 @@ public class KafkaManager {
         executor.execute(consumer);
     }
 
-    public void publish(String topic, Object message) {
-        sender.send(MQTopic.getTopic(topic), (byte[])message, null);
+    public void publish(String topic, String key, Object message) {
+        sender.send(MQTopic.getTopic(topic), key, (byte[])message, null);
     }
 
     public void addTopicIfNeeded(MQTopic topic) {

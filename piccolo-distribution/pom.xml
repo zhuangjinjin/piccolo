@@ -16,7 +16,38 @@
     <url>http://www.example.com</url>
 
     <profiles>
-
+        <profile>
+            <id>release-server</id>
+            <dependencies>
+                <dependency>
+                    <groupId>io.github.ukuz</groupId>
+                    <artifactId>piccolo-server</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>release-all</id>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>release.xml</descriptor>
+                                    </descriptors>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+                <finalName>piccolo-server-${project.version}</finalName>
+            </build>
+        </profile>
     </profiles>
 
 

@@ -70,14 +70,18 @@ public class KafkaMQClient extends AbstractService implements MQClient {
 
     @Override
     public void publish(String topic, Object message) {
+        publish(topic, null, message);
+    }
+
+    @Override
+    public void publish(String topic, String key, Object message) {
         if (message instanceof String) {
-            kafkaManager.publish(topic, ((String) message).getBytes(StandardCharsets.UTF_8));
+            kafkaManager.publish(topic, key, ((String) message).getBytes(StandardCharsets.UTF_8));
         } else if (message instanceof byte[]) {
-            kafkaManager.publish(topic, message);
+            kafkaManager.publish(topic, key, message);
         } else {
             LOGGER.warn("publish failure with a unsupported wire type, topic: {}, message: {}", topic, message);
         }
-
     }
 
     @Override

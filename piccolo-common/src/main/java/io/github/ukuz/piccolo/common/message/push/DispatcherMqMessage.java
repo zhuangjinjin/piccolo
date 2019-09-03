@@ -28,4 +28,6 @@ public interface DispatcherMqMessage extends MQMessage {
      */
     byte[] getPayload();
 
+    String getUid();
+
 }

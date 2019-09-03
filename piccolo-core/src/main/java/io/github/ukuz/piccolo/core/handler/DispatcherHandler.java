@@ -83,11 +83,13 @@ public class DispatcherHandler implements ChannelHandler {
                 invoker.invoke(() -> {
                     MQClient client = piccoloContext.getMQClient();
                     long xid = piccoloContext.getIdGen().get("dispatch");
+                    String uid = connection.getSessionContext().getUserId();
                     KafkaDispatcherMqMessage mqMessage = new KafkaDispatcherMqMessage();
                     mqMessage.setXid(xid);
                     mqMessage.setMqClient(client);
                     mqMessage.setPayload(msg.payload);
-                    client.publish(DISPATCH_MESSAGE.getTopic(), mqMessage.encode());
+                    mqMessage.setUid(uid);
+                    client.publish(DISPATCH_MESSAGE.getTopic(), uid, mqMessage.encode());
                     return null;
                 });
             } catch (Exception e) {

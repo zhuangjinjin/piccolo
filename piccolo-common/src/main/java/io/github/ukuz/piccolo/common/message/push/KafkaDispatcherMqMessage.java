@@ -23,23 +23,35 @@ import io.github.ukuz.piccolo.mq.kafka.KafkaMqMessage;
 public class KafkaDispatcherMqMessage extends KafkaMqMessage implements DispatcherMqMessage {
 
     private byte[] payload;
+    private String uid;
 
     @Override
     public byte[] getPayload() {
         return payload;
     }
 
+    @Override
+    public String getUid() {
+        return uid;
+    }
+
     public void setPayload(byte[] payload) {
         this.payload = payload;
     }
 
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
     @Override
     protected void doEncode0() {
+        writeString(uid);
         writeBytes(payload);
     }
 
     @Override
     protected void doDecode0() {
+        uid = readString();
         payload = readBytes();
     }
 
