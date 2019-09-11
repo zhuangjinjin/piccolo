@@ -18,5 +18,5 @@ package io.github.ukuz.piccolo.monitor.quota;
 /**
  * @author ukuz90
  */
-public class ThreadPoolQuota {
+public interface ThreadPoolQuota extends MonitorQuota {
 }

@@ -18,5 +18,14 @@ package io.github.ukuz.piccolo.monitor.quota;
 /**
  * @author ukuz90
  */
-public class ThreadQuota {
+public interface ThreadQuota extends MonitorQuota {
+
+    int daemonThreadCount();
+
+    int threadCount();
+
+    long totalStartedThreadCount();
+
+    int deadlockedThreadCount();
+
 }

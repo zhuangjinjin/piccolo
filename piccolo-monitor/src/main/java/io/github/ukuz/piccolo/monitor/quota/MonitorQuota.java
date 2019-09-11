@@ -18,5 +18,8 @@ package io.github.ukuz.piccolo.monitor.quota;
 /**
  * @author ukuz90
  */
-public class MonitorQuota {
+public interface MonitorQuota {
+
+    Object monitor(Object... args);
+
 }

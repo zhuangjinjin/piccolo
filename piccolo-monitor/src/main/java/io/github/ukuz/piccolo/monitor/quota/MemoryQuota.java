@@ -18,5 +18,54 @@ package io.github.ukuz.piccolo.monitor.quota;
 /**
  * @author ukuz90
  */
-public class MemoryQuota {
+public interface MemoryQuota extends MonitorQuota {
+
+    long heapMemoryCommitted();
+
+    long heapMemoryInit();
+
+    long heapMemoryMax();
+
+    long heapMemoryUsed();
+
+    long nonHeapMemoryCommitted();
+
+    long nonHeapMemoryInit();
+
+    long nonHeapMemoryMax();
+
+    long nonHeapMemoryUsed();
+
+    long permGenCommitted();
+
+    long permGenInit();
+
+    long permGenMax();
+
+    long permGenUsed();
+
+    long oldGenCommitted();
+
+    long oldGenInit();
+
+    long oldGenMax();
+
+    long oldGenUsed();
+
+    long edenSpaceCommitted();
+
+    long edenSpaceInit();
+
+    long edenSpaceMax();
+
+    long edenSpaceUsed();
+
+    long survivorCommitted();
+
+    long survivorInit();
+
+    long survivorMax();
+
+    long survivorUsed();
+
 }

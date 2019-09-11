@@ -13,10 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.monitor.jmx;
+package io.github.ukuz.piccolo.monitor.quota;
 
 /**
  * @author ukuz90
  */
-public class GCQuota {
+public interface GCQuota extends MonitorQuota {
+
+    long youngGcCollectionCount();
+
+    long youngGcCollectionTime();
+
+    long fullGcCollectionCount();
+
+    long fullGcCollectionTime();
+
+    long spanYoungGcCollectionCount();
+
+    long spanYoungGcCollectionTime();
+
+    long spanFullGcCollectionCount();
+
+    long spanFullGcCollectionTime();
+
 }

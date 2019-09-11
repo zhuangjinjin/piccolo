@@ -15,8 +15,52 @@
  */
 package io.github.ukuz.piccolo.monitor.quota.impl;
 
+import io.github.ukuz.piccolo.api.common.MemorySize;
+import io.github.ukuz.piccolo.monitor.quota.InfoQuota;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * @author ukuz90
  */
-public class JvmInfo {
+public class JVMInfo implements InfoQuota {
+
+    private RuntimeMXBean runtimeMXBean;
+
+    private OperatingSystemMXBean operatingSystemMXBean;
+
+    private String pid;
+
+    public JVMInfo() {
+        runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+    }
+
+    @Override
+    public String pid() {
+        if (pid == null) {
+            pid = runtimeMXBean.getName().split("@")[0];
+        }
+        return pid;
+    }
+
+    @Override
+    public double load() {
+        return operatingSystemMXBean.getSystemLoadAverage();
+    }
+
+    @Override
+    public Object monitor(Object... args) {
+        Map<String, Object> result = new LinkedHashMap<>(5);
+        result.put("pid", pid());
+        result.put("load", String.format("%.4f%%", load()));
+        result.put("totalMemory", MemorySize.prettyMemorySize(Runtime.getRuntime().totalMemory()));
+        result.put("freeMemory", MemorySize.prettyMemorySize(Runtime.getRuntime().freeMemory()));
+        result.put("maxMemory", MemorySize.prettyMemorySize(Runtime.getRuntime().maxMemory()));
+        return result;
+    }
 }

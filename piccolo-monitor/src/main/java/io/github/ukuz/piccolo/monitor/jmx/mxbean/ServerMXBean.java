@@ -13,10 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.monitor.jmx;
+package io.github.ukuz.piccolo.monitor.jmx.mxbean;
 
 /**
  * @author ukuz90
  */
-public interface GatewayServerMXBean {
+public interface ServerMXBean {
+
+    /**
+     * @return get server bind port
+     */
+    int getBindPort();
+
+    /**
+     * @return the time of server was started
+     */
+    long getStartTime();
+
+    /**
+     * @return min request latency in ms
+     */
+    long getMinRequestLatency();
+
+    /**
+     * @return avg request latency in ms
+     */
+    long getAvgRequestLatency();
+
+    /**
+     * @return max request latency in ms
+     */
+    long getMaxRequestLatency();
+
+    /**
+     * @return number of packets received so far
+     */
+    long getPacketReceived();
+
+    /**
+     * @return number of packets sent so far
+     */
+    long getPacketSent();
+
+
 }

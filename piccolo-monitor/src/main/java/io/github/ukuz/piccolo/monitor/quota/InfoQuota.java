@@ -18,5 +18,10 @@ package io.github.ukuz.piccolo.monitor.quota;
 /**
  * @author ukuz90
  */
-public class InfoQuota {
+public interface InfoQuota extends MonitorQuota {
+
+    String pid();
+
+    double load();
+
 }
