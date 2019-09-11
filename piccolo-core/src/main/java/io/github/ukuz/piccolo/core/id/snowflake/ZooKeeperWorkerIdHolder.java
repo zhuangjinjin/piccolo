@@ -71,7 +71,7 @@ public class ZooKeeperWorkerIdHolder implements WorkerIdHolder {
                 String path = WATCH_PATH + ZKPaths.PATH_SEPARATOR + si.getHostAndPort() + "-";
                 realPath = zkManager.getDirectory().registerPersistSequentialNode(path, Jsons.toJson(build()));
                 Assert.isTrue(realPath.split("-").length == 2, "init failure, newPath: " + realPath);
-                workerId = Long.parseLong(realPath.split("-")[1]);
+                workerId = Long.parseLong(realPath.split("-")[1]) + 1;
                 scheduledUploadData();
             } else {
                 realPath = WATCH_PATH + ZKPaths.PATH_SEPARATOR + map.get(si.getHostAndPort());
@@ -80,7 +80,7 @@ public class ZooKeeperWorkerIdHolder implements WorkerIdHolder {
                     LOGGER.error("init timestamp check error,forever node timestamp gt this node time");
                     throw new RuntimeException("init timestamp check error,forever node timestamp gt this node time");
                 }
-                workerId = Long.parseLong(realPath.split("-")[1]);
+                workerId = Long.parseLong(realPath.split("-")[1]) + 1;
                 scheduledUploadData();
             }
 
