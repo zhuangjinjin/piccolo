@@ -122,6 +122,10 @@
 
         writeString(str) {
             let buf = this.getByte(str);
+            this.writeBytes(buf)
+        }
+
+        writeBytes(buf) {
             if (buf.byteLength == 0) {
                 this.byteBuf.writeShort(0);
             } else if (buf.byteLength <= 0x7FFF) {
@@ -323,6 +327,12 @@
             sendMessage(unbindUserMsg, Command.DISPATCH);
         }
 
+        function dispatchBinaryMessage(payload) {
+            let unbindUserMsg = new AbstractMessage();
+            unbindUserMsg.writeBytes(payload);
+            sendMessage(unbindUserMsg, Command.DISPATCH);
+        }
+
         function ack(sessionId) {
             config.log.debug("<<< send ack message, sessionId=" + sessionId);
             send(Packet(Command.ACK, null, sessionId));
@@ -501,6 +511,7 @@
             bindUser: bindUser,
             unbindUser: unbindUser,
             dispatch: dispatchMessage,
+            dispatchBinary: dispatchBinaryMessage,
         }
     })(window);
 
@@ -539,6 +550,12 @@
         piccolo.dispatch($("message").value)
     }
 
+    function dispatchBinary() {
+        let array = JSON.parse($("binaryMessage").value)
+        let arrayBuffer = new Uint8Array(array).buffer
+        piccolo.dispatchBinary(arrayBuffer)
+    }
+
 </script>
 <form onsubmit="return false;">
     <label> Server Url:
@@ -550,10 +567,14 @@
         <input type="text" id="userId" value="user-0">
     </label>
     <input type="button" value="unbind" onclick="unbind()">
-    <label> Dispatcher Message:
+    <label> Dispatcher Text Message:
         <input type="text" id="message" value="Hello, piccolo">
     </label>
-    <input type="button" value="dispatch" onclick="dispatch()">
+    <input type="button" value="dispatch text" onclick="dispatch()">
+    <label> Dispatcher Binary Message:
+        <input type="text" id="binaryMessage" placeholder="binary message" value="">
+    </label>
+    <input type="button" value="dispatch binary" onclick="dispatchBinary()">
     <h3><label for="responseText">Output</label></h3>
     <textarea id="responseText" style="width:100%;height:500px;"></textarea>
 </form>
