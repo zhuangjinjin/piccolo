@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![img](https://travis-ci.org/zhuangjinjin/piccolo.svg?branch=master)](https://travis-ci.org/zhuangjinjin/dynamic-datasource-boot-starter)
 
-##简介
+## 简介
 
 piccolo是一个长连接网关服务器。
 
@@ -74,9 +74,7 @@ piccolo.kafka.admin-client.bootstrap-servers=${kafka.bootstrap-servers}
 sh bin/startup.sh -m standalone
 ```
 
-运行成功后会有piccolo的LOGO
-
-![startup](/Users/jin/Library/Application Support/typora-user-images/image-20190916033327423.png)
+运行成功后会出现piccolo的LOGO
 
 ## 配置
 
