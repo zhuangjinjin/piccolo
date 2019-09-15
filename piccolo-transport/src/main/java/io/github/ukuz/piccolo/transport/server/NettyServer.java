@@ -51,7 +51,6 @@ public abstract class NettyServer extends AbstractService implements Server {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ServerBootstrap server;
     private EventLoopGroupFactory eventLoopGroupFactory;
     private ChannelFactory<ServerSocketChannel> channelFactory;
     private ServerHandler serverHandler;
@@ -99,7 +98,7 @@ public abstract class NettyServer extends AbstractService implements Server {
 
         logger.info("server start async...");
         CompletableFuture result = new CompletableFuture();
-        server = new ServerBootstrap();
+        ServerBootstrap server = new ServerBootstrap();
         bossGroup = createBossThreadPool();
         workerGroup = createWorkerThreadPool();
 

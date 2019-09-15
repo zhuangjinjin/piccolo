@@ -52,9 +52,9 @@ public class MQTopicProperties implements Properties {
 
     public List<MQTopic> getAllTopics() {
         List<MQTopic> list = new ArrayList<>();
-        Optional.ofNullable(dispatch.build(DISPATCH_MESSAGE.getTopic())).ifPresent(list::add);
-        Optional.ofNullable(online.build(ONLINE_MESSAGE.getTopic())).ifPresent(list::add);
-        Optional.ofNullable(offline.build(OFFLINE_MESSAGE.getTopic())).ifPresent(list::add);
+        Optional.of(dispatch.build(DISPATCH_MESSAGE.getTopic())).ifPresent(list::add);
+        Optional.of(online.build(ONLINE_MESSAGE.getTopic())).ifPresent(list::add);
+        Optional.of(offline.build(OFFLINE_MESSAGE.getTopic())).ifPresent(list::add);
         return list;
     }
 

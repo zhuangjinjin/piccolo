@@ -110,7 +110,7 @@ public class PushClient implements AutoCloseable {
         });
     }
 
-    private void registerHandler(String topic, BaseDispatcherHandler handler) {
+    public void registerHandler(String topic, BaseDispatcherHandler handler) {
         Assert.notNull(topic, "topic must not be null");
         Assert.notNull(handler, "handler must not be null");
         LOGGER.info("registerHandler topic: {} handler: {}", topic, handler);

@@ -20,10 +20,12 @@ import io.github.ukuz.piccolo.server.boot.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ukuz90
@@ -38,14 +40,14 @@ public class ServerLauncher {
         @Override
         public void start() {
             try {
-                URL url = ServerLauncher.class.getClassLoader().getResource("banner.txt");
-                File file = new File(url.toURI());
-                BufferedReader br = new BufferedReader(new FileReader(file));
+                InputStream is = ServerLauncher.class.getClassLoader().getResourceAsStream("banner.txt");
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 String line;
                 while ((line = br.readLine()) != null) {
                     System.out.println(line);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.info("server launch success!!!");
             }
         }

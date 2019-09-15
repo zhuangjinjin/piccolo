@@ -57,13 +57,12 @@ public class MultiPacketCodec extends MessageToPacketCodec {
                     multiMessage = MultiMessage.create();
                 }
                 multiMessage.addMessage(msg);
-            } catch (CodecException e) {
+            } catch (PacketUnknownCodecException | PacketSizeLimitCodecException e) {
                 in.readerIndex(readerIndex);
-                if (e instanceof PacketUnknownCodecException || e instanceof PacketSizeLimitCodecException) {
-                    throw e;
-                } else if (e instanceof PacketNotIntactCodecException) {
-                    break;
-                }
+                throw e;
+            } catch (PacketNotIntactCodecException e) {
+                in.readerIndex(readerIndex);
+                break;
             }
         }
         return multiMessage;

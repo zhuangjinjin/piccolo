@@ -72,11 +72,10 @@ public class DuplexCodec {
                 if (msg != null) {
                     out.add(msg);
                 }
+            } catch (PacketUnknownCodecException | PacketSizeLimitCodecException e) {
+                LOGGER.error("Duplex decode failure, cause: {}", e);
+                ctx.pipeline().close();
             } catch (CodecException e) {
-                if (e instanceof PacketUnknownCodecException || e instanceof PacketSizeLimitCodecException) {
-                    LOGGER.error("Duplex decode failure, cause: {}", e);
-                    ctx.pipeline().close();
-                }
             }
 
         }

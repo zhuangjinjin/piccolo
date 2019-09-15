@@ -60,7 +60,7 @@ public class PiccoloServer implements PiccoloContext {
     public PiccoloServer() {
         //initialize config
         environment = SpiLoader.getLoader(Environment.class).getExtension();
-        environment.scanAllProperties();
+//        environment.scanAllProperties();
         environment.load("piccolo-server.properties");
 
         //initialize eventBus

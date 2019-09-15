@@ -17,8 +17,11 @@ package io.github.ukuz.piccolo.api.common;
 
 import io.github.ukuz.piccolo.api.annotation.AnnotationTypeFilter;
 import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +33,7 @@ import java.util.Set;
  */
 public class ClassPathScanner {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassPathScanner.class);
     private static final char CLASSPATH_RESOURCE_PATH_SEPARATOR = '/';
     private static final char PACKAGE_SEPARATOR_CHAR = '.';
     private static final String CLASS_NAME_SUFFIX = ".class";
@@ -57,7 +61,11 @@ public class ClassPathScanner {
         for (String scanPackage : scanPackages) {
             int baseNameCount = scanPackage.split(PACKAGE_SEPARATOR_REGEX).length;
             String scanPath = scanPackage.replace(PACKAGE_SEPARATOR_CHAR, CLASSPATH_RESOURCE_PATH_SEPARATOR);
-            Path baseDir = Paths.get(findClassLoader().getResource(scanPath).toURI());
+            URI uri = findClassLoader().getResource(scanPath).toURI();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("scan uri: {}", uri.toString());
+            }
+            Path baseDir = Paths.get(uri);
             doCandidate(baseDir, baseNameCount, baseDir.toFile(), result);
         }
 

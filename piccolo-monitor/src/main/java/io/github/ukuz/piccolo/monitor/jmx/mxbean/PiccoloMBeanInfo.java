@@ -18,42 +18,12 @@ package io.github.ukuz.piccolo.monitor.jmx.mxbean;
 /**
  * @author ukuz90
  */
-public interface ServerMXBean {
+public interface PiccoloMBeanInfo {
 
     /**
-     * @return get server bind port
+     * the name of mbeaninfo
+     * @return
      */
-    int getBindPort();
-
-    /**
-     * @return the time of server was started
-     */
-    long getStartTime();
-
-    /**
-     * @return min request latency in ms
-     */
-    long getMinRequestLatency();
-
-    /**
-     * @return avg request latency in ms
-     */
-    long getAvgRequestLatency();
-
-    /**
-     * @return max request latency in ms
-     */
-    long getMaxRequestLatency();
-
-    /**
-     * @return number of packets received so far
-     */
-    long getPacketReceived();
-
-    /**
-     * @return number of packets sent so far
-     */
-    long getPacketSent();
-
+    String getName();
 
 }
