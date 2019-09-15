@@ -17,7 +17,6 @@ package io.github.ukuz.piccolo.client.push;
 
 import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.*;
 
-import com.sun.scenario.effect.Offset;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.id.IdGenException;
