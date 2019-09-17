@@ -13,18 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.router;
+package io.github.ukuz.piccolo.client.route;
+
+import io.github.ukuz.piccolo.api.route.RouteLocator;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 
 /**
  * @author ukuz90
  */
-public interface RouterLocator<T, R> {
+public final class RouteLocatorBuilder {
 
-    /**
-     *
-     * @param routeKey
-     * @param service
-     */
-    void route(T routeKey, R service);
+    private RouteLocator routeLocator;
+
+    private RouteLocatorBuilder() {
+        this.routeLocator = SpiLoader.getLoader(RouteLocator.class).getExtension();
+    }
+
+    public static RouteLocatorBuilder routes() {
+        return new RouteLocatorBuilder();
+    }
+
+    public RouteLocatorBuilder route(Integer routeKey, String service) {
+        routeLocator.route(routeKey, service);
+        return this;
+    }
 
 }

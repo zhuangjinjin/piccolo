@@ -34,16 +34,30 @@ import java.util.Optional;
 @Data
 public class MQTopicProperties implements Properties {
 
-    private TopicNestedProperties dispatch;
     private TopicNestedProperties online;
     private TopicNestedProperties offline;
+    private TopicNestedProperties dispatch;
+    private List<TopicNestedProperties2> routes;
 
     @Data
     public class TopicNestedProperties implements Properties {
         private int numPartitions;
         private short replicationFactor;
 
-        private MQTopic build(String topic) {
+        public MQTopic build(String topic) {
+            int numPartitions = Math.max(1, this.numPartitions);
+            short replicationFactor = (short) Math.max(1, this.replicationFactor);
+            return new MQTopic(topic, numPartitions, replicationFactor);
+        }
+    }
+
+    @Data
+    public static class TopicNestedProperties2 implements Properties {
+        private String topic;
+        private int numPartitions;
+        private short replicationFactor;
+
+        public MQTopic build() {
             int numPartitions = Math.max(1, this.numPartitions);
             short replicationFactor = (short) Math.max(1, this.replicationFactor);
             return new MQTopic(topic, numPartitions, replicationFactor);
@@ -55,6 +69,9 @@ public class MQTopicProperties implements Properties {
         Optional.of(dispatch.build(DISPATCH_MESSAGE.getTopic())).ifPresent(list::add);
         Optional.of(online.build(ONLINE_MESSAGE.getTopic())).ifPresent(list::add);
         Optional.of(offline.build(OFFLINE_MESSAGE.getTopic())).ifPresent(list::add);
+        Optional.ofNullable(routes).ifPresent(
+                val -> val.forEach((prop) -> list.add(prop.build()))
+        );
         return list;
     }
 

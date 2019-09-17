@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.config.common;
 
+import com.alibaba.fastjson.JSON;
 import io.github.ukuz.piccolo.api.config.ConfigurationProperties;
 import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
@@ -23,11 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -58,6 +57,7 @@ public abstract class AbstractConfigurationPropertiesProcessor<T extends Configu
         wireTypeFunction.putIfAbsent(double.class, (key, configuration) -> configuration.getDouble(key, 0));
         wireTypeFunction.putIfAbsent(Double.class, (key, configuration) -> configuration.getDouble(key, null));
         wireTypeFunction.putIfAbsent(String.class, (key, configuration) -> configuration.getString(key, null));
+        wireTypeFunction.putIfAbsent(List.class, (key, configuration) -> configuration.getProperty(key));
     }
 
     @Override
@@ -81,7 +81,26 @@ public abstract class AbstractConfigurationPropertiesProcessor<T extends Configu
                     + " type: " + field.getType());
         }
         String key = getPropertyKey(prefix, field.getName());
-        return wireTypeFunction.get(field.getType()).apply(key, configuration);
+        Object result = wireTypeFunction.get(field.getType()).apply(key, configuration);
+        if (List.class.isAssignableFrom(field.getType())) {
+            Class actualType = findListActualType(field.getGenericType());
+            if (actualType != null) {
+                result = JSON.parseArray((String) result, actualType);
+            }
+        }
+        return result;
+    }
+
+    protected Class findListActualType(Type genericType) {
+        try {
+            if (genericType instanceof ParameterizedType) {
+                String className = ((ParameterizedType) genericType).getActualTypeArguments()[0].getTypeName();
+                return ClassUtils.getClassLoader(AbstractConfigurationPropertiesProcessor.class).loadClass(className);
+            }
+        } catch (Exception e) {
+            logger.error("findListGenericType error, err: {}", e.getCause());
+        }
+        return null;
     }
 
     protected Object fetchClassProperties(String prefix, Field field, Object parent, T configuration) {
@@ -102,6 +121,8 @@ public abstract class AbstractConfigurationPropertiesProcessor<T extends Configu
         }
         return null;
     }
+
+
 
     private void processSingleField(Field f, String prefix, Object obj, T configuration) {
         if (Modifier.isFinal(f.getModifiers())) {

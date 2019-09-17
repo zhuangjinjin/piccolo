@@ -17,20 +17,18 @@ package io.github.ukuz.piccolo.core.handler;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.common.remote.FailoverInvoker;
-import io.github.ukuz.piccolo.api.common.remote.InvocationHandler;
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.connection.SessionContext;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.external.common.Assert;
-import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.route.RouteLocator;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.message.DispatcherMessage;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
-import io.github.ukuz.piccolo.common.message.push.DispatcherMqMessage;
 import io.github.ukuz.piccolo.common.message.push.KafkaDispatcherMqMessage;
-import io.github.ukuz.piccolo.core.PiccoloServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +43,13 @@ public class DispatcherHandler implements ChannelHandler {
 
     private final ChannelHandler channelHandler;
     private final PiccoloContext piccoloContext;
+    private static RouteLocator routeLocator;
 
     public DispatcherHandler(PiccoloContext piccoloContext, ChannelHandler channelHandler) {
         Assert.notNull(piccoloContext, "piccoloContext must not be null");
         this.channelHandler = channelHandler;
         this.piccoloContext = piccoloContext;
+        routeLocator = SpiLoader.getLoader(RouteLocator.class).getExtension();
     }
 
     @Override
@@ -64,6 +64,7 @@ public class DispatcherHandler implements ChannelHandler {
     public void sent(Connection connection, Object message) throws ExchangeException {
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void received(Connection connection, Object message) throws ExchangeException {
         if (message instanceof DispatcherMessage) {
@@ -84,12 +85,21 @@ public class DispatcherHandler implements ChannelHandler {
                     MQClient client = piccoloContext.getMQClient();
                     long xid = piccoloContext.getIdGen().get("dispatch");
                     String uid = connection.getSessionContext().getUserId();
+                    String topic = (String) routeLocator.getRoute(msg.routeKey);
+
                     KafkaDispatcherMqMessage mqMessage = new KafkaDispatcherMqMessage();
                     mqMessage.setXid(xid);
                     mqMessage.setMqClient(client);
                     mqMessage.setPayload(msg.payload);
                     mqMessage.setUid(uid);
-                    client.publish(DISPATCH_MESSAGE.getTopic(), uid, mqMessage.encode());
+
+                    if (StringUtils.hasText(topic)) {
+                        client.publish(topic, uid, mqMessage.encode());
+                    } else {
+                        //识别不到的路由
+                        client.publish(DISPATCH_MESSAGE.getTopic(), uid, mqMessage.encode());
+                    }
+
                     return null;
                 });
             } catch (Exception e) {

@@ -27,12 +27,10 @@ import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
 import io.github.ukuz.piccolo.config.common.ConfigurationPropertiesProcessor;
 import io.netty.util.internal.StringUtil;
 import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class PropertiesEnvironment implements Environment {
 
-    private final Configurations configs;
     private final ConfigurationPropertiesProcessor processor;
 
     private final Logger logger = LoggerFactory.getLogger(PropertiesEnvironment.class);
@@ -60,7 +57,6 @@ public class PropertiesEnvironment implements Environment {
     private Holder<Configuration> config = new Holder<>();
 
     public PropertiesEnvironment() {
-        this.configs = new Configurations();
         this.processor = new PropertiesConfigurationPropertiesProcessor();
 
         this.processor.init();
@@ -119,7 +115,8 @@ public class PropertiesEnvironment implements Environment {
             if (config.getValue() == null) {
                 synchronized (config) {
                     if (config.getValue() == null) {
-                        Configuration c = configs.properties(url);
+                        PropertiesConfigurations configs = new PropertiesConfigurations();
+                        Configuration c = configs.create(configFileName);
                         configMap.values()
                                 .forEach(properties -> processor.process(c, properties));
                         config.setValue(c);

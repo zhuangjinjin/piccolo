@@ -26,6 +26,7 @@ import java.util.Arrays;
  * @author ukuz90
  */
 public class DispatcherMessage extends ByteBufMessage {
+    public String routeKey;
     public byte[] payload;
 
     public DispatcherMessage(Connection connection) {
@@ -34,11 +35,13 @@ public class DispatcherMessage extends ByteBufMessage {
 
     @Override
     protected void decodeBody0(ByteBuf buf) {
+        routeKey = readString(buf);
         payload = readBytes(buf);
     }
 
     @Override
     protected void encodeBody0(ByteBuf buf) {
+        writeString(buf, routeKey);
         writeBytes(buf, payload);
     }
 

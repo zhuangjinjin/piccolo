@@ -58,7 +58,7 @@ export PICCOLO_HOME=${piccolo_path}/piccolo_distribution/target/piccolo/piccolo
 
 **Step3: 修改配置文件**
 
-复制`${PICCOLO_HOME}/conf/piccolo-server.properties.example`并重新命名为piccolo-server.properties，修改配置如下：
+复制`$PICCOLO_HOME/conf/piccolo-server.properties.example`并重新命名为`piccolo-server.properties`，修改配置如下：
 
 ```shell
 piccolo.redis.host=${redis.host}
@@ -71,6 +71,7 @@ piccolo.kafka.admin-client.bootstrap-servers=${kafka.bootstrap-servers}
 **Step4: 启动网关服务器**
 
 ```shell
+cd $PICCOLO_HOME
 sh bin/startup.sh -m standalone
 ```
 

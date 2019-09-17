@@ -6,33 +6,27 @@
         <artifactId>piccolo</artifactId>
         <groupId>io.github.ukuz</groupId>
         <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <artifactId>piccolo-configcenter</artifactId>
 
-    <artifactId>piccolo-config</artifactId>
-    <name>piccolo-config</name>
-    <packaging>jar</packaging>
+    <name>piccolo-configcenter</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
-
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>io.github.ukuz</groupId>
             <artifactId>piccolo-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-configuration2</artifactId>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
         </dependency>
     </dependencies>
-
 </project>

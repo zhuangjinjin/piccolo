@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dispatch>
+    <piccolo>
+        <mq-topic>
+            <routes>
+                <route>
+                    <topic>user</topic>
+                    <replicator>1</replicator>
+                </route>
+                <route>
+                    <topic>hero</topic>
+                    <replicator>2</replicator>
+                </route>
+            </routes>
+        </mq-topic>
+    </piccolo>
+</dispatch>
