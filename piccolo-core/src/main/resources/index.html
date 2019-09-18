@@ -328,7 +328,11 @@
         }
 
         function dispatchBinaryMessage(payload) {
+            let tmp = new AbstractMessage(payload);
             let unbindUserMsg = new AbstractMessage();
+            tmp.readByte();
+            let cmd = tmp.readInt();
+            unbindUserMsg.writeString(cmd.toString());
             unbindUserMsg.writeBytes(payload);
             sendMessage(unbindUserMsg, Command.DISPATCH);
         }

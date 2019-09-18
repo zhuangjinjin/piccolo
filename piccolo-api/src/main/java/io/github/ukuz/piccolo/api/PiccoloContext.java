@@ -20,6 +20,7 @@ import io.github.ukuz.piccolo.api.common.Monitor;
 import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
+import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
@@ -47,5 +48,9 @@ public interface PiccoloContext {
     ExecutorFactory getExecutorFactory();
 
     IdGen getIdGen();
+
+    DynamicConfiguration getDynamicConfiguration();
+
+
 
 }

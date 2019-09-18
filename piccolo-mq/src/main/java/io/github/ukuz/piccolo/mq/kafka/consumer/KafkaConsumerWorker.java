@@ -73,7 +73,10 @@ public class KafkaConsumerWorker implements Runnable {
             }
 
         } catch (Exception e) {
-
+            LOGGER.error("consume failure, err: {}", e.getCause());
+        } finally {
+            commitSync(true);
+            consumer.close();
         }
     }
 
@@ -98,7 +101,7 @@ public class KafkaConsumerWorker implements Runnable {
         }
     }
 
-    public void commitSync(boolean sync) {
+    private void commitSync(boolean sync) {
         Map<TopicPartition, OffsetAndMetadata> unmodifiedMap;
         synchronized (offsetMap) {
             if (offsetMap.isEmpty()) {
@@ -142,7 +145,5 @@ public class KafkaConsumerWorker implements Runnable {
 
     public void destroy() {
         setRunning(false);
-        commitSync(true);
-        consumer.close();
     }
 }

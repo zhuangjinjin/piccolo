@@ -17,6 +17,7 @@ piccolo是一个长连接网关服务器。
 * Netty 4.1.25
 * ZooKeeper 3.5.5
 * Kafka 2.0.0
+* Nacos 1.1.3
 * Redis
 * Apache Commons
 * Guava
@@ -32,6 +33,7 @@ piccolo是一个长连接网关服务器。
 | piccolo-client       | 客户端模块（供网关服务器的下游业务系统调用）                 |
 | piccolo-commons      | 通用组件模块（包含事件总线，负载均衡实现，自定义消息，安全，线程池） |
 | piccolo-config       | 配置模块（配置松散绑定）                                     |
+| piccolo-configcenter | 配置中心 (目前仅支持Nacos)                                   |
 | piccolo-core         | 服务端核心处理模块                                           |
 | piccolo-distribution | 发布模块                                                     |
 | piccolo-monitor      | 监控模块（基于JMX，监控系统CPU负载，系统内存，JVM内存，线程池，JVM GC等） |
@@ -42,7 +44,7 @@ piccolo是一个长连接网关服务器。
 
 ## 使用
 
-**Step1: 下载源代码并编译**
+**Step1: GitHub下载源代码并编译**
 
 ```shell
 git clone https://github.com/zhuangjinjin/piccolo.git
@@ -52,7 +54,7 @@ git clone https://github.com/zhuangjinjin/piccolo.git
 
 ```shell
 cd piccolo
-mvn clean install -Dtest.skip=true -P release-server
+mvn clean install -Dmaven.test.skip=true -P release-server
 export PICCOLO_HOME=${piccolo_path}/piccolo_distribution/target/piccolo/piccolo
 ```
 

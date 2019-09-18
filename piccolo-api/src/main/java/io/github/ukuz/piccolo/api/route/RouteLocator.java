@@ -15,13 +15,14 @@
  */
 package io.github.ukuz.piccolo.api.route;
 
+import io.github.ukuz.piccolo.api.service.Service;
 import io.github.ukuz.piccolo.api.spi.Spi;
 
 /**
  * @author ukuz90
  */
 @Spi(primary = "cache")
-public interface RouteLocator<T, R> {
+public interface RouteLocator<T, R> extends Service {
 
     /**
      * add route

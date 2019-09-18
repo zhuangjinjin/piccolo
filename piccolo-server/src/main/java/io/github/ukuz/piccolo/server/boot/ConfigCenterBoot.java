@@ -13,29 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.route;
+package io.github.ukuz.piccolo.server.boot;
 
-import io.github.ukuz.piccolo.api.route.RouteLocator;
-import io.github.ukuz.piccolo.client.PiccoloClient;
+import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 
 /**
  * @author ukuz90
  */
-public final class RouteLocatorBuilder {
+public class ConfigCenterBoot implements BootJob {
 
-    private RouteLocator routeLocator;
+    private DynamicConfiguration configCenter;
 
-    private RouteLocatorBuilder() {
-        this.routeLocator = PiccoloClient.getInstance().getRouteLocator();
+    public ConfigCenterBoot(DynamicConfiguration configCenter) {
+        this.configCenter = configCenter;
     }
 
-    public static RouteLocatorBuilder routes() {
-        return new RouteLocatorBuilder();
+    @Override
+    public void start() {
+        //必须同步调用。
+        this.configCenter.start();
     }
 
-    public RouteLocatorBuilder route(String routeKey, String service) {
-        routeLocator.route(routeKey, service);
-        return this;
+    @Override
+    public void stop() {
+        this.configCenter.stop();
     }
-
 }

@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.route;
-
-import io.github.ukuz.piccolo.api.route.RouteLocator;
-import io.github.ukuz.piccolo.client.PiccoloClient;
+package io.github.ukuz.piccolo.api.configcenter;
 
 /**
  * @author ukuz90
  */
-public final class RouteLocatorBuilder {
+public enum ConfigurationChangeType {
 
-    private RouteLocator routeLocator;
+    /**
+     * A config was added
+     */
+    ADDED,
 
-    private RouteLocatorBuilder() {
-        this.routeLocator = PiccoloClient.getInstance().getRouteLocator();
-    }
+    /**
+     * A config was deleted
+     */
+    DELETED,
 
-    public static RouteLocatorBuilder routes() {
-        return new RouteLocatorBuilder();
-    }
-
-    public RouteLocatorBuilder route(String routeKey, String service) {
-        routeLocator.route(routeKey, service);
-        return this;
-    }
+    /**
+     * A config was deleted
+     */
+    MODIFIED,
 
 }

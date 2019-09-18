@@ -21,8 +21,10 @@ import io.github.ukuz.piccolo.api.common.Monitor;
 import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
+import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.route.RouteLocator;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
@@ -32,6 +34,7 @@ import io.github.ukuz.piccolo.client.id.snowflake.SnowflakeIdGenDelegate;
 import io.github.ukuz.piccolo.client.router.CachedRemoteRouterManager;
 import io.github.ukuz.piccolo.client.threadpool.ClientExecutorFactory;
 import io.github.ukuz.piccolo.common.event.EventBus;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
 import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
 
 /**
@@ -48,12 +51,29 @@ public class PiccoloClient implements PiccoloContext {
     private final MQClient mqClient;
     private final IdGen idGen;
 
-    public PiccoloClient() {
+    private final DynamicConfiguration configCenter;
+    private final RouteLocator routeLocator;
+
+    private static volatile PiccoloClient instance;
+
+    public static PiccoloClient getInstance() {
+        if (instance == null) {
+            synchronized (PiccoloClient.class) {
+                if (instance == null) {
+                    instance = new PiccoloClient();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private PiccoloClient() {
         //initialize config
         environment = SpiLoader.getLoader(Environment.class).getExtension();
 //        environment.scanAllProperties();
         environment.load("piccolo-client.properties");
 
+        CoreProperties core = environment.getProperties(CoreProperties.class);
         //initialize executor
         executorFactory = new ClientExecutorFactory();
         //initialize eventBus
@@ -71,8 +91,15 @@ public class PiccoloClient implements PiccoloContext {
 
         gatewayConnectionFactory = new GatewayTcpConnectionFactory(this);
 
+        String configCenterChooser = core.getConfigCenter() == null ? DynamicConfiguration.DEFAULT : core.getConfigCenter();
+        configCenter = SpiLoader.getLoader(DynamicConfiguration.class).getExtension(configCenterChooser);
+        configCenter.init(this);
+
         idGen = new SnowflakeIdGenDelegate(this);
         idGen.init();
+
+        routeLocator = SpiLoader.getLoader(RouteLocator.class).getExtension();
+        routeLocator.init(this);
 
     }
 
@@ -121,12 +148,21 @@ public class PiccoloClient implements PiccoloContext {
         return idGen;
     }
 
+    @Override
+    public DynamicConfiguration getDynamicConfiguration() {
+        return configCenter;
+    }
+
     public CachedRemoteRouterManager getRemoteRouterManager() {
         return remoteRouterManager;
     }
 
     public GatewayConnectionFactory getGatewayConnectionFactory() {
         return gatewayConnectionFactory;
+    }
+
+    public RouteLocator getRouteLocator() {
+        return routeLocator;
     }
 
     public void destroy() {

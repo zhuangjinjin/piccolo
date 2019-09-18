@@ -15,14 +15,28 @@
  */
 package io.github.ukuz.piccolo.api.configcenter;
 
+import io.github.ukuz.piccolo.api.service.Service;
 import io.github.ukuz.piccolo.api.spi.Spi;
 
 /**
  * @author ukuz90
  */
 @Spi
-public interface DynamicConfiguration extends Configuration {
+public interface DynamicConfiguration extends Configuration, Service {
 
-    void setProperty(String key, String val);
+    String DEFAULT = "nacos";
+    String DEFAULT_GROUP = "PICCOLO";
+
+    default void setProperty(String key, String val) {
+        setProperty(key, DEFAULT_GROUP, val);
+    }
+
+    void setProperty(String key, String group, String val);
+
+    default void addListener(String key, ConfigurationListener listener) {
+        addListener(key, DEFAULT_GROUP, listener);
+    }
+
+    void addListener(String key, String group, ConfigurationListener listener);
 
 }

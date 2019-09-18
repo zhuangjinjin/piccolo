@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.route;
+package io.github.ukuz.piccolo.server.boot;
 
 import io.github.ukuz.piccolo.api.route.RouteLocator;
-import io.github.ukuz.piccolo.client.PiccoloClient;
 
 /**
  * @author ukuz90
  */
-public final class RouteLocatorBuilder {
+public class RouteLocatorBoot implements BootJob {
 
     private RouteLocator routeLocator;
 
-    private RouteLocatorBuilder() {
-        this.routeLocator = PiccoloClient.getInstance().getRouteLocator();
+    public RouteLocatorBoot(RouteLocator routeLocator) {
+        this.routeLocator = routeLocator;
     }
 
-    public static RouteLocatorBuilder routes() {
-        return new RouteLocatorBuilder();
+    @Override
+    public void start() {
+        this.routeLocator.startAsync();
     }
 
-    public RouteLocatorBuilder route(String routeKey, String service) {
-        routeLocator.route(routeKey, service);
-        return this;
+    @Override
+    public void stop() {
+        this.routeLocator.stopAsync();
     }
-
 }

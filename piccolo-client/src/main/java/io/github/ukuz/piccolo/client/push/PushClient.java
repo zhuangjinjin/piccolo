@@ -53,7 +53,7 @@ public class PushClient implements AutoCloseable {
     private ExecutorService dispatchHandlerExecutor;
 
     public PushClient() {
-        piccoloClient = new PiccoloClient();
+        piccoloClient = PiccoloClient.getInstance();
         dispatchHandlerExecutor = (ExecutorService) piccoloClient.getExecutorFactory().create(PUSH_CLIENT, piccoloClient.getEnvironment());
     }
 

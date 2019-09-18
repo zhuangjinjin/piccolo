@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.client.route;
-
-import io.github.ukuz.piccolo.api.route.RouteLocator;
-import io.github.ukuz.piccolo.client.PiccoloClient;
+package io.github.ukuz.piccolo.api.configcenter;
 
 /**
  * @author ukuz90
  */
-public final class RouteLocatorBuilder {
+@FunctionalInterface
+public interface ConfigurationListener {
 
-    private RouteLocator routeLocator;
-
-    private RouteLocatorBuilder() {
-        this.routeLocator = PiccoloClient.getInstance().getRouteLocator();
-    }
-
-    public static RouteLocatorBuilder routes() {
-        return new RouteLocatorBuilder();
-    }
-
-    public RouteLocatorBuilder route(String routeKey, String service) {
-        routeLocator.route(routeKey, service);
-        return this;
-    }
+    /**
+     * will callback when configuration changed.
+     *
+     * @param event
+     */
+    void onConfigurationChanged(ConfigurationChangedEvent event);
 
 }

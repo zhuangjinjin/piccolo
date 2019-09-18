@@ -29,23 +29,28 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>io.github.ukuz</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-registry</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>io.github.ukuz</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-mq</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>io.github.ukuz</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-config</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-cache</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>piccolo-configcenter</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -141,6 +146,7 @@
                                     <include>io.github.ukuz:piccolo-api</include>
                                     <include>io.github.ukuz:piccolo-cache</include>
                                     <include>io.github.ukuz:piccolo-mq</include>
+                                    <include>io.github.ukuz:piccolo-configcenter</include>
                                 </includes>
                             </artifactSet>
                             <transformers>
@@ -173,6 +179,9 @@
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/piccolo/io.github.ukuz.piccolo.api.route.RouteLocator</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/piccolo/io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration</resource>
                                 </transformer>
                             </transformers>
                         </configuration>

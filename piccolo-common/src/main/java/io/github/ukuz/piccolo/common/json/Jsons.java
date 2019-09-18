@@ -56,6 +56,7 @@ public final class Jsons {
             sb.append(",");
             append(it.next(), sb);
         }
+        sb.append("}");
         return sb.toString();
     }
 

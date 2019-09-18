@@ -15,28 +15,58 @@
  */
 package io.github.ukuz.piccolo.common.route;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.configcenter.ConfigurationChangeType;
+import io.github.ukuz.piccolo.api.configcenter.ConfigurationChangedEvent;
+import io.github.ukuz.piccolo.api.configcenter.ConfigurationListener;
 import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 import io.github.ukuz.piccolo.api.route.RouteLocator;
+import io.github.ukuz.piccolo.api.service.AbstractService;
+import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.json.Jsons;
+import org.apache.kafka.common.utils.CopyOnWriteMap;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author ukuz90
  */
-public class CacheRouteLocator implements RouteLocator<String, String> {
+public class CacheRouteLocator extends AbstractService implements RouteLocator<String, String>, ConfigurationListener {
 
     private DynamicConfiguration configuration;
+    private static final String key = "piccolo.routes";
+    private CopyOnWriteMap<String, String> cacheRouteMap = new CopyOnWriteMap<>();
 
-    public CacheRouteLocator() {
-//        this.configuration = SpiLoader.getLoader(DynamicConfiguration.class).getExtension();
+    @Override
+    public void init(PiccoloContext context) throws ServiceException {
+        this.configuration = context.getDynamicConfiguration();
+        String contentInfo = configuration.getProperty(key);
+        if (contentInfo != null) {
+            Map<String, String> data = Jsons.fromJson(contentInfo, Map.class);
+            cacheRouteMap.putAll(data);
+        }
     }
 
     @Override
     public void route(String routeKey, String service) {
-        configuration.setProperty(routeKey, service);
+        cacheRouteMap.put(routeKey, service);
+        configuration.setProperty(key, Jsons.toJson(cacheRouteMap));
     }
 
     @Override
     public String getRoute(String routeKey) {
-        return configuration.getString(routeKey);
+        return cacheRouteMap.get(routeKey);
+    }
+
+    @Override
+    public void onConfigurationChanged(ConfigurationChangedEvent event) {
+        if (event.getType() == ConfigurationChangeType.DELETED) {
+            cacheRouteMap.clear();
+        } else {
+            Map<String, String> data = Jsons.fromJson(event.getValue(), Map.class);
+            cacheRouteMap.putAll(data);
+        }
     }
 }

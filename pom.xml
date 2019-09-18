@@ -123,6 +123,11 @@
                 <artifactId>piccolo-monitor</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>piccolo-configcenter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- lombok -->
             <dependency>

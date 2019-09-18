@@ -47,7 +47,6 @@ public class ServerLauncher {
                     System.out.println(line);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 logger.info("server launch success!!!");
             }
         }
@@ -68,10 +67,12 @@ public class ServerLauncher {
         processChain.addLast(new ServiceRegistryBoot(server.getServiceRegistry()));
         processChain.addLast(new MQClientBoot(server.getMQClient(), server));
         processChain.addLast(new CacheManagerBoot(server.getCacheManager(), server));
+        processChain.addLast(new ConfigCenterBoot(server.getDynamicConfiguration()));
         processChain.addLast(new ServerBoot(server.getGatewayServer(), true));
         processChain.addLast(new ServerBoot(server.getConnectServer()));
         processChain.addLast(new ServerBoot(server.getWebSocketServer()));
         processChain.addLast(new RouterCenterBoot(server.getRouterCenter()));
+        processChain.addLast(new RouteLocatorBoot(server.getRouteLocator()));
         processChain.addLast(new IdGenBoot(server.getIdGen()));
         processChain.addLast(lastJob);
     }

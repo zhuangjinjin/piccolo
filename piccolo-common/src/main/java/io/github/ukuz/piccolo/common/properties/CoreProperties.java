@@ -35,6 +35,10 @@ public class CoreProperties implements Properties {
     private Integer maxPacketSize;
     private Integer maxHbTimeoutMs;
     private Integer sessionExpireTime;
+    /**
+     * nacos,
+     */
+    private String configCenter;
 
     public boolean isUseNettyEpoll() {
         if (!"netty".equals(epollProvider)) {

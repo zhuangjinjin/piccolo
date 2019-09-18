@@ -76,6 +76,7 @@ piccolo.core.min-heartbeat-time=5
 piccolo.core.max-hb-timeout-ms=15000
 piccolo.core.max-packet-size=8388608
 piccolo.core.session-expire-time=86400
+piccolo.core.config-center=nacos
 
 
 
@@ -166,6 +167,12 @@ piccolo.kafka.consumer.auto-offset-reset=earliest
 piccolo.kafka.admin-client.bootstrap-servers=127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094
 
 
+############################# nacos setting #############################
+piccolo.nacos.server-address=127.0.0.1:8848
+#piccolo.nacos.access-key=
+#piccolo.nacos.secret-key=
+
+
 
 ############################# mq setting #############################
 piccolo.mq-topic.dispatch.num-partitions=3
@@ -177,6 +184,9 @@ piccolo.mq-topic.online.replication-factor=3
 piccolo.mq-topic.offline.num-partitions=1
 piccolo.mq-topic.offline.replication-factor=3
 
+piccolo.mq-topic.routes[0].topic=test
+piccolo.mq-topic.routes[0].num-partitions=1
+piccolo.mq-topic.routes[0].replication-factor=3
 
 ############################# security setting #############################
 

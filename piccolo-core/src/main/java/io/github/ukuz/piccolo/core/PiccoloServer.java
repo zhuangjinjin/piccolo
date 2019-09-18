@@ -22,13 +22,17 @@ import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
+import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.mq.MQClient;
+import io.github.ukuz.piccolo.api.route.RouteLocator;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.event.EventBus;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
+import io.github.ukuz.piccolo.common.route.CacheRouteLocator;
 import io.github.ukuz.piccolo.core.id.snowflake.SnowflakeIdGen;
 import io.github.ukuz.piccolo.core.id.snowflake.ZooKeeperWorkerIdHolder;
 import io.github.ukuz.piccolo.core.router.RouterCenter;
@@ -53,8 +57,10 @@ public class PiccoloServer implements PiccoloContext {
     private final ExecutorFactory executorFactory;
     private final MQClient mqClient;
     private final ZKServiceRegistryAndDiscovery srd;
+    private final DynamicConfiguration configCenter;
 
     private final RouterCenter routerCenter;
+    private final RouteLocator routeLocator;
     private final IdGen idGen;
 
     public PiccoloServer() {
@@ -63,6 +69,7 @@ public class PiccoloServer implements PiccoloContext {
 //        environment.scanAllProperties();
         environment.load("piccolo-server.properties");
 
+        CoreProperties core = environment.getProperties(CoreProperties.class);
         //initialize eventBus
         executorFactory = new ServerExecutorFactory();
         EventBus.create(executorFactory.create(ExecutorFactory.EVENT_BUS, environment));
@@ -71,11 +78,16 @@ public class PiccoloServer implements PiccoloContext {
 
         mqClient = SpiLoader.getLoader(MQClient.class).getExtension();
 
+        String configCenterChooser = core.getConfigCenter() == null ? DynamicConfiguration.DEFAULT : core.getConfigCenter();
+        configCenter = SpiLoader.getLoader(DynamicConfiguration.class).getExtension(configCenterChooser);
+
         reusableSessionManager = new ReusableSessionManager(this);
 
         cacheManager = SpiLoader.getLoader(CacheManager.class).getExtension();
 
         routerCenter = new RouterCenter(this);
+
+        routeLocator = SpiLoader.getLoader(RouteLocator.class).getExtension();
 
         ZooKeeperWorkerIdHolder workerIdHolder = new ZooKeeperWorkerIdHolder(this);
         idGen = new SnowflakeIdGen(workerIdHolder);
@@ -131,6 +143,11 @@ public class PiccoloServer implements PiccoloContext {
         return idGen;
     }
 
+    @Override
+    public DynamicConfiguration getDynamicConfiguration() {
+        return configCenter;
+    }
+
     public GatewayServer getGatewayServer() {
         return gatewayServer;
     }
@@ -149,6 +166,10 @@ public class PiccoloServer implements PiccoloContext {
 
     public RouterCenter getRouterCenter() {
         return routerCenter;
+    }
+
+    public RouteLocator getRouteLocator() {
+        return routeLocator;
     }
 
     public boolean isTargetMachine(String targetAddress, int targetPort) {
