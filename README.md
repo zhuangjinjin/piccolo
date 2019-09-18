@@ -55,7 +55,7 @@ git clone https://github.com/zhuangjinjin/piccolo.git
 ```shell
 cd piccolo
 mvn clean install -Dmaven.test.skip=true -P release-server
-export PICCOLO_HOME=${piccolo_path}/piccolo_distribution/target/piccolo/piccolo
+export PICCOLO_HOME=${piccolo_path}/piccolo-distribution/target/piccolo/piccolo
 ```
 
 **Step3: 修改配置文件**

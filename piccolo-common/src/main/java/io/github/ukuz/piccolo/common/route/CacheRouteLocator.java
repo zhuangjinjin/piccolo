@@ -23,11 +23,9 @@ import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 import io.github.ukuz.piccolo.api.route.RouteLocator;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.json.Jsons;
 import org.apache.kafka.common.utils.CopyOnWriteMap;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -51,8 +49,10 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
 
     @Override
     public void route(String routeKey, String service) {
-        cacheRouteMap.put(routeKey, service);
-        configuration.setProperty(key, Jsons.toJson(cacheRouteMap));
+        if (cacheRouteMap.containsKey(routeKey) && !cacheRouteMap.get(routeKey).equals(service)) {
+            cacheRouteMap.put(routeKey, service);
+            configuration.setProperty(key, Jsons.toJson(cacheRouteMap));
+        }
     }
 
     @Override
