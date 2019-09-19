@@ -15,7 +15,6 @@
  */
 package io.github.ukuz.piccolo.configcenter.nacos;
 
-import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.config.ConfigFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.AbstractSharedListener;

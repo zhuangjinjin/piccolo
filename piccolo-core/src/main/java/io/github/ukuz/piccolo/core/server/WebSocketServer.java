@@ -82,7 +82,7 @@ public class WebSocketServer extends NettyServer {
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
         ServiceInstance si = DefaultServiceInstance.build()
-                .host(channel.localAddress().getHostName())
+                .host(piccoloContext.getProperties(NetProperties.class).getPublicIp())
 //                .host(channel.localAddress().getAddress().getHostAddress())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)

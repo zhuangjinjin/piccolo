@@ -84,7 +84,7 @@ else
     JAVA_OPT="$JAVA_OPT -Xloggc:${BASE_DIR}/logs/piccolo_gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M"
 fi
 
-JAVA_OPT="$JAVA_OPT -jar $BASE_DIR/target/$SERVER.jar"
+JAVA_OPT="$JAVA_OPT -Djava.net.preferIPv4Stack=true -jar $BASE_DIR/target/$SERVER.jar"
 
 if [ ! -d "$BASE_DIR/logs" ]; then
     mkdir -p $BASE_DIR/logs

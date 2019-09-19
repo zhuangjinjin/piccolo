@@ -33,12 +33,14 @@ public class NacosProperties implements Properties {
     private String serverAddress;
     private String accessKey;
     private String secretKey;
+    private String namespace;
 
     public java.util.Properties build() {
         PropertiesHolder propsHolder = new PropertiesHolder(new java.util.Properties());
         Optional.ofNullable(serverAddress).ifPresent(propsHolder.fill(PropertyKeyConst.SERVER_ADDR));
         Optional.ofNullable(accessKey).ifPresent(propsHolder.fill(PropertyKeyConst.ACCESS_KEY));
         Optional.ofNullable(secretKey).ifPresent(propsHolder.fill(PropertyKeyConst.SECRET_KEY));
+        Optional.ofNullable(namespace).ifPresent(propsHolder.fill(PropertyKeyConst.NAMESPACE));
 
         return propsHolder.getProps();
     }

@@ -68,6 +68,7 @@ piccolo.zookeeper.host=${zookeeper.host}
 piccolo.kafka.producer.bootstrap-servers=${kafka.bootstrap-servers}
 piccolo.kafka.consumer.bootstrap-servers=${kafka.bootstrap-servers}
 piccolo.kafka.admin-client.bootstrap-servers=${kafka.bootstrap-servers}
+piccolo.nacos.server-address=${nacos.server-addr}
 ```
 
 **Step4: 启动网关服务器**

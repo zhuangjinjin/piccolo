@@ -94,7 +94,7 @@ public class GatewayServer extends NettyServer {
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
         ServiceInstance si = DefaultServiceInstance.build()
-                .host(channel.localAddress().getHostName())
+                .host(piccoloContext.getProperties(NetProperties.class).getPublicIp())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
                 .serviceId(ServiceNames.S_GATEWAY);

@@ -26,6 +26,7 @@ import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.ServiceNames;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
 import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
@@ -94,13 +95,12 @@ public class ConnectServer extends NettyServer {
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
         ServiceInstance si = DefaultServiceInstance.build()
-                .host(channel.localAddress().getHostName())
+                .host(piccoloContext.getProperties(NetProperties.class).getPublicIp())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
                 .serviceId(ServiceNames.S_CONNECT);
         serviceInstance = new ZKRegistration(si);
     }
-
 
     @Override
     protected void initOptions(ServerBootstrap server) {
