@@ -49,10 +49,11 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
 
     @Override
     public void route(String routeKey, String service) {
-        if (cacheRouteMap.containsKey(routeKey) && !cacheRouteMap.get(routeKey).equals(service)) {
-            cacheRouteMap.put(routeKey, service);
-            configuration.setProperty(key, Jsons.toJson(cacheRouteMap));
+        if (cacheRouteMap.containsKey(routeKey) && cacheRouteMap.get(routeKey).equals(service)) {
+            return;
         }
+        cacheRouteMap.put(routeKey, service);
+        configuration.setProperty(key, Jsons.toJson(cacheRouteMap));
     }
 
     @Override
