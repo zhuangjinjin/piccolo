@@ -252,6 +252,8 @@ public class ClassUtils {
             return value.length() > 0 ? value.charAt(0) : '\0';
         } else if (type == boolean.class || type == Boolean.class) {
             return Boolean.valueOf(value);
+        } else if (type.isEnum()) {
+            return Enum.valueOf(type.asSubclass(Enum.class), value);
         }
         try {
             if (type == byte.class || type == Byte.class) {

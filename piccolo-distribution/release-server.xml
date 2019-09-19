@@ -38,7 +38,7 @@
     <files>
         <file>
             <source>../piccolo-server/target/piccolo-server-${project.version}.jar</source>
-            <outputDirectory>/target/</outputDirectory>
+            <outputDirectory>/lib/</outputDirectory>
         </file>
     </files>
 

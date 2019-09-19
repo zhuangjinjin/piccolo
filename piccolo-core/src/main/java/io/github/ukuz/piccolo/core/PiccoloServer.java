@@ -66,8 +66,8 @@ public class PiccoloServer implements PiccoloContext {
     public PiccoloServer() {
         //initialize config
         environment = SpiLoader.getLoader(Environment.class).getExtension();
-//        environment.scanAllProperties();
-        environment.load("piccolo-server.properties");
+        environment.scanAllProperties();
+        environment.load(System.getProperty("piccolo.server.conf", "piccolo-server.properties"));
 
         CoreProperties core = environment.getProperties(CoreProperties.class);
         //initialize eventBus

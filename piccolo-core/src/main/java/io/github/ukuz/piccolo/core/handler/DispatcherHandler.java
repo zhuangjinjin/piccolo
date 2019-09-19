@@ -93,10 +93,14 @@ public class DispatcherHandler implements ChannelHandler {
                     mqMessage.setPayload(msg.payload);
                     mqMessage.setUid(uid);
 
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("dispatcher routeKey: {} topic: {}", msg.routeKey, topic);
+                    }
                     if (StringUtils.hasText(topic)) {
                         client.publish(topic, uid, mqMessage.encode());
                     } else {
                         //识别不到的路由
+                        LOGGER.warn("dispatcher can not found topic, routeKey: {} topic: {}", msg.routeKey, topic);
                         client.publish(DISPATCH_MESSAGE.getTopic(), uid, mqMessage.encode());
                     }
 

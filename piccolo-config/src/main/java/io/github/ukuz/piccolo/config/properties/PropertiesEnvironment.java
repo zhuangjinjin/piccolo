@@ -101,15 +101,18 @@ public class PropertiesEnvironment implements Environment {
 
     @Override
     public void load(String configFileName) throws EnvironmentException {
-        if (!StringUtil.isNullOrEmpty(configFileName)) {
-            configFileName = CONF_DIR_NAME + RESOURCE_SEPARATOR + configFileName;
+        if (configFileName.startsWith("/") || configFileName.indexOf(":") == 1) {
         } else {
-            configFileName = CONF_FILE_NAME;
+            if (!StringUtil.isNullOrEmpty(configFileName)) {
+                configFileName = CONF_DIR_NAME + RESOURCE_SEPARATOR + configFileName;
+            } else {
+                configFileName = CONF_FILE_NAME;
+            }
         }
         logger.info("load config : {}", configFileName);
         URL url = findClassLoader().getResource(configFileName);
         if (url == null) {
-            throw new IllegalArgumentException("load config file failure, file not found : " + CONF_FILE_NAME);
+            throw new IllegalArgumentException("load config file failure, file not found : " + configFileName);
         }
         try {
             if (config.getValue() == null) {

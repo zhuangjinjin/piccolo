@@ -52,6 +52,7 @@ export MODE="cluster"
 export FLAG="non-daemon"
 export JAVA_HOME
 export JAVA="$JAVA_HOME/bin/java"
+
 while getopts ":m:f:" opt
 do
     case $opt in
@@ -62,6 +63,7 @@ do
 done
 
 export BASE_DIR=`cd $(dirname $0)/..;pwd`
+export CONF="$BASE_DIR/conf/piccolo-server.properties"
 
 #===========================================================================================
 # JVM Configuration
@@ -84,7 +86,11 @@ else
     JAVA_OPT="$JAVA_OPT -Xloggc:${BASE_DIR}/logs/piccolo_gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M"
 fi
 
-JAVA_OPT="$JAVA_OPT -Djava.net.preferIPv4Stack=true -jar $BASE_DIR/target/$SERVER.jar"
+if [ -f "$CONF" ]; then
+    JAVA_OPT="$JAVA_OPT -Dpiccolo.server.conf=$CONF"
+fi
+
+JAVA_OPT="$JAVA_OPT -Djava.net.preferIPv4Stack=true -jar $BASE_DIR/lib/$SERVER.jar"
 
 if [ ! -d "$BASE_DIR/logs" ]; then
     mkdir -p $BASE_DIR/logs

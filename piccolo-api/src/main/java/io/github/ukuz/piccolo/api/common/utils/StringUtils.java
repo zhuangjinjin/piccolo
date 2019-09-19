@@ -114,4 +114,38 @@ public final class StringUtils {
         return list;
     }
 
+    /**
+     * Uncapitalize a {@code String}, changing the first letter to
+     * lower case as per {@link Character#toLowerCase(char)}.
+     * No other letters are changed.
+     * @param str
+     * @return
+     */
+    public static String uncapitalize(String str) {
+        return changeFirstCharacterCase(str, false);
+    }
+
+
+    private static String changeFirstCharacterCase(String str, boolean capitalize) {
+        if (!hasLength(str)) {
+            return str;
+        }
+
+        char baseChar = str.charAt(0);
+        char updatedChar;
+        if (capitalize) {
+            updatedChar = Character.toUpperCase(baseChar);
+        }
+        else {
+            updatedChar = Character.toLowerCase(baseChar);
+        }
+        if (baseChar == updatedChar) {
+            return str;
+        }
+
+        char[] chars = str.toCharArray();
+        chars[0] = updatedChar;
+        return new String(chars, 0, chars.length);
+    }
+
 }

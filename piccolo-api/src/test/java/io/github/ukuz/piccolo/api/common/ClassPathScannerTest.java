@@ -22,6 +22,7 @@ import io.github.ukuz.piccolo.api.common.sub.Include;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Set;
 
@@ -44,7 +45,7 @@ class ClassPathScannerTest {
 
     @DisplayName("test_scan")
     @Test
-    void testScan() throws URISyntaxException, ClassNotFoundException {
+    void testScan() throws ClassNotFoundException, IOException {
         ClassPathScanner scanner = new ClassPathScanner();
         scanner.addIncludeFilter(new AnnotationTypeFilter(Include.class));
         scanner.addExcludeFilter(new AnnotationTypeFilter(Exclude.class));
@@ -55,7 +56,7 @@ class ClassPathScannerTest {
 
     @DisplayName("test_scan_WithoutInclude")
     @Test
-    void testScanWithoutInclude() throws URISyntaxException, ClassNotFoundException {
+    void testScanWithoutInclude() throws ClassNotFoundException, IOException {
         ClassPathScanner scanner = new ClassPathScanner();
         scanner.addExcludeFilter(new AnnotationTypeFilter(Exclude.class));
         Set<Class> candidate

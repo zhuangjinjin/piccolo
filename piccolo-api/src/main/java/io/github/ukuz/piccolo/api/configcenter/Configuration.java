@@ -15,6 +15,8 @@
  */
 package io.github.ukuz.piccolo.api.configcenter;
 
+import io.github.ukuz.piccolo.api.external.common.utils.ClassUtils;
+
 /**
  * @author ukuz90
  */
@@ -48,27 +50,7 @@ public interface Configuration {
         if (clazz.isInstance(obj)) {
             return clazz.cast(obj);
         }
-        Object value = obj;
-        if (Boolean.class.equals(clazz) || Boolean.TYPE.equals(clazz)) {
-            value = Boolean.valueOf(obj);
-        } else if (Number.class.isAssignableFrom(clazz) || clazz.isPrimitive()) {
-            if (Byte.class.equals(clazz) || Byte.TYPE.equals(clazz)) {
-                value = Boolean.valueOf(obj);
-            } else if (Short.class.equals(clazz) || Short.TYPE.equals(clazz)) {
-                value = Short.valueOf(obj);
-            } else if (Integer.class.equals(clazz) || Integer.TYPE.equals(clazz)) {
-                value = Integer.valueOf(obj);
-            } else if (Float.class.equals(clazz) || Float.TYPE.equals(clazz)) {
-                value = Float.valueOf(obj);
-            } else if (Double.class.equals(clazz) || Double.TYPE.equals(clazz)) {
-                value = Double.valueOf(obj);
-            } else if (Long.class.equals(clazz) || Long.TYPE.equals(clazz)) {
-                value = Long.valueOf(obj);
-            }
-        } else if (clazz.isEnum()) {
-            value = Enum.valueOf(clazz.asSubclass(Enum.class), obj);
-        }
-
+        Object value = ClassUtils.convertPrimitive(clazz, obj);
         return clazz.cast(value);
     }
 }
