@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 #
-cd `dirname $0`/../target
+cd `dirname $0`/../lib
 TARGET_DIR=`pwd`
 
 pid=`ps aux | grep -i 'piccolo.piccolo' | grep $TARGET_DIR | grep java | grep -v grep | awk '{print $2}'`

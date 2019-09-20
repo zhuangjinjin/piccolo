@@ -31,6 +31,7 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -102,18 +103,23 @@ public class PropertiesEnvironment implements Environment {
     @Override
     public void load(String configFileName) throws EnvironmentException {
         if (configFileName.startsWith("/") || configFileName.indexOf(":") == 1) {
+            File configFile = new File(configFileName);
+            if (!configFile.exists()) {
+                throw new IllegalArgumentException("load config file failure, file not found : " + configFileName);
+            }
         } else {
             if (!StringUtil.isNullOrEmpty(configFileName)) {
                 configFileName = CONF_DIR_NAME + RESOURCE_SEPARATOR + configFileName;
             } else {
                 configFileName = CONF_FILE_NAME;
             }
+            URL url = findClassLoader().getResource(configFileName);
+            if (url == null) {
+                throw new IllegalArgumentException("load config file failure, file not found : " + configFileName);
+            }
         }
         logger.info("load config : {}", configFileName);
-        URL url = findClassLoader().getResource(configFileName);
-        if (url == null) {
-            throw new IllegalArgumentException("load config file failure, file not found : " + configFileName);
-        }
+
         try {
             if (config.getValue() == null) {
                 synchronized (config) {
