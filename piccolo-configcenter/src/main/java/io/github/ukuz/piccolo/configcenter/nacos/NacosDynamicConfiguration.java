@@ -77,6 +77,14 @@ public class NacosDynamicConfiguration extends AbstractService implements Dynami
     }
 
     @Override
+    public void removeListener(String key, String group, ConfigurationListener listener) {
+        watchListenerMap.computeIfPresent(key, (k, v) -> {
+            v.removeListener(listener);
+            return v;
+        });
+    }
+
+    @Override
     public String getProperty(String key) {
         try {
             String val = configService.getConfig(key, DEFAULT_GROUP, DEFAULT_TIMEOUT);

@@ -39,4 +39,10 @@ public interface DynamicConfiguration extends Configuration, Service {
 
     void addListener(String key, String group, ConfigurationListener listener);
 
+    default void removeListener(String key, ConfigurationListener listener) {
+        removeListener(key, DEFAULT_GROUP, listener);
+    }
+
+    void removeListener(String key, String group, ConfigurationListener listener);
+
 }

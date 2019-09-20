@@ -15,7 +15,9 @@
  */
 package io.github.ukuz.piccolo.server.boot;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.route.RouteLocator;
+import io.github.ukuz.piccolo.core.PiccoloServer;
 
 /**
  * @author ukuz90
@@ -23,14 +25,16 @@ import io.github.ukuz.piccolo.api.route.RouteLocator;
 public class RouteLocatorBoot implements BootJob {
 
     private RouteLocator routeLocator;
+    private PiccoloContext context;
 
-    public RouteLocatorBoot(RouteLocator routeLocator) {
+    public RouteLocatorBoot(RouteLocator routeLocator, PiccoloContext context) {
         this.routeLocator = routeLocator;
+        this.context = context;
     }
 
     @Override
     public void start() {
-        this.routeLocator.startAsync();
+        this.routeLocator.startAsync(context);
     }
 
     @Override

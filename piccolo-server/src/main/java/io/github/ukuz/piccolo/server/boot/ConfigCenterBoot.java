@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.server.boot;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 
 /**
@@ -23,15 +24,17 @@ import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 public class ConfigCenterBoot implements BootJob {
 
     private DynamicConfiguration configCenter;
+    private PiccoloContext context;
 
-    public ConfigCenterBoot(DynamicConfiguration configCenter) {
+    public ConfigCenterBoot(DynamicConfiguration configCenter, PiccoloContext context) {
         this.configCenter = configCenter;
+        this.context = context;
     }
 
     @Override
     public void start() {
         //必须同步调用。
-        this.configCenter.start();
+        this.configCenter.startAsync(context).join();
     }
 
     @Override
