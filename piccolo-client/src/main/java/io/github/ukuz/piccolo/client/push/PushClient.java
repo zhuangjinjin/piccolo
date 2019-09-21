@@ -23,6 +23,7 @@ import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.push.PushContext;
 import io.github.ukuz.piccolo.client.PiccoloClient;
+import io.github.ukuz.piccolo.client.id.IdGenBuilder;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.PushMessage;
 import io.github.ukuz.piccolo.common.message.push.KafkaDispatcherMqMessage;
@@ -74,6 +75,12 @@ public class PushClient implements AutoCloseable {
         }
     }
 
+    /**
+     * @see IdGenBuilder#genXid()
+     * @return
+     * @throws IdGenException
+     */
+    @Deprecated
     public long getXid() throws IdGenException {
         return piccoloClient.getIdGen().get(null);
     }
