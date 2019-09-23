@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.client.route;
 
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.route.RouteLocator;
 import io.github.ukuz.piccolo.client.PiccoloClient;
 
@@ -34,6 +35,8 @@ public final class RouteLocatorBuilder {
     }
 
     public RouteLocatorBuilder route(String routeKey, String service) {
+        Assert.notEmptyString(routeKey, "routeKey must not be empty");
+        Assert.notEmptyString(service, "service must not be empty");
         routeLocator.route(routeKey, service);
         return this;
     }

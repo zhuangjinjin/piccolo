@@ -40,7 +40,7 @@ public class ClientExecutorFactory extends AbstractExecutorFactory {
                         .queueCapacity(tp.getPushClient().getQueueSize())
                         .keepAliveSeconds(tp.getPushClient().getKeepAliveSeconds())
                         .build();
-                return createScheduledExecutor(config);
+                return createExecutor(config);
             case ID_GEN:
                 config = ThreadPoolConfig.builder()
                         .name(ThreadNames.T_ID_GEN)

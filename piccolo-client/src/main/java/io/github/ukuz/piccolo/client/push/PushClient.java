@@ -58,11 +58,19 @@ public class PushClient implements AutoCloseable {
         dispatchHandlerExecutor = (ExecutorService) piccoloClient.getExecutorFactory().create(PUSH_CLIENT, piccoloClient.getEnvironment());
     }
 
+    /**
+     * register a logical handler
+     * @param handler
+     */
     public void registerHandler(BaseDispatcherHandler handler) {
         Assert.notNull(handler, "handler must not be null");
         registerHandler(DISPATCH_MESSAGE.getTopic(), handler);
     }
 
+    /**
+     * push message to gateway server
+     * @param context
+     */
     public void push(PushContext context) {
         Assert.notNull(context, "context must not be null");
         //先查询client所在的网关服务器的地址
@@ -76,7 +84,8 @@ public class PushClient implements AutoCloseable {
     }
 
     /**
-     * @see IdGenBuilder#genXid()
+     * generate an xid in distributed system
+     * this method is deprecated, we support to use {@link IdGenBuilder#genXid()}
      * @return
      * @throws IdGenException
      */

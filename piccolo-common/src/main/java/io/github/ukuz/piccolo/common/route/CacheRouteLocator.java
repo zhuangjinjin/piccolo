@@ -20,6 +20,7 @@ import io.github.ukuz.piccolo.api.configcenter.ConfigurationChangeType;
 import io.github.ukuz.piccolo.api.configcenter.ConfigurationChangedEvent;
 import io.github.ukuz.piccolo.api.configcenter.ConfigurationListener;
 import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.route.RouteLocator;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
@@ -49,6 +50,8 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
 
     @Override
     public void route(String routeKey, String service) {
+        Assert.notEmptyString(routeKey, "routeKey must not be empty");
+        Assert.notEmptyString(service, "service must not be empty");
         if (cacheRouteMap.containsKey(routeKey) && cacheRouteMap.get(routeKey).equals(service)) {
             return;
         }
@@ -58,6 +61,7 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
 
     @Override
     public String getRoute(String routeKey) {
+        Assert.notEmptyString(routeKey, "routeKey must not be empty");
         return cacheRouteMap.get(routeKey);
     }
 

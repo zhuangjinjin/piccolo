@@ -149,7 +149,9 @@ public class GatewayTcpConnectionFactory implements GatewayConnectionFactory {
         String hostAndPort = connection.getChannel().attr(attrKey).get();
         if (hostAndPort == null) {
             InetSocketAddress remoteAddress = (InetSocketAddress) connection.getChannel().remoteAddress();
-            hostAndPort = getHostAndPort(remoteAddress.getHostName(), remoteAddress.getPort());
+            hostAndPort = getHostAndPort(remoteAddress.getAddress().getHostAddress(), remoteAddress.getPort());
+            //慎用InetSocketAddress#getHostName, 除非保证hostName有值，否则则会去NameService查找，会出现校长时间的阻塞
+//            hostAndPort = getHostAndPort(remoteAddress.getHostName(), remoteAddress.getPort());
         }
         logger.warn("received ConnectionConnectEvent hostAndPort: {} conn: {}", hostAndPort, event.getConnection());
         get(hostAndPort).addConnection(connection);

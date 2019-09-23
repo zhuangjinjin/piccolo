@@ -9,10 +9,11 @@
 <script type="text/javascript">
     "use strict";
     class ByteBuf {
-        constructor() {
+        constructor(littleEndian) {
             this.readIndex = 0;
             this.writeIndex = 0;
             this.capacity = 128;
+            this.littleEndian = littleEndian;
             let buf = new ArrayBuffer(128);
             this.data = new DataView(buf);
         }
@@ -24,25 +25,25 @@
 
         writeShort(v) {
             this.resize(2);
-            this.data.setInt16(this.writeIndex, v);
+            this.data.setInt16(this.writeIndex, v, this.littleEndian);
             this.writeIndex+=2;
         }
 
         writeInt(v) {
             this.resize(4);
-            this.data.setInt32(this.writeIndex, v);
+            this.data.setInt32(this.writeIndex, v, this.littleEndian);
             this.writeIndex+=4;
         }
 
         writeLong(v) {
             this.resize(8);
-            this.data.setBigInt64(this.writeIndex, v);
+            this.data.setBigInt64(this.writeIndex, v, this.littleEndian);
             this.writeIndex+=8;
         }
 
         writeDouble(v) {
             this.resize(8);
-            this.data.setFloat64(this.writeIndex, v);
+            this.data.setFloat64(this.writeIndex, v, this.littleEndian);
             this.writeIndex+=8;
         }
 
@@ -59,25 +60,25 @@
         }
 
         readShort() {
-            let val = this.data.getInt16(this.readIndex);
+            let val = this.data.getInt16(this.readIndex, this.littleEndian);
             this.readIndex+=2;
             return val;
         }
 
         readInt() {
-            let val = this.data.getInt32(this.readIndex);
+            let val = this.data.getInt32(this.readIndex, this.littleEndian);
             this.readIndex+=4;
             return val;
         }
 
         readLong() {
-            let val = this.data.getBigInt64(this.readIndex);
+            let val = this.data.getBigInt64(this.readIndex, this.littleEndian);
             this.readIndex+=8;
             return val;
         }
 
         readDouble() {
-            let val = this.data.getFloat64(this.readIndex);
+            let val = this.data.getFloat64(this.readIndex, this.littleEndian);
             this.readIndex+=8;
             return val;
         }
@@ -117,7 +118,7 @@
         constructor(buf) {
             this.decoder = new TextDecoder();
             this.encoder = new TextEncoder();
-            this.byteBuf = buf != null ? buf : new ByteBuf();
+            this.byteBuf = buf != null ? buf : new ByteBuf(false);
         }
 
         writeString(str) {
@@ -321,18 +322,15 @@
             sendMessage(unbindUserMsg, Command.UNBIND);
         }
 
-        function dispatchMessage(payload) {
-            let unbindUserMsg = new AbstractMessage();
-            unbindUserMsg.writeString(payload);
-            sendMessage(unbindUserMsg, Command.DISPATCH);
-        }
+        // function dispatchMessage(payload) {
+        //     let unbindUserMsg = new AbstractMessage();
+        //     unbindUserMsg.writeString(payload);
+        //     sendMessage(unbindUserMsg, Command.DISPATCH);
+        // }
 
-        function dispatchBinaryMessage(payload) {
-            let tmp = new AbstractMessage(payload);
+        function dispatchBinaryMessage(payload, routeKey) {
             let unbindUserMsg = new AbstractMessage();
-            tmp.readByte();
-            let cmd = tmp.readInt();
-            unbindUserMsg.writeString(cmd.toString());
+            unbindUserMsg.writeString(routeKey);
             unbindUserMsg.writeBytes(payload);
             sendMessage(unbindUserMsg, Command.DISPATCH);
         }
@@ -374,7 +372,7 @@
         }
 
         function encodeMessage(cmd, message) {
-            let packet = new ByteBuf();
+            let packet = new ByteBuf(false);
             let payload = message.getArrayBuffer();
             packet.writeShort(0xBCC0);
             packet.writeByte(cmd);
@@ -388,7 +386,7 @@
         }
 
         function decodeByteBuf(data) {
-            let byteBuf = new ByteBuf();
+            let byteBuf = new ByteBuf(false);
             byteBuf.writeBytes(data);
             let magic = byteBuf.readShort();
             let cmd = byteBuf.readByte();
@@ -410,7 +408,7 @@
                     break;
                 }
                 case Command.OK: {
-                    let byteBuf = new ByteBuf();
+                    let byteBuf = new ByteBuf(false);
                     byteBuf.writeBytes(packet.payload);
                     let okMsg = new AbstractMessage(byteBuf);
                     let subCmd = okMsg.readByte();
@@ -514,7 +512,6 @@
             close: doClose,
             bindUser: bindUser,
             unbindUser: unbindUser,
-            dispatch: dispatchMessage,
             dispatchBinary: dispatchBinaryMessage,
         }
     })(window);
@@ -550,14 +547,11 @@
         piccolo.unbindUser($("userId").value)
     }
 
-    function dispatch() {
-        piccolo.dispatch($("message").value)
-    }
-
     function dispatchBinary() {
         let array = JSON.parse($("binaryMessage").value)
         let arrayBuffer = new Uint8Array(array).buffer
-        piccolo.dispatchBinary(arrayBuffer)
+        let routeKey = $("routeKey").value
+        piccolo.dispatchBinary(arrayBuffer, routeKey)
     }
 
 </script>
@@ -571,11 +565,8 @@
         <input type="text" id="userId" value="user-0">
     </label>
     <input type="button" value="unbind" onclick="unbind()">
-    <label> Dispatcher Text Message:
-        <input type="text" id="message" value="Hello, piccolo">
-    </label>
-    <input type="button" value="dispatch text" onclick="dispatch()">
     <label> Dispatcher Binary Message:
+        <input type="text" id="routeKey" placeholder="route key" value="">
         <input type="text" id="binaryMessage" placeholder="binary message" value="">
     </label>
     <input type="button" value="dispatch binary" onclick="dispatchBinary()">
