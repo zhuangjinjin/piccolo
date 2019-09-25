@@ -15,32 +15,35 @@
  */
 package io.github.ukuz.piccolo.client.id;
 
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.id.IdGen;
-import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.client.PiccoloClient;
+import io.github.ukuz.piccolo.client.id.snowflake.SnowflakeIdGenDelegate;
 
 /**
  * @author ukuz90
  */
 public class IdGenBuilder {
 
-    private IdGen idGen;
+    private int threshold;
+    private int capacity;
 
-    private IdGenBuilder() {
-        idGen = PiccoloClient.getInstance().getIdGen();
+    public IdGenBuilder threshold(int threshold) {
+        Assert.isTrue(threshold > 0, "threshold must great than 0");
+        this.threshold = threshold;
+        return this;
     }
 
-    public static IdGenBuilder build() {
-        return new IdGenBuilder();
+    public IdGenBuilder capacity(int capacity) {
+        Assert.isTrue(threshold > 0, "capacity must great than 0");
+        this.capacity = capacity;
+        return this;
     }
 
-    /**
-     * generate an xid in distributed system
-     * @return
-     * @throws IdGenException
-     */
-    public long genXid() throws IdGenException {
-        return idGen.get(null);
+    public IdGen build() {
+        IdGen idGen = new SnowflakeIdGenDelegate(PiccoloClient.getInstance(), capacity, threshold);
+        idGen.init();
+        return idGen;
     }
 
 }

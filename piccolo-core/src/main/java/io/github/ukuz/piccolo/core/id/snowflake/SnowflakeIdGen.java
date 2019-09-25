@@ -47,7 +47,7 @@ public class SnowflakeIdGen implements IdGen {
     }
 
     @Override
-    public boolean init() {
+    public boolean init() throws IllegalStateException {
         workerIdHolder.init();
         workerId = workerIdHolder.getWorkerId();
         Assert.isTrue(workerId > 0 && workerId < MAX_WORKER_ID, "workerId invalid, workerId: " + workerId);

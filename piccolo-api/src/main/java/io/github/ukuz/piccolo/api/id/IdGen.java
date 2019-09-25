@@ -20,10 +20,19 @@ package io.github.ukuz.piccolo.api.id;
  */
 public interface IdGen {
 
-    boolean init();
+    boolean init() throws IllegalStateException;
 
     boolean destroy();
 
     long get(String tag) throws IdGenException;
+
+    /**
+     * generate an xid in distributed system
+     * @return
+     * @throws IdGenException
+     */
+    default long genXid() throws IdGenException {
+        return get(null);
+    }
 
 }

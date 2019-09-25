@@ -19,6 +19,7 @@ import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.*;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.push.PushContext;
@@ -85,7 +86,7 @@ public class PushClient implements AutoCloseable {
 
     /**
      * generate an xid in distributed system
-     * this method is deprecated, we support to use {@link IdGenBuilder#genXid()}
+     * this method is deprecated, we support to use {@link IdGenBuilder#build()}
      * @return
      * @throws IdGenException
      */

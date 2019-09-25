@@ -43,34 +43,72 @@ public class SnowflakeIdGenDelegate implements IdGen {
 
     public static final String INIT_TAG = "f";
     private static Logger LOGGER = LoggerFactory.getLogger(SnowflakeIdGenDelegate.class);
-    private static final int BUFFER_SIZE = 10000;
-    private IdBuffer idBuffer1 = new IdBuffer(BUFFER_SIZE, 6000);
-    private IdBuffer idBuffer2 = new IdBuffer(BUFFER_SIZE, 6000);
+    private static final int DEFAULT_BUFFER_SIZE = 10000;
+    private static final int DEFAULT_THRESHOLD = 6000;
+    private static final double DEFAULT_FACTOR = 0.6d;
+    private final int capacity;
+    private final IdBuffer idBuffer1;
+    private final IdBuffer idBuffer2;
     private ExecutorService executor;
     private PiccoloClient piccoloClient;
     private final AtomicBoolean sending;
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     public SnowflakeIdGenDelegate(PiccoloClient piccoloClient) {
+        this(piccoloClient, DEFAULT_BUFFER_SIZE, DEFAULT_THRESHOLD);
+    }
+
+    public SnowflakeIdGenDelegate(PiccoloClient piccoloClient, int capacity) {
+        this(piccoloClient, capacity, (int) (capacity * DEFAULT_FACTOR));
+    }
+
+    public SnowflakeIdGenDelegate(PiccoloClient piccoloClient, int capacity, int threshold) {
         Assert.notNull(piccoloClient, "piccoloClient must not be null");
+        if (capacity <= 0) {
+            capacity = DEFAULT_BUFFER_SIZE;
+        }
+        if (threshold <= 0) {
+            threshold = DEFAULT_THRESHOLD;
+        }
+        capacity = Math.min(capacity, Integer.MAX_VALUE);
+        if (threshold > capacity) {
+            threshold = capacity;
+        }
+        this.capacity = capacity;
+        idBuffer1 = new IdBuffer(capacity, threshold);
+        idBuffer2 = new IdBuffer(capacity, threshold);
+
         this.piccoloClient = piccoloClient;
         this.sending = new AtomicBoolean(false);
-        executor = (ExecutorService) piccoloClient.getExecutorFactory().create(ExecutorFactory.ID_GEN, piccoloClient.getEnvironment());
+
     }
 
     @Override
-    public boolean init() {
-        getXidAsync(true);
-        return true;
+    public boolean init() throws IllegalStateException {
+        if (started.compareAndSet(false, true)) {
+            executor = (ExecutorService) piccoloClient.getExecutorFactory().create(ExecutorFactory.ID_GEN, piccoloClient.getEnvironment());
+            getXidAsync(true);
+            return true;
+        } else {
+            throw new IllegalStateException("initialize duplicate");
+        }
     }
 
     @Override
     public boolean destroy() {
-        executor.shutdown();
-        return true;
+        if (started.compareAndSet(true, false)) {
+            executor.shutdown();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public long get(String tag) throws IdGenException {
+        if (!started.get()) {
+            throw new IdGenException("IdGen not initialized");
+        }
         long xid = 0;
         try {
             xid = masterBuffer().read();
@@ -93,6 +131,10 @@ public class SnowflakeIdGenDelegate implements IdGen {
     }
 
     public synchronized void writeData(long[] data, boolean isInit) {
+        if (!started.get()) {
+            LOGGER.error("IdGen not initialized");
+            return;
+        }
         try {
             if (isInit) {
                 masterBuffer().write(data);
@@ -136,7 +178,7 @@ public class SnowflakeIdGenDelegate implements IdGen {
                             if (connection != null) {
                                 IdGenMessage idGenMessage = new IdGenMessage(connection);
                                 idGenMessage.tag = isInit ? INIT_TAG : null;
-                                idGenMessage.batchSize = BUFFER_SIZE;
+                                idGenMessage.batchSize = (short)capacity;
                                 connection.sendAsync(idGenMessage, future -> {
                                     if (!future.isSuccess()) {
                                         LOGGER.warn("get xid async send failure, cause: {}", future.cause());

@@ -8,12 +8,13 @@ piccolo是一个长连接网关服务器。
 
 ## 架构图
 
-
+ <img src="doc/architecture.png"/>
 
 ## 技术
 
 项目主要是基于Netty4.x开发的。
 
+* Jdk 8+
 * Netty 4.1.25
 * ZooKeeper 3.5.5
 * Kafka 2.0.0
@@ -44,6 +45,8 @@ piccolo是一个长连接网关服务器。
 
 ## 使用
 
+### Server端
+
 **Step1: GitHub下载源代码并编译**
 
 ```shell
@@ -69,6 +72,7 @@ piccolo.kafka.producer.bootstrap-servers=${kafka.bootstrap-servers}
 piccolo.kafka.consumer.bootstrap-servers=${kafka.bootstrap-servers}
 piccolo.kafka.admin-client.bootstrap-servers=${kafka.bootstrap-servers}
 piccolo.nacos.server-address=${nacos.server-addr}
+piccolo.nacos.endpoint=${nacos.endpoint}
 ```
 
 **Step4: 启动网关服务器**
@@ -79,6 +83,76 @@ sh bin/startup.sh -m standalone
 ```
 
 运行成功后会出现piccolo的LOGO
+
+### Client端
+
+**Step1:GitHub下载源代码并编译**
+
+```shell
+git clone https://github.com/zhuangjinjin/piccolo.git
+```
+
+**Step2: 构建项目**
+
+```shell
+cd piccolo
+mvn clean install -Dmaven.test.skip=true
+```
+
+**Step3: 在项目pom.xml引入依赖**
+
+```xml
+<dependency>
+  <groupId>io.github.ukuz</groupId>
+  <artifactId>piccolo-client</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
+#### 注册消息路由
+
+```java
+RouteLocatorBuilder.routes()
+  .route("/foo1", "bar")
+  .route("/foo2", "bar");
+```
+
+#### 注册消息回调
+
+```java
+PushClient pushClient = new PushClient();
+pushClient.registerHandler("bar", (dispatchMessage) -> {
+  //todo some logic process
+  ...
+  //manual ack mode
+  dispatchMessage.completeConsume();
+});
+```
+
+#### 消息回发
+
+```java
+PushClient pushClient = new PushClient();
+PushContext ret = PushContext.builder().userId("user-0").context("msg".getBytes()).build();
+pushClient.push(ret);
+```
+
+#### 消息广播
+
+```java
+PushClient pushClient = new PushClient();
+PushContext ret = PushContext.builder().context("msg".getBytes()).build();
+pushClient.push(ret);
+```
+
+#### 分布式ID
+
+```java
+IdGen idGen = new IdGenBuilder().build();
+long xid = idGen.genXid();
+```
+
+
 
 ## 配置
 
@@ -226,6 +300,18 @@ sh bin/startup.sh -m standalone
 
 
 
+#### Nacos配置
+
+| 属性名                       | 描述 |
+| ---------------------------- | ---- |
+| piccolo.nacos.server-address |      |
+| piccolo.nacos.endpoint       |      |
+| piccolo.nacos.namespace      |      |
+| piccolo.nacos.access-key     |      |
+| piccolo.nacos.secret-key     |      |
+
+
+
 #### 消息队列配置
 
 | 属性名                                       | 描述 |
@@ -236,6 +322,16 @@ sh bin/startup.sh -m standalone
 | piccolo.mq-topic.online.replication-factor   |      |
 | piccolo.mq-topic.offline.num-partitions      |      |
 | piccolo.mq-topic.offline.replication-factor  |      |
+
+
+
+#### 下游业务系统消息队列配置
+
+| 属性名                                        | 描述 |
+| --------------------------------------------- | ---- |
+| piccolo.mq-topic.routes[0].topic              |      |
+| piccolo.mq-topic.routes[0].num-partitions     |      |
+| piccolo.mq-topic.routes[0].replication-factor |      |
 
 
 
