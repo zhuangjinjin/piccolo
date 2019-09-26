@@ -19,17 +19,17 @@ import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.*;
 
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.external.common.Assert;
-import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.push.PushContext;
+import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
+import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.client.id.IdGenBuilder;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.PushMessage;
 import io.github.ukuz.piccolo.common.message.push.KafkaDispatcherMqMessage;
 import io.github.ukuz.piccolo.common.router.RemoteRouter;
-import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -112,7 +112,7 @@ public class PushClient implements AutoCloseable {
     }
 
     private void broadcast(byte[] context) {
-        List<ZKRegistration> serviceInstances = piccoloClient.getServiceDiscovery().lookup(ServiceNames.S_GATEWAY);
+        List<ServiceInstance> serviceInstances = piccoloClient.getServiceDiscovery().lookup(ServiceNames.S_GATEWAY);
         serviceInstances.forEach(serviceInstance -> {
             Connection connection = piccoloClient.getGatewayConnectionFactory().getConnection(serviceInstance.getHostAndPort());
             if (connection != null) {

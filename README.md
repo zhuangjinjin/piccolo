@@ -39,7 +39,7 @@ piccolo是一个长连接网关服务器。
 | piccolo-distribution | 发布模块                                                     |
 | piccolo-monitor      | 监控模块（基于JMX，监控系统CPU负载，系统内存，JVM内存，线程池，JVM GC等） |
 | piccolo-mq           | 消息模块（目前仅支持Kafka）                                  |
-| piccolo-registry     | 服务注册/发现模块（目前仅支持ZooKeeper）                     |
+| piccolo-registry     | 服务注册/发现模块（目前仅支持Nacos，ZooKeeper）              |
 | piccolo-server       | 服务端模块                                                   |
 | piccolo-transport    | 传输模块（基于Netty 4开发，可配置粗粒度的流控，自定义流式解析） |
 

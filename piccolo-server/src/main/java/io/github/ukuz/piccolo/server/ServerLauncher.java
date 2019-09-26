@@ -64,7 +64,7 @@ public class ServerLauncher {
             processChain = newBootProcessChain();
         }
 
-        processChain.addLast(new ServiceRegistryBoot(server.getServiceRegistry()));
+        processChain.addLast(new ServiceRegistryBoot(server.getServiceRegistry(), server));
         processChain.addLast(new MQClientBoot(server.getMQClient(), server));
         processChain.addLast(new CacheManagerBoot(server.getCacheManager(), server));
         processChain.addLast(new ConfigCenterBoot(server.getDynamicConfiguration(), server));

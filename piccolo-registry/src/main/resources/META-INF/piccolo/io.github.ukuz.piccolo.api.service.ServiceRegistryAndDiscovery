@@ -1,0 +1,2 @@
+zk=io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery
+nacos=io.github.ukuz.piccolo.registry.nacos.NacosServiceRegistryAndDiscovery

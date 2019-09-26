@@ -39,6 +39,10 @@ public class CoreProperties implements Properties {
      * nacos,
      */
     private String configCenter;
+    /**
+     * nacos, zk
+     */
+    private String srd;
 
     public boolean isUseNettyEpoll() {
         if (!"netty".equals(epollProvider)) {

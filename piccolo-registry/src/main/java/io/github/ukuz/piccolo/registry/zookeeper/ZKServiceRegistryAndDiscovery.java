@@ -15,15 +15,13 @@
  */
 package io.github.ukuz.piccolo.registry.zookeeper;
 
-import io.github.ukuz.piccolo.api.config.Environment;
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
+import io.github.ukuz.piccolo.api.service.ServiceRegistryAndDiscovery;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
-import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceListener;
-import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
-import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.json.Jsons;
 import io.github.ukuz.piccolo.registry.zookeeper.listener.ZooKeeperCacheListener;
 import io.github.ukuz.piccolo.registry.zookeeper.manager.ZooKeeperManager;
@@ -39,17 +37,14 @@ import java.util.stream.Collectors;
 /**
  * @author ukuz90
  */
-public class ZKServiceRegistryAndDiscovery extends AbstractService implements ServiceRegistry<ZKRegistration>, ServiceDiscovery<ZKRegistration> {
+public class ZKServiceRegistryAndDiscovery extends AbstractService implements ServiceRegistryAndDiscovery<DefaultServiceInstance> {
 
     private ZooKeeperManager zkManager;
 
-    public ZKServiceRegistryAndDiscovery() {
-    }
-
     @Override
-    public void init() throws ServiceException {
-        Environment environment = SpiLoader.getLoader(Environment.class).getExtension();
-        zkManager = new ZooKeeperManager(environment.getProperties(ZooKeeperProperties.class), "/srd");
+    public void init(PiccoloContext context) throws ServiceException {
+        ZooKeeperProperties prop = context.getProperties(ZooKeeperProperties.class);
+        zkManager = new ZooKeeperManager(prop, WATCH_PATH);
         zkManager.init();
     }
 
@@ -67,7 +62,7 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
     }
 
     @Override
-    public List<ZKRegistration> lookup(String serviceId) {
+    public List<DefaultServiceInstance> lookup(String serviceId) {
         Assert.notEmptyString(serviceId, "serviceId must not empty");
         List<String> childrenKeys = zkManager.getDirectory().getChildrenKeys(serviceId);
         if (childrenKeys.isEmpty()) {
@@ -77,27 +72,27 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
                 .map(key -> serviceId + ZKPaths.PATH_SEPARATOR + key)
                 .map(zkManager.getDirectory()::getData)
                 .filter(Objects::nonNull)
-                .map(childData -> new ZKRegistration(Jsons.fromJson(childData, DefaultServiceInstance.class)))
+                .map(childData -> Jsons.fromJson(childData, DefaultServiceInstance.class))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void subscribe(String serviceId, ServiceListener<ZKRegistration> listener) {
+    public void subscribe(String serviceId, ServiceListener<DefaultServiceInstance> listener) {
         Assert.notEmptyString(serviceId, "serviceId must not empty");
         Assert.notNull(listener, "listener must not be null");
         zkManager.getDirectory().registerListener(new ZooKeeperCacheListener(serviceId, listener));
     }
 
     @Override
-    public void unsubcribe(String serviceId, ServiceListener<ZKRegistration> listener) {
+    public void unsubcribe(String serviceId, ServiceListener<DefaultServiceInstance> listener) {
         Assert.notEmptyString(serviceId, "serviceId must not empty");
         Assert.notNull(listener, "listener must not be null");
         zkManager.getDirectory().unregisterListenr(new ZooKeeperCacheListener(serviceId, listener));
     }
 
     @Override
-    public void registry(ZKRegistration registration) {
+    public void registry(DefaultServiceInstance registration) {
         Assert.notNull(registration, "registration must not be null");
         if (registration.isPersistent()) {
             zkManager.getDirectory().registerPersistNode(registration.getServicePath(), Jsons.toJson(registration));
@@ -107,7 +102,7 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
     }
 
     @Override
-    public void deregistry(ZKRegistration registration) {
+    public void deregistry(DefaultServiceInstance registration) {
         Assert.notNull(registration, "registration must not be null");
         zkManager.getDirectory().removePath(registration.getServicePath());
     }

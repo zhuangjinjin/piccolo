@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.registry.zookeeper.listener;
 
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceListener;
 import io.github.ukuz.piccolo.common.json.Jsons;
@@ -30,10 +31,12 @@ import java.util.Objects;
  */
 public class ZooKeeperCacheListener implements TreeCacheListener {
 
-    private String watchPath;
-    private ServiceListener listener;
+    private final String watchPath;
+    private final ServiceListener listener;
 
     public ZooKeeperCacheListener(String watchPath, ServiceListener listener) {
+        Assert.notNull(listener, "listener must not be null");
+        Assert.notEmptyString(watchPath, "watchPath must not be empty");
         this.watchPath = watchPath;
         this.listener = listener;
     }

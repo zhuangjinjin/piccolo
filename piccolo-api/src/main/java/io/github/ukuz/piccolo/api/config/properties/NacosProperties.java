@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.configcenter.nacos;
+package io.github.ukuz.piccolo.api.config.properties;
 
 import com.alibaba.nacos.api.PropertyKeyConst;
 import io.github.ukuz.piccolo.api.config.ConfigurationProperties;

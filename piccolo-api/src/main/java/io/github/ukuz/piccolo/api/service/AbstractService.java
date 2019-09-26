@@ -117,6 +117,15 @@ public abstract class AbstractService implements Service {
     }
 
     @Override
+    public boolean start(PiccoloContext context) throws ServiceException {
+        try {
+            return startAsync(context).join();
+        } catch (CompletionException e) {
+            throw wrapServiceException(e.getCause());
+        }
+    }
+
+    @Override
     public final boolean stop() throws ServiceException {
         try {
             return stopAsync().join();

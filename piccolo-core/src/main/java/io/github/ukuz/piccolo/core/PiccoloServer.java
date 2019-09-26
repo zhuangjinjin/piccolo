@@ -26,6 +26,7 @@ import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.route.RouteLocator;
+import io.github.ukuz.piccolo.api.service.ServiceRegistryAndDiscovery;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
@@ -56,7 +57,7 @@ public class PiccoloServer implements PiccoloContext {
     private final CacheManager cacheManager;
     private final ExecutorFactory executorFactory;
     private final MQClient mqClient;
-    private final ZKServiceRegistryAndDiscovery srd;
+    private final ServiceRegistryAndDiscovery srd;
     private final DynamicConfiguration configCenter;
 
     private final RouterCenter routerCenter;
@@ -74,11 +75,12 @@ public class PiccoloServer implements PiccoloContext {
         executorFactory = new ServerExecutorFactory();
         EventBus.create(executorFactory.create(ExecutorFactory.EVENT_BUS, environment));
 
-        srd = (ZKServiceRegistryAndDiscovery) SpiLoader.getLoader(ServiceRegistry.class).getExtension("zk");
+        String srdChooser = StringUtils.hasText(core.getSrd()) ? core.getSrd() : ServiceRegistryAndDiscovery.DEFAULT;
+        srd = SpiLoader.getLoader(ServiceRegistryAndDiscovery.class).getExtension(srdChooser);
 
         mqClient = SpiLoader.getLoader(MQClient.class).getExtension();
 
-        String configCenterChooser = core.getConfigCenter() == null ? DynamicConfiguration.DEFAULT : core.getConfigCenter();
+        String configCenterChooser = StringUtils.hasText(core.getConfigCenter()) ? core.getConfigCenter() : DynamicConfiguration.DEFAULT;
         configCenter = SpiLoader.getLoader(DynamicConfiguration.class).getExtension(configCenterChooser);
 
         reusableSessionManager = new ReusableSessionManager(this);

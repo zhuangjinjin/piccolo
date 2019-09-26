@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.service.registry;
+package io.github.ukuz.piccolo.api.service;
 
-import io.github.ukuz.piccolo.api.service.Service;
+import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
+import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
+import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.Spi;
 
 /**
  * @author ukuz90
  */
-public interface ServiceRegistry<R extends Registration> extends Service {
+@Spi(primary = "zk")
+public interface ServiceRegistryAndDiscovery<T extends DefaultServiceInstance> extends ServiceRegistry<T>, ServiceDiscovery<T> {
 
-    String WATCH_PATH = "/srd";
-
-    void registry(R registration);
-
-    void deregistry(R registration);
+    String DEFAULT = "zk";
 
 }

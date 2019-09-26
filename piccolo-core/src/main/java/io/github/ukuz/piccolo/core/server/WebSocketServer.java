@@ -31,7 +31,6 @@ import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.externel.handler.WebSocketIndexHandler;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
-import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import io.github.ukuz.piccolo.transport.codec.*;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
@@ -52,7 +51,7 @@ import java.net.InetSocketAddress;
 public class WebSocketServer extends NettyServer {
 
     private InetSocketAddress address;
-    private ZKRegistration serviceInstance;
+    private DefaultServiceInstance serviceInstance;
 
     public WebSocketServer(PiccoloContext piccoloContext) {
         this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager());
@@ -81,13 +80,12 @@ public class WebSocketServer extends NettyServer {
 
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
-        ServiceInstance si = DefaultServiceInstance.build()
+        serviceInstance = DefaultServiceInstance.build()
                 .host(piccoloContext.getProperties(NetProperties.class).getPublicIp())
 //                .host(channel.localAddress().getAddress().getHostAddress())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
                 .serviceId(ServiceNames.S_WS);
-        serviceInstance = new ZKRegistration(si);
     }
 
     @Override

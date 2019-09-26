@@ -22,7 +22,6 @@ import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.ServiceNames;
@@ -31,7 +30,6 @@ import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
-import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
@@ -53,7 +51,7 @@ public class GatewayServer extends NettyServer {
 
     private InetSocketAddress address;
     private final ConnectionManager cxnxManager;
-    private ZKRegistration serviceInstance;
+    private DefaultServiceInstance serviceInstance;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
 
     public GatewayServer(PiccoloContext piccoloContext) {
@@ -93,12 +91,11 @@ public class GatewayServer extends NettyServer {
 
     @Override
     protected void doStartComplete(ServerSocketChannel channel) {
-        ServiceInstance si = DefaultServiceInstance.build()
+        serviceInstance = DefaultServiceInstance.build()
                 .host(piccoloContext.getProperties(NetProperties.class).getPublicIp())
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
                 .serviceId(ServiceNames.S_GATEWAY);
-        serviceInstance = ZKRegistration.build(si);
     }
 
     @Override

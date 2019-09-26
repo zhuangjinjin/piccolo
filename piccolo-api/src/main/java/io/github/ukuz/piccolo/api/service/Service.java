@@ -42,7 +42,7 @@ public interface Service {
     CompletableFuture<Boolean> stopAsync();
 
     /**
-     * asynchronus start service
+     * asynchronus start service with context.
      * @param context
      * @return
      */
@@ -55,6 +55,14 @@ public interface Service {
      * @throws ServiceException
      */
     boolean start() throws ServiceException;
+
+    /**
+     * synchronous start service with context.
+     * @param context
+     * @return
+     * @throws ServiceException
+     */
+    boolean start(PiccoloContext context) throws ServiceException;
 
     /**
      * synchronous stop service.

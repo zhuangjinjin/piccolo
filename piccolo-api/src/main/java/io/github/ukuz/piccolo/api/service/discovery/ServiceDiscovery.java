@@ -23,7 +23,6 @@ import java.util.List;
 /**
  * @author ukuz90
  */
-@Spi(primary = "zk")
 public interface ServiceDiscovery<S extends ServiceInstance> extends Service {
 
     /**

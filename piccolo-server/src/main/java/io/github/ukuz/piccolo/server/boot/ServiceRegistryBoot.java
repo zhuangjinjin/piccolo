@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.server.boot;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 
@@ -24,15 +25,17 @@ import io.github.ukuz.piccolo.api.spi.SpiLoader;
 public class ServiceRegistryBoot implements BootJob {
 
     private ServiceRegistry registry;
+    private PiccoloContext context;
 
-    public ServiceRegistryBoot(ServiceRegistry registry) {
+    public ServiceRegistryBoot(ServiceRegistry registry, PiccoloContext context) {
         this.registry = registry;
+        this.context = context;
     }
 
     @Override
     public void start() {
         //必须同步调用。
-        registry.start();
+        registry.start(context);
     }
 
     @Override

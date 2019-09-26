@@ -27,7 +27,6 @@ import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.IdGenMessage;
-import io.github.ukuz.piccolo.registry.zookeeper.ZKRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +165,7 @@ public class SnowflakeIdGenDelegate implements IdGen {
                 return;
             }
             executor.execute(()-> {
-                List<ZKRegistration> serviceInstances = piccoloClient.getServiceDiscovery().lookup(ServiceNames.S_GATEWAY);
+                List<ServiceInstance> serviceInstances = piccoloClient.getServiceDiscovery().lookup(ServiceNames.S_GATEWAY);
                 LoadBalancer loadBalancer = SpiLoader.getLoader(LoadBalancer.class).getExtension();
                 LOGGER.info("get xid async, init: {}", isInit);
                 FailoverInvoker invoker = new FailoverInvoker();

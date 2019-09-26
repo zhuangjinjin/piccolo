@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.registry.zookeeper.manager;
 
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
@@ -52,6 +53,8 @@ public final class ZooKeeperManager extends AbstractService {
     private final String watchPath;
 
     public ZooKeeperManager(ZooKeeperProperties zkProp, String watchPath) {
+        Assert.notNull(zkProp, "zkProperties must not be null.");
+        Assert.notEmptyString(watchPath, "watchPath must not be empty.");
         this.zkProp = zkProp;
         this.watchPath = watchPath;
     }

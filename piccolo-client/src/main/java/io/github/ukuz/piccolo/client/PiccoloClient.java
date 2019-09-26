@@ -19,12 +19,14 @@ import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
 import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
+import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
 import io.github.ukuz.piccolo.api.configcenter.DynamicConfiguration;
 import io.github.ukuz.piccolo.api.id.IdGen;
 import io.github.ukuz.piccolo.api.mq.MQClient;
 import io.github.ukuz.piccolo.api.route.RouteLocator;
+import io.github.ukuz.piccolo.api.service.ServiceRegistryAndDiscovery;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceDiscovery;
 import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
@@ -44,7 +46,7 @@ public class PiccoloClient implements PiccoloContext {
 
     private final Environment environment;
     private final ExecutorFactory executorFactory;
-    private final ZKServiceRegistryAndDiscovery srd;
+    private final ServiceRegistryAndDiscovery srd;
     private final CacheManager cacheManager;
     private final CachedRemoteRouterManager remoteRouterManager;
     private final GatewayConnectionFactory gatewayConnectionFactory;
@@ -86,8 +88,9 @@ public class PiccoloClient implements PiccoloContext {
         cacheManager.init(this);
         remoteRouterManager = new CachedRemoteRouterManager(cacheManager);
 
-        srd = (ZKServiceRegistryAndDiscovery) SpiLoader.getLoader(ServiceRegistry.class).getExtension("zk");
-        srd.start();
+        String srdChooser = StringUtils.hasText(core.getSrd()) ? core.getSrd() : ServiceRegistryAndDiscovery.DEFAULT;
+        srd = SpiLoader.getLoader(ServiceRegistryAndDiscovery.class).getExtension(srdChooser);
+        srd.start(this);
 
         gatewayConnectionFactory = new GatewayTcpConnectionFactory(this);
 

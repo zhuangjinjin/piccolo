@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.api.service.discovery;
 
+import io.github.ukuz.piccolo.api.service.registry.Registration;
 import lombok.Setter;
 
 import java.util.Map;
@@ -24,7 +25,7 @@ import java.util.Objects;
  * @author ukuz90
  */
 @Setter
-public class DefaultServiceInstance implements ServiceInstance {
+public class DefaultServiceInstance implements ServiceInstance, Registration {
 
     private String serviceId;
     private String instanceId;
@@ -98,6 +99,11 @@ public class DefaultServiceInstance implements ServiceInstance {
     }
 
     @Override
+    public String getServicePath() {
+        return serviceId + "/" + getHostAndPort();
+    }
+
+    @Override
     public String toString() {
         return "DefaultServiceInstance{" +
                 "serviceId='" + serviceId + '\'' +
@@ -117,12 +123,14 @@ public class DefaultServiceInstance implements ServiceInstance {
         }
         DefaultServiceInstance that = (DefaultServiceInstance) o;
         return port == that.port &&
+                Objects.equals(serviceId, that.serviceId) &&
                 Objects.equals(host, that.host);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(host);
+        int result = Objects.hashCode(serviceId);
+        result = result * 31 + Objects.hashCode(host);
         return result * 31 + port;
     }
 
