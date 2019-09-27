@@ -22,7 +22,6 @@ import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.push.PushContext;
-import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.client.id.IdGenBuilder;
@@ -97,7 +96,10 @@ public class PushClient implements AutoCloseable {
 
     private void pushSingleUser(String userId, byte[] context) {
         Set<RemoteRouter> remoteRouters = piccoloClient.getRemoteRouterManager().lookupAll(userId);
-        remoteRouters.forEach(remoteRouter -> {
+        remoteRouters
+                .stream()
+                .filter(RemoteRouter::isOnline)
+                .forEach(remoteRouter -> {
             Connection connection = piccoloClient.getGatewayConnectionFactory().getConnection(remoteRouter.getRouterValue().getHostAndPort());
             if (connection != null) {
                 PushMessage msg = PushMessage.build(connection).content(context).userId(userId);
