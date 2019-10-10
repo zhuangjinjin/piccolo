@@ -15,15 +15,17 @@
  */
 package io.github.ukuz.piccolo.monitor.quota.impl;
 
-import io.github.ukuz.piccolo.api.common.MemorySize;
 import io.github.ukuz.piccolo.monitor.quota.MemoryQuota;
+import io.netty.util.internal.PlatformDependent;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryPoolMXBean;
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 /**
@@ -43,6 +45,9 @@ public class JVMMemory implements MemoryQuota {
     private MemoryPoolMXBean edenMXBean;
     private MemoryPoolMXBean survivorMXBean;
 
+    private AtomicLong nativeMemoryUsed;
+    private long nativeMemoryLimit;
+
     public JVMMemory() {
         memoryMXBean = ManagementFactory.getMemoryMXBean();
         List<MemoryPoolMXBean> list = ManagementFactory.getMemoryPoolMXBeans();
@@ -51,6 +56,19 @@ public class JVMMemory implements MemoryQuota {
         oldGenMXBean = find(list, Pattern.compile(OLD_GEN_NAME_PATTERN));
         edenMXBean = find(list, Pattern.compile(EDEN_NAME_PATTERN));
         survivorMXBean = find(list, Pattern.compile(SURVIVOR_NAME_PATTERN));
+
+        try {
+            Field counterField = PlatformDependent.class.getDeclaredField("DIRECT_MEMORY_COUNTER");
+            counterField.setAccessible(true);
+            nativeMemoryUsed = (AtomicLong) counterField.get(PlatformDependent.class);
+
+            Field limitField = PlatformDependent.class.getDeclaredField("DIRECT_MEMORY_LIMIT");
+            limitField.setAccessible(true);
+            nativeMemoryLimit = (long) limitField.get(PlatformDependent.class);
+            limitField.setAccessible(false);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private static MemoryPoolMXBean find(List<MemoryPoolMXBean> list, Pattern namePattern) {
@@ -98,6 +116,19 @@ public class JVMMemory implements MemoryQuota {
     @Override
     public long nonHeapMemoryUsed() {
         return memoryMXBean.getNonHeapMemoryUsage().getUsed();
+    }
+
+    @Override
+    public long nativeMemoryUsed() {
+        if (nativeMemoryUsed != null) {
+            return nativeMemoryUsed.get();
+        }
+        return 0;
+    }
+
+    @Override
+    public long nativeMemoryMax() {
+        return nativeMemoryLimit;
     }
 
     @Override
@@ -182,36 +213,39 @@ public class JVMMemory implements MemoryQuota {
 
     @Override
     public Object monitor(Object... args) {
-        Map<String, Object> result = new LinkedHashMap<>(24);
-        result.put("heapMemoryCommitted", MemorySize.prettyMemorySize(heapMemoryCommitted()));
-        result.put("heapMemoryInit", MemorySize.prettyMemorySize(heapMemoryInit()));
-        result.put("heapMemoryMax", MemorySize.prettyMemorySize(heapMemoryMax()));
-        result.put("heapMemoryUsed", MemorySize.prettyMemorySize(heapMemoryUsed()));
+        Map<String, Object> result = new LinkedHashMap<>(26);
+        result.put("heapMemoryCommitted", heapMemoryCommitted());
+        result.put("heapMemoryInit", heapMemoryInit());
+        result.put("heapMemoryMax", heapMemoryMax());
+        result.put("heapMemoryUsed", heapMemoryUsed());
 
-        result.put("nonHeapMemoryCommitted", MemorySize.prettyMemorySize(nonHeapMemoryCommitted()));
-        result.put("nonHeapMemoryInit", MemorySize.prettyMemorySize(nonHeapMemoryInit()));
-        result.put("nonHeapMemoryMax", MemorySize.prettyMemorySize(nonHeapMemoryMax()));
-        result.put("nonHeapMemoryUsed", MemorySize.prettyMemorySize(nonHeapMemoryUsed()));
+        result.put("nonHeapMemoryCommitted", nonHeapMemoryCommitted());
+        result.put("nonHeapMemoryInit", nonHeapMemoryInit());
+        result.put("nonHeapMemoryMax", nonHeapMemoryMax());
+        result.put("nonHeapMemoryUsed", nonHeapMemoryUsed());
 
-        result.put("permGenCommitted", MemorySize.prettyMemorySize(permGenCommitted()));
-        result.put("permGenInit", MemorySize.prettyMemorySize(permGenInit()));
-        result.put("permGenMax", MemorySize.prettyMemorySize(permGenMax()));
-        result.put("permGenUsed", MemorySize.prettyMemorySize(permGenUsed()));
+        result.put("nativeMemoryUsed", nativeMemoryUsed());
+        result.put("nativeMemoryMax", nativeMemoryMax());
 
-        result.put("oldGenCommitted", MemorySize.prettyMemorySize(oldGenCommitted()));
-        result.put("oldGenInit", MemorySize.prettyMemorySize(oldGenInit()));
-        result.put("oldGenMax", MemorySize.prettyMemorySize(oldGenMax()));
-        result.put("oldGenUsed", MemorySize.prettyMemorySize(oldGenUsed()));
+        result.put("permGenCommitted", permGenCommitted());
+        result.put("permGenInit", permGenInit());
+        result.put("permGenMax", permGenMax());
+        result.put("permGenUsed", permGenUsed());
 
-        result.put("edenSpaceCommitted", MemorySize.prettyMemorySize(edenSpaceCommitted()));
-        result.put("edenSpaceInit", MemorySize.prettyMemorySize(edenSpaceInit()));
-        result.put("edenSpaceMax", MemorySize.prettyMemorySize(edenSpaceMax()));
-        result.put("edenSpaceUsed", MemorySize.prettyMemorySize(edenSpaceUsed()));
+        result.put("oldGenCommitted", oldGenCommitted());
+        result.put("oldGenInit", oldGenInit());
+        result.put("oldGenMax", oldGenMax());
+        result.put("oldGenUsed", oldGenUsed());
 
-        result.put("survivorCommitted", MemorySize.prettyMemorySize(survivorCommitted()));
-        result.put("survivorInit", MemorySize.prettyMemorySize(survivorInit()));
-        result.put("survivorMax", MemorySize.prettyMemorySize(survivorMax()));
-        result.put("survivorUsed", MemorySize.prettyMemorySize(survivorUsed()));
+        result.put("edenSpaceCommitted", edenSpaceCommitted());
+        result.put("edenSpaceInit", edenSpaceInit());
+        result.put("edenSpaceMax", edenSpaceMax());
+        result.put("edenSpaceUsed", edenSpaceUsed());
+
+        result.put("survivorCommitted", survivorCommitted());
+        result.put("survivorInit", survivorInit());
+        result.put("survivorMax", survivorMax());
+        result.put("survivorUsed", survivorUsed());
         return result;
     }
 

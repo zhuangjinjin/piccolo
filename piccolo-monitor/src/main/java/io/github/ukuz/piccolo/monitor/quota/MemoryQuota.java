@@ -36,6 +36,10 @@ public interface MemoryQuota extends MonitorQuota {
 
     long nonHeapMemoryUsed();
 
+    long nativeMemoryUsed();
+
+    long nativeMemoryMax();
+
     long permGenCommitted();
 
     long permGenInit();

@@ -82,7 +82,7 @@ public class WebSocketIndexHandler extends SimpleChannelInboundHandler<FullHttpR
                 return Unpooled.wrappedBuffer(data);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("getContent file: {} failure, err: {}", fileName, e.getCause());
         }
         return Unpooled.EMPTY_BUFFER;
     }
