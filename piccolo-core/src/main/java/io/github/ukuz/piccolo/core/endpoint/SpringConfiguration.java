@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.common;
+package io.github.ukuz.piccolo.core.endpoint;
 
-import io.github.ukuz.piccolo.api.service.Service;
-
-import java.util.concurrent.Executor;
+import io.github.ukuz.piccolo.api.common.Monitor;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author ukuz90
  */
-public interface Monitor extends Service {
+@Configuration
+@SpringBootApplication
+public class SpringConfiguration {
 
-    String EMPTY = "none";
+    private Monitor monitor;
 
-    default void monitor(String name, Thread thread) {}
-
-    default void monitor(String name, Executor executor) {}
-
-    default String scrape() {
-        return EMPTY;
+    public SpringConfiguration(Monitor monitor) {
+        this.monitor = monitor;
     }
-
 }

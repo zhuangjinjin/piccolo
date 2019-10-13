@@ -55,10 +55,12 @@ public class ServerLauncher {
     public ServerLauncher() {
     }
 
-    public void init() {
+    public void init(String... args) {
         if (server == null) {
             server = new PiccoloServer();
         }
+
+        server.runWebServer(args);
 
         if (processChain == null) {
             processChain = newBootProcessChain();
@@ -74,6 +76,7 @@ public class ServerLauncher {
         processChain.addLast(new RouterCenterBoot(server.getRouterCenter()));
         processChain.addLast(new RouteLocatorBoot(server.getRouteLocator(), server));
         processChain.addLast(new IdGenBoot(server.getIdGen()));
+        processChain.addLast(new MonitorBoot(server.getMonitor()));
         processChain.addLast(lastJob);
     }
 

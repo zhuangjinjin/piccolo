@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.common;
+package io.github.ukuz.piccolo.server.boot;
 
-import io.github.ukuz.piccolo.api.service.Service;
-
-import java.util.concurrent.Executor;
+import io.github.ukuz.piccolo.api.common.Monitor;
 
 /**
  * @author ukuz90
  */
-public interface Monitor extends Service {
+public class MonitorBoot implements BootJob {
 
-    String EMPTY = "none";
-
-    default void monitor(String name, Thread thread) {}
-
-    default void monitor(String name, Executor executor) {}
-
-    default String scrape() {
-        return EMPTY;
+    public MonitorBoot(Monitor monitor) {
+        this.monitor = monitor;
     }
 
+    private final Monitor monitor;
+
+    @Override
+    public void start() {
+        monitor.startAsync();
+    }
+
+    @Override
+    public void stop() {
+        monitor.stopAsync();
+    }
 }

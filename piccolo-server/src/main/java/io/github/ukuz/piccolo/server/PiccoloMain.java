@@ -22,7 +22,7 @@ public class PiccoloMain {
 
     public static void main(String[] args) {
         ServerLauncher launcher = new ServerLauncher();
-        launcher.init();
+        launcher.init(args);
         launcher.start();
 
         registerShutdownHook(launcher);

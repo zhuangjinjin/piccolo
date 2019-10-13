@@ -33,7 +33,7 @@ import io.github.ukuz.piccolo.api.service.registry.ServiceRegistry;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.common.properties.CoreProperties;
-import io.github.ukuz.piccolo.common.route.CacheRouteLocator;
+import io.github.ukuz.piccolo.core.endpoint.SpringConfiguration;
 import io.github.ukuz.piccolo.core.id.snowflake.SnowflakeIdGen;
 import io.github.ukuz.piccolo.core.id.snowflake.ZooKeeperWorkerIdHolder;
 import io.github.ukuz.piccolo.core.router.RouterCenter;
@@ -42,7 +42,12 @@ import io.github.ukuz.piccolo.core.server.GatewayServer;
 import io.github.ukuz.piccolo.core.server.WebSocketServer;
 import io.github.ukuz.piccolo.core.session.ReusableSessionManager;
 import io.github.ukuz.piccolo.core.threadpool.ServerExecutorFactory;
-import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
+import io.github.ukuz.piccolo.monitor.MonitorService;
+import org.springframework.boot.Banner;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+
 
 /**
  * @author ukuz90
@@ -59,6 +64,7 @@ public class PiccoloServer implements PiccoloContext {
     private final MQClient mqClient;
     private final ServiceRegistryAndDiscovery srd;
     private final DynamicConfiguration configCenter;
+    private final Monitor monitor;
 
     private final RouterCenter routerCenter;
     private final RouteLocator routeLocator;
@@ -94,15 +100,28 @@ public class PiccoloServer implements PiccoloContext {
         ZooKeeperWorkerIdHolder workerIdHolder = new ZooKeeperWorkerIdHolder(this);
         idGen = new SnowflakeIdGen(workerIdHolder);
 
+        monitor = new MonitorService();
+
         gatewayServer = new GatewayServer(this);
         connectServer = new ConnectServer(this);
         webSocketServer = new WebSocketServer(this);
 
     }
 
+    public void runWebServer(String... args) {
+        ConfigurableWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.refresh();
+        context.getBeanFactory().registerSingleton("monitor", monitor);
+
+        SpringApplicationBuilder sab = new SpringApplicationBuilder(SpringConfiguration.class);
+        sab.bannerMode(Banner.Mode.OFF);
+        sab.parent(context);
+        sab.run(args);
+    }
+
     @Override
     public Monitor getMonitor() {
-        return null;
+        return monitor;
     }
 
     @Override

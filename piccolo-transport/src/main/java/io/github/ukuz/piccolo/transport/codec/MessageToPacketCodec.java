@@ -19,6 +19,7 @@ import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.protocol.Packet;
 import io.github.ukuz.piccolo.api.exchange.support.BaseMessage;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
+import io.github.ukuz.piccolo.monitor.MetricsMonitor;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -51,6 +52,10 @@ public class MessageToPacketCodec implements Codec {
     @Override
     public Object decode(Connection connection, ByteBuf in) throws CodecException {
         Packet packet = (Packet) packetCodec.decode(connection, in);
+        // metrics
+        MetricsMonitor.getWebSocketBytesCount().getAndAdd(Packet.HEADER_LENGTH + packet.getPayload().length);
+        MetricsMonitor.getWebSocketQuestCount().incrementAndGet();
+
         if (converter != null) {
             BaseMessage message = converter.convert(packet, connection);
             if (message == null) {
@@ -59,6 +64,7 @@ public class MessageToPacketCodec implements Codec {
             message.decodeBody(packet);
             return message;
         }
+
         return packet;
     }
 }

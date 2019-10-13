@@ -21,7 +21,6 @@ import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandlerDelegateAdapter;
 import io.github.ukuz.piccolo.common.message.HeartbeatMessage;
-import io.github.ukuz.piccolo.common.message.OkMessage;
 
 /**
  * @author ukuz90
