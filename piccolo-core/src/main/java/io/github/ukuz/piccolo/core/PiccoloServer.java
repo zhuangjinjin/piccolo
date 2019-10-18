@@ -19,6 +19,7 @@ import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
 import io.github.ukuz.piccolo.api.common.Monitor;
 import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
+import io.github.ukuz.piccolo.api.common.threadpool.MonitorExecutorFactory;
 import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.config.Properties;
@@ -60,7 +61,7 @@ public class PiccoloServer implements PiccoloContext {
     private final WebSocketServer webSocketServer;
     private final ReusableSessionManager reusableSessionManager;
     private final CacheManager cacheManager;
-    private final ExecutorFactory executorFactory;
+    private final MonitorExecutorFactory executorFactory;
     private final MQClient mqClient;
     private final ServiceRegistryAndDiscovery srd;
     private final DynamicConfiguration configCenter;
@@ -78,7 +79,7 @@ public class PiccoloServer implements PiccoloContext {
 
         CoreProperties core = environment.getProperties(CoreProperties.class);
         //initialize eventBus
-        executorFactory = new ServerExecutorFactory();
+        executorFactory = new MonitorExecutorFactory(new ServerExecutorFactory());
         EventBus.create(executorFactory.create(ExecutorFactory.EVENT_BUS, environment));
 
         String srdChooser = StringUtils.hasText(core.getSrd()) ? core.getSrd() : ServiceRegistryAndDiscovery.DEFAULT;
@@ -155,7 +156,7 @@ public class PiccoloServer implements PiccoloContext {
     }
 
     @Override
-    public ExecutorFactory getExecutorFactory() {
+    public MonitorExecutorFactory getExecutorFactory() {
         return executorFactory;
     }
 

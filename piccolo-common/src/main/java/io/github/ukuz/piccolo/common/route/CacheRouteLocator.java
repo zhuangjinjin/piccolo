@@ -26,6 +26,8 @@ import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.common.json.Jsons;
 import org.apache.kafka.common.utils.CopyOnWriteMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -37,11 +39,13 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
     private DynamicConfiguration configuration;
     private static final String key = "piccolo.routes";
     private CopyOnWriteMap<String, String> cacheRouteMap = new CopyOnWriteMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheRouteLocator.class);
 
     @Override
     public void init(PiccoloContext context) throws ServiceException {
         this.configuration = context.getDynamicConfiguration();
         String contentInfo = configuration.getProperty(key);
+        LOGGER.info("CacheRouteLocator init key: {} contentInfo: {}", key, contentInfo);
         if (contentInfo != null) {
             Map<String, String> data = Jsons.fromJson(contentInfo, Map.class);
             cacheRouteMap.putAll(data);
@@ -55,6 +59,7 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
         if (cacheRouteMap.containsKey(routeKey) && cacheRouteMap.get(routeKey).equals(service)) {
             return;
         }
+        LOGGER.info("CacheRouteLocator route key: {} service: {}", routeKey, service);
         cacheRouteMap.put(routeKey, service);
         configuration.setProperty(key, Jsons.toJson(cacheRouteMap));
     }
@@ -67,6 +72,7 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
 
     @Override
     public void onConfigurationChanged(ConfigurationChangedEvent event) {
+        LOGGER.info("CacheRouteLocator onConfigurationChanged event", event);
         if (event.getType() == ConfigurationChangeType.DELETED) {
             cacheRouteMap.clear();
         } else {

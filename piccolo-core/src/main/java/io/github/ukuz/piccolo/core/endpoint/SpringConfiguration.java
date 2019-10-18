@@ -16,6 +16,7 @@
 package io.github.ukuz.piccolo.core.endpoint;
 
 import io.github.ukuz.piccolo.api.common.Monitor;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,12 +24,13 @@ import org.springframework.context.annotation.Configuration;
  * @author ukuz90
  */
 @Configuration
-@SpringBootApplication
+//@SpringBootApplication
+@EnableAutoConfiguration
 public class SpringConfiguration {
 
-    private Monitor monitor;
-
-    public SpringConfiguration(Monitor monitor) {
-        this.monitor = monitor;
-    }
+//    private Monitor monitor;
+//
+//    public SpringConfiguration(Monitor monitor) {
+//        this.monitor = monitor;
+//    }
 }

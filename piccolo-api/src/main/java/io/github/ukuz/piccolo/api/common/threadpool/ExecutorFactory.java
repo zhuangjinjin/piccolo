@@ -28,6 +28,7 @@ public interface ExecutorFactory {
     String MQ = "mq";
     String PUSH_CLIENT = "push-client";
     String ID_GEN = "id-gen";
+    String MONITOR = "monitor";
 
     Executor create(String name, Environment environment);
 

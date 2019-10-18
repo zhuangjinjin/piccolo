@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
  * @author ukuz90
  */
 public class ServerExecutorFactory extends AbstractExecutorFactory {
+
     @Override
     public Executor create(String name, Environment environment) {
         ThreadPoolProperties tp = environment.getProperties(ThreadPoolProperties.class);
@@ -41,9 +42,20 @@ public class ServerExecutorFactory extends AbstractExecutorFactory {
                         .keepAliveSeconds(tp.getIdGen().getKeepAliveSeconds())
                         .build();
                 return createScheduledExecutor(config);
+            case MONITOR:
+                config = ThreadPoolConfig.builder()
+                        .name(ThreadNames.T_MONITOR)
+                        .coreSize(tp.getMonitor().getCoreSize())
+                        .maxSize(tp.getMonitor().getMaxSize())
+                        .queueCapacity(tp.getMonitor().getQueueSize())
+                        .keepAliveSeconds(tp.getMonitor().getKeepAliveSeconds())
+                        .build();
+
+                return createScheduledExecutor(config);
             default:
                 return super.create(name, environment);
         }
+
 
     }
 }

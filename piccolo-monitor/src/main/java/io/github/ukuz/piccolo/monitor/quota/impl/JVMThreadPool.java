@@ -15,6 +15,9 @@
  */
 package io.github.ukuz.piccolo.monitor.quota.impl;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
+import io.github.ukuz.piccolo.api.common.threadpool.MonitorExecutorFactory;
+import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.monitor.quota.ThreadPoolQuota;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
@@ -29,9 +32,35 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class JVMThreadPool implements ThreadPoolQuota {
 
+    private final PiccoloContext context;
+
+    public JVMThreadPool(PiccoloContext context) {
+        Assert.notNull(context, "context must not be null");
+        this.context = context;
+    }
+
     @Override
     public Object monitor(Object... args) {
-        return null;
+        Map<String, Object> result = new LinkedHashMap<>();
+        if (context.getExecutorFactory() instanceof MonitorExecutorFactory) {
+
+            MonitorExecutorFactory executorFactory = (MonitorExecutorFactory) context.getExecutorFactory();
+
+            executorFactory.getAllThreadPool().forEach((name, executor) -> {
+
+                if (executor instanceof ThreadPoolExecutor) {
+
+                    result.put(name, getPoolInfo((ThreadPoolExecutor) executor));
+
+                } else if (executor instanceof EventLoopGroup) {
+
+                    result.put(name, getPoolInfo((EventLoopGroup) executor));
+
+                }
+            });
+
+        }
+        return result;
     }
 
     private Map<String, Object> getPoolInfo(ThreadPoolExecutor executor) {

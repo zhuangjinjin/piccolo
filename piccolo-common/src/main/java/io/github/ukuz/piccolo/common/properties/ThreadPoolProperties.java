@@ -30,6 +30,7 @@ public class ThreadPoolProperties implements Properties {
     private ThreadPoolNestedProperties eventBus;
     private ThreadPoolNestedProperties pushClient;
     private ThreadPoolNestedProperties idGen;
+    private ThreadPoolNestedProperties monitor;
 
     @Data
     public class ThreadPoolNestedProperties implements Properties {

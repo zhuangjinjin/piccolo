@@ -56,11 +56,11 @@ public class JVMInfo implements InfoQuota {
     @Override
     public Object monitor(Object... args) {
         Map<String, Object> result = new LinkedHashMap<>(5);
-        result.put("pid", pid());
-        result.put("load", String.format("%.4f%%", load()));
-        result.put("totalMemory", MemorySize.prettyMemorySize(Runtime.getRuntime().totalMemory()));
-        result.put("freeMemory", MemorySize.prettyMemorySize(Runtime.getRuntime().freeMemory()));
-        result.put("maxMemory", MemorySize.prettyMemorySize(Runtime.getRuntime().maxMemory()));
+        result.put("pid", Long.valueOf(pid()));
+        result.put("load", load());
+        result.put("totalMemory", Runtime.getRuntime().totalMemory());
+        result.put("freeMemory", Runtime.getRuntime().freeMemory());
+        result.put("maxMemory", Runtime.getRuntime().maxMemory());
         return result;
     }
 }

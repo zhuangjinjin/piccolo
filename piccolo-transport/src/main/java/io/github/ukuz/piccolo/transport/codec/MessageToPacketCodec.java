@@ -53,8 +53,8 @@ public class MessageToPacketCodec implements Codec {
     public Object decode(Connection connection, ByteBuf in) throws CodecException {
         Packet packet = (Packet) packetCodec.decode(connection, in);
         // metrics
-        MetricsMonitor.getWebSocketBytesCount().getAndAdd(Packet.HEADER_LENGTH + packet.getPayload().length);
-        MetricsMonitor.getWebSocketQuestCount().incrementAndGet();
+        MetricsMonitor.getWebSocketBytesCount().increment(Packet.HEADER_LENGTH + packet.getPayload().length);
+        MetricsMonitor.getWebSocketQuestCount().increment();
 
         if (converter != null) {
             BaseMessage message = converter.convert(packet, connection);

@@ -1,6 +1,9 @@
-<configuration>
-
-    <!-- console -->
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <contextName>piccolo-server</contextName>
+    <property name="log.path" value="/tmp/piccolo"/>
+    <property name="log.name" value="piccolo-server"/>
+    <!-- 输出到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>true</withJansi>
         <encoder>
@@ -8,8 +11,28 @@
         </encoder>
     </appender>
 
+    <!-- 输出到文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/${log.name}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>7</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%contextName] --- [%thread] %logger{36}: %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
     </root>
+
+    <springProfile name="dev">
+        <logger name="io.github.ukuz" level="DEBUG"/>
+    </springProfile>
+
+    <springProfile name="production">
+        <logger name="io.github.ukuz" level="INFO"/>
+    </springProfile>
 
 </configuration>

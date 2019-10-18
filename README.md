@@ -20,6 +20,7 @@ piccolo是一个长连接网关服务器。
 * Kafka 2.0.0
 * Nacos 1.1.3
 * Redis
+* Prometheus
 * Apache Commons
 * Guava
 * Fastjson

@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.server.boot;
 
+import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.common.Monitor;
 
 /**
@@ -22,15 +23,17 @@ import io.github.ukuz.piccolo.api.common.Monitor;
  */
 public class MonitorBoot implements BootJob {
 
-    public MonitorBoot(Monitor monitor) {
+    public MonitorBoot(Monitor monitor, PiccoloContext context) {
         this.monitor = monitor;
+        this.context = context;
     }
 
     private final Monitor monitor;
+    private final PiccoloContext context;
 
     @Override
     public void start() {
-        monitor.startAsync();
+        monitor.startAsync(context);
     }
 
     @Override

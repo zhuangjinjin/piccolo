@@ -26,10 +26,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+
 /**
  * @author ukuz90
  */
-public  class AbstractExecutorFactory implements ExecutorFactory {
+public class AbstractExecutorFactory implements ExecutorFactory {
 
     protected Executor createExecutor(ThreadPoolConfig config) {
         Assert.notNull(config, "config must not be null");
@@ -81,4 +82,5 @@ public  class AbstractExecutorFactory implements ExecutorFactory {
                 throw new IllegalArgumentException("invalid name: " + name);
         }
     }
+
 }

@@ -21,11 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author ukuz90
@@ -76,7 +71,7 @@ public class ServerLauncher {
         processChain.addLast(new RouterCenterBoot(server.getRouterCenter()));
         processChain.addLast(new RouteLocatorBoot(server.getRouteLocator(), server));
         processChain.addLast(new IdGenBoot(server.getIdGen()));
-        processChain.addLast(new MonitorBoot(server.getMonitor()));
+        processChain.addLast(new MonitorBoot(server.getMonitor(), server));
         processChain.addLast(lastJob);
     }
 
