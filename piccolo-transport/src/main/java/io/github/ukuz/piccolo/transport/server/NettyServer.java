@@ -234,6 +234,10 @@ public abstract class NettyServer extends AbstractService implements Server {
         return piccoloContext;
     }
 
+    public EventLoopGroup getWorkerGroup() {
+        return workerGroup;
+    }
+
     public enum State {
         Created,
         Initializing,

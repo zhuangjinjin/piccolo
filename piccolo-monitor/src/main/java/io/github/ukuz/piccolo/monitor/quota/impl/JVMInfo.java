@@ -15,7 +15,6 @@
  */
 package io.github.ukuz.piccolo.monitor.quota.impl;
 
-import io.github.ukuz.piccolo.api.common.MemorySize;
 import io.github.ukuz.piccolo.monitor.quota.InfoQuota;
 
 import java.lang.management.ManagementFactory;

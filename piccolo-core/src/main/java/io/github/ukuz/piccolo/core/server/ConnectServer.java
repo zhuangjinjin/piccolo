@@ -30,6 +30,7 @@ import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
+import io.github.ukuz.piccolo.monitor.MonitorExecutorFactory;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
@@ -95,6 +96,10 @@ public class ConnectServer extends NettyServer {
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
                 .serviceId(ServiceNames.S_CONNECT);
+
+        if (piccoloContext.getExecutorFactory() instanceof MonitorExecutorFactory) {
+            ((MonitorExecutorFactory) piccoloContext.getExecutorFactory()).monitor("ws", this.getWorkerGroup());
+        }
     }
 
     @Override

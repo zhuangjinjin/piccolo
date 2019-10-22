@@ -31,6 +31,7 @@ import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.externel.handler.WebSocketIndexHandler;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
+import io.github.ukuz.piccolo.monitor.MonitorExecutorFactory;
 import io.github.ukuz.piccolo.transport.codec.*;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.github.ukuz.piccolo.transport.server.NettyServer;
@@ -86,6 +87,11 @@ public class WebSocketServer extends NettyServer {
                 .port(channel.localAddress().getPort())
                 .isPersistent(false)
                 .serviceId(ServiceNames.S_WS);
+
+        if (piccoloContext.getExecutorFactory() instanceof MonitorExecutorFactory) {
+            ((MonitorExecutorFactory) piccoloContext.getExecutorFactory()).monitor("ws", this.getWorkerGroup());
+        }
+
     }
 
     @Override

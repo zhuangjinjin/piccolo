@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.api.common.threadpool;
+package io.github.ukuz.piccolo.monitor;
 
+import io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory;
 import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.micrometer.core.instrument.Metrics;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,11 +41,11 @@ public class MonitorExecutorFactory implements ExecutorFactory {
 
     @Override
     public Executor create(String name, Environment environment) {
-        return executors.computeIfAbsent(name, k -> delegate.create(k, environment));
+        return executors.computeIfAbsent(name, k -> InternalExecutorServiceMetrics.monitor(Metrics.globalRegistry, delegate.create(k, environment), k));
     }
 
     public void monitor(String name, Executor executor) {
-        executors.put(name, executor);
+        executors.put(name, InternalExecutorServiceMetrics.monitor(Metrics.globalRegistry, executor, name));
     }
 
     public Map<String, Executor> getAllThreadPool() {

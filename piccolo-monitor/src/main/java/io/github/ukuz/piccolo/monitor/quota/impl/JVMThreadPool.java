@@ -16,15 +16,18 @@
 package io.github.ukuz.piccolo.monitor.quota.impl;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
-import io.github.ukuz.piccolo.api.common.threadpool.MonitorExecutorFactory;
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.monitor.MonitorExecutorFactory;
 import io.github.ukuz.piccolo.monitor.quota.ThreadPoolQuota;
+import io.micrometer.core.instrument.internal.TimedExecutorService;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.SingleThreadEventExecutor;
 
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -48,19 +51,43 @@ public class JVMThreadPool implements ThreadPoolQuota {
 
             executorFactory.getAllThreadPool().forEach((name, executor) -> {
 
-                if (executor instanceof ThreadPoolExecutor) {
+                if (executor instanceof TimedExecutorService) {
 
-                    result.put(name, getPoolInfo((ThreadPoolExecutor) executor));
+                    try {
+                        Field field = TimedExecutorService.class.getDeclaredField("delegate");
+                        field.setAccessible(true);
+                        Executor delegate = (Executor) field.get(executor);
+                        monitorExectorService(delegate, result, name);
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
 
-                } else if (executor instanceof EventLoopGroup) {
 
-                    result.put(name, getPoolInfo((EventLoopGroup) executor));
+                } else {
+
+                    monitorExectorService(executor, result, name);
 
                 }
+
+
             });
 
         }
         return result;
+    }
+
+    private void monitorExectorService(Executor executor, Map<String, Object> result, String name) {
+
+        if (executor instanceof ThreadPoolExecutor) {
+
+            result.put(name, getPoolInfo((ThreadPoolExecutor) executor));
+
+        } else if (executor instanceof EventLoopGroup) {
+
+            result.put(name, getPoolInfo((EventLoopGroup) executor));
+
+        }
+
     }
 
     private Map<String, Object> getPoolInfo(ThreadPoolExecutor executor) {

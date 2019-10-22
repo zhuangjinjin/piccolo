@@ -18,10 +18,12 @@ package io.github.ukuz.piccolo.monitor;
 import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.micrometer.core.instrument.*;
+import io.micrometer.core.instrument.binder.jvm.DiskSpaceMetrics;
+import io.netty.util.internal.PlatformDependent;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 /**
@@ -69,11 +71,17 @@ public class MetricsMonitor {
     }
 
     public static final Counter getWebSocketQuestCount() {
-        return counter(MONITOR_TAG, "name", "websocketQuestCount");
+        return counter(MONITOR_TAG, "module", "net", "name", "websocketQuestCount");
     }
 
     public static final Counter getWebSocketBytesCount() {
         return counter(MONITOR_TAG, "module", "net", "name", "websocketBytesCount");
+    }
+
+    public static final void monitorDisk() {
+        if (!PlatformDependent.isWindows()) {
+            new DiskSpaceMetrics(new File("/")).bindTo(Metrics.globalRegistry);
+        }
     }
 
 }

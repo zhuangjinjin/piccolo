@@ -52,6 +52,12 @@ public class MonitorService extends AbstractService implements Monitor {
                 .create(ExecutorFactory.MONITOR, context.getEnvironment());
 
         executor.scheduleAtFixedRate(this::scheduleMonitor, 5, 10, TimeUnit.SECONDS);
+
+        bind(context);
+    }
+
+    private void bind(PiccoloContext context) {
+        MetricsMonitor.monitorDisk();
     }
 
     @Override
@@ -95,7 +101,8 @@ public class MonitorService extends AbstractService implements Monitor {
             if (val instanceof Map) {
                 monitorResult(tag, key, (Map<String, Object>) val);
             } else if (val instanceof Number) {
-                MetricsMonitor.gaugeWithStrongRef(tag, module, key, () -> (Number) val);
+//                MetricsMonitor.gaugeWithStrongRef(tag, module, key, () -> (Number) val);
+                MetricsMonitor.gauge(tag, module, key, (Number) val);
             } else {
                 LOGGER.warn("collect metric invalid type, key:{} val: {}, expect Map or Number.", key, val);
             }
