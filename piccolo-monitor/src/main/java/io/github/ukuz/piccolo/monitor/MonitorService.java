@@ -58,6 +58,7 @@ public class MonitorService extends AbstractService implements Monitor {
 
     private void bind(PiccoloContext context) {
         MetricsMonitor.monitorDisk();
+        MetricsMonitor.monitorGC(metricsCollector.getQuota());
     }
 
     @Override

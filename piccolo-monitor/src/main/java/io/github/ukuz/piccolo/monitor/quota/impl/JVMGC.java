@@ -152,11 +152,4 @@ public class JVMGC implements GCQuota {
         return result;
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        JVMGC gc = new JVMGC();
-        while (true) {
-            System.out.println(gc.monitor());
-            Thread.sleep(3000);
-        }
-    }
 }

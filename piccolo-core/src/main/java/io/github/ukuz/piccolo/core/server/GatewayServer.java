@@ -29,6 +29,8 @@ import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.NamedThreadFactory;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
+import io.github.ukuz.piccolo.core.handler.MonitorBytesHandler;
+import io.github.ukuz.piccolo.core.handler.MonitorQpsHandler;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.monitor.MonitorExecutorFactory;
 import io.github.ukuz.piccolo.transport.codec.Codec;
@@ -54,6 +56,8 @@ public class GatewayServer extends NettyServer {
     private final ConnectionManager cxnxManager;
     private DefaultServiceInstance serviceInstance;
     private GlobalChannelTrafficShapingHandler trafficShapingHandler;
+    private MonitorBytesHandler monitorBytesHandler;
+    private MonitorQpsHandler monitorQpsHandler;
 
     public GatewayServer(PiccoloContext piccoloContext) {
         this(piccoloContext,
@@ -88,6 +92,9 @@ public class GatewayServer extends NettyServer {
                     traffic.getWriteGlobalLimit(), traffic.getReadGlobalLimit(),
                     traffic.getWriteChannelLimit(), traffic.getReadChannelLimit());
         }
+
+        monitorBytesHandler = new MonitorBytesHandler(getName());
+        monitorQpsHandler = new MonitorQpsHandler(getName());
     }
 
     @Override
@@ -125,6 +132,9 @@ public class GatewayServer extends NettyServer {
         if (trafficShapingHandler != null) {
             pipeline.addFirst(trafficShapingHandler);
         }
+
+        pipeline.addBefore("decoder", "monitor_bytes", monitorBytesHandler);
+        pipeline.addAfter("decoder","monitor_qps", monitorQpsHandler);
     }
 
     @Override

@@ -17,6 +17,7 @@ package io.github.ukuz.piccolo.monitor;
 
 import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.monitor.quota.GCQuota;
 import io.micrometer.core.instrument.*;
 import io.micrometer.core.instrument.binder.jvm.DiskSpaceMetrics;
 import io.netty.util.internal.PlatformDependent;
@@ -31,7 +32,10 @@ import java.util.function.Supplier;
  */
 public class MetricsMonitor {
 
-    private static final String MONITOR_TAG = "piccolo_app_monitor";
+    private static final String REQUEST_CNT_TAG = "piccolo_recv_count";
+    private static final String REQUEST_BYTES_TAG = "piccolo_recv_bytes";
+    private static final String RESPONSE_CNT_TAG = "piccolo_send_count";
+    private static final String RESPONSE_BYTES_TAG = "piccolo_send_bytes";
 
     public static void gauge(String tag, String module, String name, Number value) {
         if (StringUtils.hasText(module)) {
@@ -70,18 +74,38 @@ public class MetricsMonitor {
         return labelSet;
     }
 
-    public static final Counter getWebSocketQuestCount() {
-        return counter(MONITOR_TAG, "module", "net", "name", "websocketQuestCount");
+//    public static final Counter getWebSocketQuestCount() {
+//        return counter(MONITOR_TAG, "module", "net", "name", "websocketQuestCount");
+//    }
+//
+//    public static final Counter getWebSocketBytesCount() {
+//        return counter(MONITOR_TAG, "module", "net", "name", "websocketBytesCount");
+//    }
+
+    public static final Counter getQuestCount(String name) {
+        return counter(REQUEST_CNT_TAG, "name", name);
     }
 
-    public static final Counter getWebSocketBytesCount() {
-        return counter(MONITOR_TAG, "module", "net", "name", "websocketBytesCount");
+    public static final Counter getQuestBytes(String name) {
+        return counter(REQUEST_BYTES_TAG, "name", name);
+    }
+
+    public static final Counter getResponseCount(String name) {
+        return counter(RESPONSE_CNT_TAG, "name", name);
+    }
+
+    public static final Counter getResponseBytes(String name) {
+        return counter(RESPONSE_BYTES_TAG, "name", name);
     }
 
     public static final void monitorDisk() {
         if (!PlatformDependent.isWindows()) {
             new DiskSpaceMetrics(new File("/")).bindTo(Metrics.globalRegistry);
         }
+    }
+
+    public static final void monitorGC(GCQuota gcQuota) {
+        new JVMGCMetrics(gcQuota).bindTo(Metrics.globalRegistry);
     }
 
 }

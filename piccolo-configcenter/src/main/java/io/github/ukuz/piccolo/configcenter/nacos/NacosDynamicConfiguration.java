@@ -126,6 +126,7 @@ public class NacosDynamicConfiguration extends AbstractService implements Dynami
 
         @Override
         public void innerReceive(String dataId, String group, String configInfo) {
+            LOGGER.info("innerReceive data: {}, group: {}, configInfo: {}", dataId, group, configInfo);
             String oldData = cachedData.get(dataId);
             ConfigurationChangedEvent event = new ConfigurationChangedEvent(dataId, configInfo, getChangeType(oldData, configInfo));
             if (configInfo != null) {

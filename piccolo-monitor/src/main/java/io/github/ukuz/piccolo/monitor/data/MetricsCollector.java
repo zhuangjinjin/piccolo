@@ -47,4 +47,24 @@ public class MetricsCollector {
                 .result("piccolo_info", infoQuota.monitor())
                 ;
     }
+
+    public GCQuota getQuota() {
+        return quota;
+    }
+
+    public ThreadPoolQuota getThreadPoolQuota() {
+        return threadPoolQuota;
+    }
+
+    public MemoryQuota getMemoryQuota() {
+        return memoryQuota;
+    }
+
+    public ThreadQuota getThreadQuota() {
+        return threadQuota;
+    }
+
+    public InfoQuota getInfoQuota() {
+        return infoQuota;
+    }
 }

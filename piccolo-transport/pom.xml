@@ -24,10 +24,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>piccolo-common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>piccolo-monitor</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>${project.groupId}</groupId>-->
+            <!--<artifactId>piccolo-monitor</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>

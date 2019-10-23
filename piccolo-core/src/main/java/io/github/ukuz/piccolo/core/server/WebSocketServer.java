@@ -30,6 +30,8 @@ import io.github.ukuz.piccolo.common.properties.NetProperties;
 import io.github.ukuz.piccolo.common.thread.ThreadNames;
 import io.github.ukuz.piccolo.core.externel.handler.WebSocketIndexHandler;
 import io.github.ukuz.piccolo.core.handler.ChannelHandlers;
+import io.github.ukuz.piccolo.core.handler.MonitorBytesHandler;
+import io.github.ukuz.piccolo.core.handler.MonitorQpsHandler;
 import io.github.ukuz.piccolo.core.properties.ThreadProperties;
 import io.github.ukuz.piccolo.monitor.MonitorExecutorFactory;
 import io.github.ukuz.piccolo.transport.codec.*;
@@ -53,6 +55,8 @@ public class WebSocketServer extends NettyServer {
 
     private InetSocketAddress address;
     private DefaultServiceInstance serviceInstance;
+    private MonitorBytesHandler monitorBytesHandler;
+    private MonitorQpsHandler monitorQpsHandler;
 
     public WebSocketServer(PiccoloContext piccoloContext) {
         this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager());
@@ -77,6 +81,8 @@ public class WebSocketServer extends NettyServer {
 
     @Override
     protected void doInit() {
+        monitorBytesHandler = new MonitorBytesHandler(getName());
+        monitorQpsHandler = new MonitorQpsHandler(getName());
     }
 
     @Override
@@ -111,8 +117,10 @@ public class WebSocketServer extends NettyServer {
         pipeline.addLast(new WebSocketServerProtocolHandler(piccoloContext.getProperties(NetProperties.class).getWsPath(), null, true));
         //inbound
         pipeline.addLast(new WebSocketIndexHandler());
+        pipeline.addLast(monitorBytesHandler);
         pipeline.addLast(codec.getDecoder());
         pipeline.addLast(codec.getEncoder());
+        pipeline.addLast(monitorQpsHandler);
         //duplex
         pipeline.addLast(getServerHandler());
     }

@@ -50,6 +50,8 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
             Map<String, String> data = Jsons.fromJson(contentInfo, Map.class);
             cacheRouteMap.putAll(data);
         }
+        //register listener
+        this.configuration.addListener(key, this);
     }
 
     @Override
@@ -77,6 +79,7 @@ public class CacheRouteLocator extends AbstractService implements RouteLocator<S
             cacheRouteMap.clear();
         } else {
             Map<String, String> data = Jsons.fromJson(event.getValue(), Map.class);
+            cacheRouteMap.clear();
             cacheRouteMap.putAll(data);
         }
     }
