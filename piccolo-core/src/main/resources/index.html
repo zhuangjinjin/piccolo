@@ -418,6 +418,11 @@
                         config.log.info(">>> bind user ok.");
                         config.log.info(msg);
                         listener.onBindUser(true);
+                    } else if (subCmd == Command.UNBIND) {
+                        config.log.info(">>> unbind user ok.");
+                        config.log.info(msg);
+                        session.userId = "";
+                        listener.onBindUser(true);
                     }
                     break;
                 }

@@ -55,12 +55,12 @@ public class UserManager {
     }
 
     public void addToOnlineList(String userId) {
-        piccoloContext.getCacheManager().zAdd(onlineUserListKey, userId, 0);
+        piccoloContext.getCacheManager().zAdd(onlineUserListKey, "\"" + userId + "\"", 0);
         LOGGER.info("user online, userId: {}", userId);
     }
 
     public void removeFromOnlineList(String userId) {
-        piccoloContext.getCacheManager().zRem(onlineUserListKey, userId);
+        piccoloContext.getCacheManager().zRem(onlineUserListKey, "\"" + userId + "\"");
         LOGGER.info("user offline, userId: {}", userId);
     }
 

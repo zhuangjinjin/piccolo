@@ -118,18 +118,6 @@ public class InternalExecutorServiceMetrics implements MeterBinder {
         return activeCount;
     }
 
-    private int getCompletedTaskCount(EventLoopGroup executors) {
-        int completedTaskCount = 0;
-        for (EventExecutor executor : executors) {
-            if (executor instanceof SingleThreadEventExecutor) {
-                if (((SingleThreadEventExecutor) executor).threadProperties().state() == Thread.State.RUNNABLE) {
-                    completedTaskCount ++;
-                }
-            }
-        }
-        return completedTaskCount;
-    }
-
     private int getQueueSize(EventLoopGroup executors) {
         int queueSize = 0;
         for (EventExecutor executor : executors) {

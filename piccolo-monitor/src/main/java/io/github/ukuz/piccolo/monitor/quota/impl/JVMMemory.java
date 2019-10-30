@@ -249,12 +249,4 @@ public class JVMMemory implements MemoryQuota {
         return result;
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        JVMMemory memory = new JVMMemory();
-        while (true) {
-            System.out.println(memory.monitor());
-            Thread.sleep(3000);
-        }
-
-    }
 }
