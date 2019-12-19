@@ -19,6 +19,7 @@ import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.ExchangeException;
 import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.client.common.ClientChannelHandlerAdaptor;
+import io.github.ukuz.piccolo.client.id.IdGenManager;
 import io.github.ukuz.piccolo.common.message.IdGenOkMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class IdGenClientHandler extends ClientChannelHandlerAdaptor {
         if (message instanceof IdGenOkMessage) {
 
             IdGenOkMessage msg = (IdGenOkMessage) message;
-            SnowflakeIdGenDelegate idGen = (SnowflakeIdGenDelegate) context.getIdGen();
+            SnowflakeIdGenDelegate idGen = (SnowflakeIdGenDelegate) IdGenManager.getInstance().get(msg.getId());
 
             if (SnowflakeIdGenDelegate.INIT_TAG.equals(msg.getTag())) {
                 idGen.writeData(msg.getXid(), true);

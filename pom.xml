@@ -27,7 +27,7 @@
     <version>${revision}</version>
 
     <properties>
-        <revision>0.2.0</revision>
+        <revision>0.2.1</revision>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- maven compiler plugin -->
@@ -58,6 +58,7 @@
         <logback_version>1.2.2</logback_version>
         <guava_version>28.0-jre</guava_version>
         <jedis_version>2.9.0</jedis_version>
+        <redisson_version>3.11.5</redisson_version>
         <fastjson_version>1.2.47</fastjson_version>
         <kafka_version>2.0.0</kafka_version>
         <protobuf_version>3.9.1</protobuf_version>
@@ -192,6 +193,11 @@
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>${jedis_version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson_version}</version>
             </dependency>
 
             <!-- guava -->

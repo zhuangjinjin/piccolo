@@ -80,7 +80,7 @@ public final class ZooKeeperManager extends AbstractService {
              * auth: 代表已经认证通过的用户(cli中可以通过addauth digest user:pwd 来添加当前上下文中的授权用户); 它不需要id, 只要是通过authentication的user都有权限（zookeeper支持通过kerberos来进行authencation, 也支持username/password形式的authentication)
              * digest: 即用户名:密码这种方式认证，这也是业务系统中最常用的;它对应的id为username:BASE64(SHA1(password))，它需要先通过username:password形式的authentication
              * ip: 使用Ip地址认证;它对应的id为客户机的IP地址，设置的时候可以设置一个ip段，比如ip:192.168.1.0/16, 表示匹配前16个bit的IP段
-             * super: 在这种scheme情况下，对应的id拥有超级权限，可以做任何事情(cdrwa)
+             * super: 在这种scheme情况下，对应的id拥有超级权限，可以做任何事情(crwda) CREATE, READ, WRITE, DELETE, ADMIN
              */
             builder.authorization("digest", zkProp.getDigest().getBytes(StandardCharsets.UTF_8));
             builder.aclProvider(new ACLProvider() {

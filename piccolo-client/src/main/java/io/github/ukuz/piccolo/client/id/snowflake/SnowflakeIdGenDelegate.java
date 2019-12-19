@@ -25,6 +25,8 @@ import io.github.ukuz.piccolo.api.loadbalance.LoadBalancer;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.client.PiccoloClient;
+import io.github.ukuz.piccolo.client.id.IdGenManager;
+import io.github.ukuz.piccolo.client.id.UniqueIdGen;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.IdGenMessage;
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author ukuz90
  */
-public class SnowflakeIdGenDelegate implements IdGen {
+public class SnowflakeIdGenDelegate implements IdGen, UniqueIdGen {
 
     public static final String INIT_TAG = "f";
     private static Logger LOGGER = LoggerFactory.getLogger(SnowflakeIdGenDelegate.class);
@@ -52,6 +54,7 @@ public class SnowflakeIdGenDelegate implements IdGen {
     private PiccoloClient piccoloClient;
     private final AtomicBoolean sending;
     private final AtomicBoolean started = new AtomicBoolean(false);
+    private final Long id;
 
     public SnowflakeIdGenDelegate(PiccoloClient piccoloClient) {
         this(piccoloClient, DEFAULT_BUFFER_SIZE, DEFAULT_THRESHOLD);
@@ -80,6 +83,8 @@ public class SnowflakeIdGenDelegate implements IdGen {
         this.piccoloClient = piccoloClient;
         this.sending = new AtomicBoolean(false);
 
+        id = IdGenManager.getInstance().acquireId();
+        IdGenManager.getInstance().register(this);
     }
 
     @Override
@@ -178,6 +183,7 @@ public class SnowflakeIdGenDelegate implements IdGen {
                                 IdGenMessage idGenMessage = new IdGenMessage(connection);
                                 idGenMessage.tag = isInit ? INIT_TAG : null;
                                 idGenMessage.batchSize = (short)capacity;
+                                idGenMessage.id = id;
                                 connection.sendAsync(idGenMessage, future -> {
                                     if (!future.isSuccess()) {
                                         LOGGER.warn("get xid async send failure, cause: {}", future.cause());
@@ -201,5 +207,11 @@ public class SnowflakeIdGenDelegate implements IdGen {
                 }
             });
         }
+    }
+
+
+    @Override
+    public Long getId() {
+        return id;
     }
 }

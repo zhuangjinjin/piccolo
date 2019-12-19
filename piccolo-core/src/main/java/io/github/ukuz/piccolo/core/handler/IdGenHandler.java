@@ -56,12 +56,12 @@ public class IdGenHandler extends ChannelHandlerDelegateAdapter {
             }
             if (code != 0) {
                 LOGGER.error("idGen failure, success: {} total: {}", i, batchSize);
-                connection.sendAsync(IdGenOkMessage.build(connection).code(code));
+                connection.sendAsync(IdGenOkMessage.build(connection).code(code).id(msg.id));
             } else {
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("idGen success, success: {} total: {}", i, batchSize);
                 }
-                connection.sendAsync(IdGenOkMessage.build(connection).xid(xid).tag(msg.tag));
+                connection.sendAsync(IdGenOkMessage.build(connection).xid(xid).tag(msg.tag).id(msg.id));
             }
 
         } else {

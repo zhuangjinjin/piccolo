@@ -112,7 +112,7 @@ public class UserManager {
         this.piccoloContext.getMQClient().subscribe(Topics.OFFLINE_MESSAGE.getTopic(), new OfflineMessageReceiver(offlineHandler));
     }
 
-    public class OfflineMessageReceiver implements MQMessageReceiver<byte[]> {
+    private class OfflineMessageReceiver implements MQMessageReceiver<byte[]> {
 
         private final Consumer<OfflineMqMessage> consumer;
 

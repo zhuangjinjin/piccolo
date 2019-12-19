@@ -27,6 +27,7 @@ public class IdGenMessage extends ByteBufMessage {
 
     public short batchSize;
     public String tag;
+    public Long id;
 
     public IdGenMessage(Connection connection) {
         super(connection, ID_GEN.getCmd());
@@ -36,18 +37,22 @@ public class IdGenMessage extends ByteBufMessage {
     protected void decodeBody0(ByteBuf buf) {
         batchSize = readShort(buf);
         tag = readString(buf);
+        id = readLong(buf);
     }
 
     @Override
     protected void encodeBody0(ByteBuf buf) {
         writeShort(buf, batchSize);
         writeString(buf, tag);
+        writeLong(buf, id);
     }
 
     @Override
     public String toString() {
         return "IdGenMessage{" +
                 "batchSize=" + batchSize +
+                ", tag='" + tag + '\'' +
+                ", id=" + id +
                 '}';
     }
 }

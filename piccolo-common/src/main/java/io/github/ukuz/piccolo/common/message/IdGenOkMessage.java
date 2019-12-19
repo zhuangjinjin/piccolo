@@ -22,6 +22,8 @@ import static io.github.ukuz.piccolo.common.constants.CommandType.ID_GEN;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 
+import java.util.Arrays;
+
 /**
  * @author ukuz90
  */
@@ -31,6 +33,7 @@ public class IdGenOkMessage extends ByteBufMessage {
     private long[] xid;
     private byte code;
     private String tag;
+    private Long id;
 
     public IdGenOkMessage(Connection connection) {
         super(connection, ID_GEN.getCmd());
@@ -41,6 +44,7 @@ public class IdGenOkMessage extends ByteBufMessage {
         xid = readLongs(buf);
         code = readByte(buf);
         tag = readString(buf);
+        id = readLong(buf);
     }
 
     @Override
@@ -48,6 +52,7 @@ public class IdGenOkMessage extends ByteBufMessage {
         writeLongs(buf, xid);
         writeByte(buf, code);
         writeString(buf, tag);
+        writeLong(buf, id);
     }
 
     public static IdGenOkMessage build(Connection connection) {
@@ -69,12 +74,18 @@ public class IdGenOkMessage extends ByteBufMessage {
         return this;
     }
 
+    public IdGenOkMessage id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "IdGenOkMessage{" +
-                "xid=" + xid.length +
+                "xid=" + Arrays.toString(xid) +
                 ", code=" + code +
                 ", tag='" + tag + '\'' +
+                ", id=" + id +
                 '}';
     }
 }
