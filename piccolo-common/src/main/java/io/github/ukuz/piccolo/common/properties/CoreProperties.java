@@ -44,6 +44,11 @@ public class CoreProperties implements Properties {
      */
     private String srd;
 
+    /**
+     * jedis, redisson
+     */
+    private String cache = "jedis";
+
     public boolean isUseNettyEpoll() {
         if (!"netty".equals(epollProvider)) {
             return false;

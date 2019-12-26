@@ -1,0 +1,2 @@
+jedis=io.github.ukuz.piccolo.cache.redis.connection.jedis.JedisConnectionFactory
+redisson=io.github.ukuz.piccolo.cache.redis.connection.redisson.RedissonConnectionFactory

@@ -15,40 +15,18 @@
  */
 package io.github.ukuz.piccolo.cache.redis.operator;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
 
 /**
  * @author ukuz90
  */
-public interface ValueOperator<V> {
+public interface ZSetOperator {
 
-    String set(V val);
+    void zAdd(String field, double score);
 
-    long setNx(V val);
+    long zCard();
 
-    String setEx(V val, int seconds);
+    void zRem(String field);
 
-    String psetEx(V val, long millis);
-
-    V get();
-
-    long incr();
-
-    long incrBy(long increment);
-
-    long decr();
-
-    long decrBy(long decrement);
-
-    long del();
-
-    default String ttl(V val, long time, TimeUnit unit) {
-        if (unit == TimeUnit.MILLISECONDS) {
-            return psetEx(val, unit.toMillis(time));
-        } else {
-            return setEx(val, (int) unit.toSeconds(time));
-        }
-    }
-
-
+    Set<String> zRange(long start, long end);
 }

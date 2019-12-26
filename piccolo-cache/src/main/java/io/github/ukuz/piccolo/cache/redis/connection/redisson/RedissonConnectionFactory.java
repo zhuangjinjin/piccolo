@@ -15,8 +15,89 @@
  */
 package io.github.ukuz.piccolo.cache.redis.connection.redisson;
 
+import io.github.ukuz.piccolo.cache.redis.connection.RedisConnectionFactory;
+import io.github.ukuz.piccolo.cache.redis.operator.HashOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.ListOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.ValueOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.ZSetOperator;
+import io.github.ukuz.piccolo.cache.redis.properties.RedisProperties;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+
 /**
  * @author ukuz90
  */
-public class RedisConnectionFactory {
+public class RedissonConnectionFactory implements RedisConnectionFactory {
+
+    private RedissonClient redissonClient;
+
+    @Override
+    public void init(RedisProperties redisProperties) {
+        Config config = initConfig(redisProperties);
+
+        redissonClient = Redisson.create(config);
+
+    }
+
+    @Override
+    public ValueOperator getValueOperator(String key) {
+        return null;
+    }
+
+    @Override
+    public HashOperator getHashOperator(String key) {
+        return null;
+    }
+
+    @Override
+    public ListOperator getListOperator(String key) {
+        return null;
+    }
+
+    @Override
+    public ZSetOperator getZSetOperator(String key) {
+        return null;
+    }
+
+    private Config initConfig(RedisProperties redisProperties) {
+        Config config = new Config();
+
+        if (redisProperties.isStandalone()) {
+
+            initStandaloneConfig(config, redisProperties);
+
+        } else if (redisProperties.isSentinel()) {
+
+            initSentinelConfig(config, redisProperties);
+
+        } else if (redisProperties.isCluster()) {
+
+            initClusterConfig(config, redisProperties);
+
+        }
+
+        return config;
+    }
+
+    private void initStandaloneConfig(Config config, RedisProperties redisProperties) {
+        config.useSingleServer().setAddress(redisProperties.getHost());
+        config.useSingleServer().setPassword(redisProperties.getPassword());
+    }
+
+    private void initSentinelConfig(Config config, RedisProperties redisProperties) {
+        config.useSentinelServers().addSentinelAddress(redisProperties.getSentinelMaster());
+        config.useSentinelServers().setPassword(redisProperties.getPassword());
+    }
+
+    private void initClusterConfig(Config config, RedisProperties redisProperties) {
+        config.useClusterServers().addNodeAddress(redisProperties.getHost());
+        config.useClusterServers().setPassword(redisProperties.getPassword());
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
 }

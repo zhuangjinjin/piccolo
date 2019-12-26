@@ -51,7 +51,6 @@ public class MBeanRegistry {
     }
 
     public void registerMBeanInfo(PiccoloMBeanInfo mBeanInfo) {
-
     }
 
 }

@@ -17,18 +17,15 @@ package io.github.ukuz.piccolo.cache.redis.manager;
 
 import io.github.ukuz.piccolo.api.PiccoloContext;
 import io.github.ukuz.piccolo.api.cache.CacheManager;
-import io.github.ukuz.piccolo.cache.CacheException;
+import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.cache.redis.connection.RedisConnectionFactory;
 import io.github.ukuz.piccolo.cache.redis.properties.RedisProperties;
 import io.github.ukuz.piccolo.common.json.Jsons;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCommands;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -42,7 +39,8 @@ public class RedisCacheManager implements CacheManager {
 
     @Override
     public void init(PiccoloContext piccoloContext) {
-        factory = new RedisConnectionFactory();
+        CoreProperties properties = piccoloContext.getProperties(CoreProperties.class);
+        factory = SpiLoader.getLoader(RedisConnectionFactory.class).getExtension(properties.getCache());
         factory.init(piccoloContext.getProperties(RedisProperties.class));
     }
 
@@ -51,106 +49,64 @@ public class RedisCacheManager implements CacheManager {
         factory.destroy();
     }
 
-    public void run(Consumer<JedisCommands> consumer) {
-        LOGGER.info("redis run");
-        if (factory.isCluster()) {
-            try {
-                consumer.accept(factory.getJedisClusterConnection());
-            } catch (Exception e) {
-                LOGGER.warn("call failure, cause: {}", e);
-                throw new CacheException("redis call failure", e);
-            }
-        } else {
-            // need call jedis close
-            try (Jedis jedis = factory.getJedisConnection()){
-                consumer.accept(jedis);
-            } catch (Exception e) {
-                LOGGER.warn("call failure, cause: {}", e);
-                throw new CacheException("redis call failure", e);
-            }
-        }
-    }
-
-    public <R> R call(Function<JedisCommands, R> function) {
-        LOGGER.info("redis call");
-        R result;
-        if (factory.isCluster()) {
-            try {
-                result = function.apply(factory.getJedisClusterConnection());
-            } catch (Exception e) {
-                LOGGER.warn("call failure, cause: {}", e);
-                throw new CacheException("redis call failure", e);
-            }
-        } else {
-            // need call jedis close
-            try (Jedis jedis = factory.getJedisConnection()) {
-                result = function.apply(jedis);
-            } catch (Exception e) {
-                LOGGER.warn("call failure, cause: {}", e);
-                throw new CacheException("redis call failure", e);
-            }
-        }
-        return result;
-    }
-
     @Override
     public void del(String key) {
-        run(redis -> redis.del(key));
+        factory.getValueOperator(key).del();
     }
 
     @Override
     public long hincrBy(String key, String field, long value) {
-        return call(redis -> redis.hincrBy(key, field, value));
+        return factory.getHashOperator(key).incr(field, value);
     }
 
     @Override
     public void set(String key, String value) {
-        run(redis -> redis.set(key, value));
+        factory.getValueOperator(key).set(value);
     }
 
     @Override
     public void set(String key, String value, int expireTime) {
-        run(redis -> redis.setex(key, expireTime, value));
+        factory.getValueOperator(key).setEx(value, expireTime);
     }
 
     @Override
     public void set(String key, Object value, int expireTime) {
-        run(redis -> redis.setex(key, expireTime, Jsons.toJson(value)));
+        factory.getValueOperator(key).setEx(Jsons.toJson(value), expireTime);
     }
 
     @Override
     public String get(String key) {
-        return call(redis -> redis.get(key));
+        return (String) factory.getValueOperator(key).get();
     }
 
     @Override
     public <T> T get(String key, Class<T> tClass) {
-        return call(redis -> Jsons.fromJson(redis.get(key), tClass));
+        return Jsons.fromJson((String) factory.getValueOperator(key).get(), tClass);
     }
 
     @Override
     public void hset(String key, String field, String value) {
-        run(redis -> redis.hset(key, field, value));
+        factory.getHashOperator(key).set(field, value);
     }
 
     @Override
     public void hset(String key, String field, Object value) {
-        run(redis -> redis.hset(key, field, Jsons.toJson(value)));
+        factory.getHashOperator(key).set(field, Jsons.toJson(value));
     }
 
     @Override
     public <T> T hget(String key, String field, Class<T> tClass) {
-        return call(redis -> Jsons.fromJson(redis.hget(key, field), tClass));
+        return Jsons.fromJson((String) factory.getHashOperator(key).get(field), tClass);
     }
 
     @Override
     public void hdel(String key, String field) {
-        run(redis -> redis.hdel(key, field));
+        factory.getHashOperator(key).del(field);
     }
 
     @Override
     public Map<String, String> hgetAll(String key) {
-        return call(redis -> redis.hgetAll(key));
+        return factory.getHashOperator(key).getAll();
     }
 
     @Override
@@ -166,22 +122,22 @@ public class RedisCacheManager implements CacheManager {
 
     @Override
     public void zAdd(String key, String field, double score) {
-        run(redis -> redis.zadd(key, score, field));
+        factory.getZSetOperator(key).zAdd(field, score);
     }
 
     @Override
     public Long zCard(String key) {
-        return call(redis -> redis.zcard(key));
+        return factory.getZSetOperator(key).zCard();
     }
 
     @Override
     public void zRem(String key, String field) {
-        run(redis -> redis.zrem(key, field));
+        factory.getZSetOperator(key).zRem(field);
     }
 
     @Override
     public <T> List<T> zrange(String key, int start, int end, Class<T> clazz) {
-        Set<String> tmpResult = call(redis -> redis.zrange(key, start, end));
+        Set<String> tmpResult = factory.getZSetOperator(key).zRange(start, end);
         return tmpResult.stream()
                 .map(v -> Jsons.fromJson(v, clazz))
                 .collect(Collectors.toList());
@@ -189,12 +145,12 @@ public class RedisCacheManager implements CacheManager {
 
     @Override
     public void lpush(String key, String... value) {
-        run(redis -> redis.lpush(key, value));
+        factory.getListOperator(key).lPush(value);
     }
 
     @Override
     public <T> List<T> lrange(String key, int start, int end, Class<T> clazz) {
-        List<String> tmpResult = call(redis -> redis.lrange(key, start, end));
+        List<String> tmpResult = factory.getListOperator(key).lRange(start, end);
         return tmpResult.stream()
                 .map(v -> Jsons.fromJson(v, clazz))
                 .collect(Collectors.toList());

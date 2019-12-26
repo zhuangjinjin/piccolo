@@ -15,40 +15,21 @@
  */
 package io.github.ukuz.piccolo.cache.redis.operator;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 /**
  * @author ukuz90
  */
-public interface ValueOperator<V> {
+public interface HashOperator<V> {
 
-    String set(V val);
+    long incr(String field, long incr);
 
-    long setNx(V val);
+    void set(String field, V value);
 
-    String setEx(V val, int seconds);
+    V get(String field);
 
-    String psetEx(V val, long millis);
+    void del(String field);
 
-    V get();
-
-    long incr();
-
-    long incrBy(long increment);
-
-    long decr();
-
-    long decrBy(long decrement);
-
-    long del();
-
-    default String ttl(V val, long time, TimeUnit unit) {
-        if (unit == TimeUnit.MILLISECONDS) {
-            return psetEx(val, unit.toMillis(time));
-        } else {
-            return setEx(val, (int) unit.toSeconds(time));
-        }
-    }
-
+    Map<String, V> getAll();
 
 }

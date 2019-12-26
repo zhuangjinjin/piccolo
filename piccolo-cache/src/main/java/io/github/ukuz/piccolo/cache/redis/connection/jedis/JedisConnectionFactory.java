@@ -16,6 +16,15 @@
 package io.github.ukuz.piccolo.cache.redis.connection.jedis;
 
 import io.github.ukuz.piccolo.cache.redis.RedisNode;
+import io.github.ukuz.piccolo.cache.redis.connection.RedisConnectionFactory;
+import io.github.ukuz.piccolo.cache.redis.operator.HashOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.ListOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.ValueOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.ZSetOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.jedis.JedisHashOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.jedis.JedisListOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.jedis.JedisValueOperator;
+import io.github.ukuz.piccolo.cache.redis.operator.jedis.JedisZSetOperator;
 import io.github.ukuz.piccolo.cache.redis.properties.RedisProperties;
 import io.netty.util.internal.StringUtil;
 import org.slf4j.Logger;
@@ -32,9 +41,9 @@ import java.util.stream.Collectors;
 /**
  * @author ukuz90
  */
-public class RedisConnectionFactory implements io.github.ukuz.piccolo.cache.redis.connection.RedisConnectionFactory {
+public class JedisConnectionFactory implements RedisConnectionFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RedisConnectionFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JedisConnectionFactory.class);
 
     private RedisProperties properties;
     private List<RedisNode> redisServers;
@@ -59,6 +68,34 @@ public class RedisConnectionFactory implements io.github.ukuz.piccolo.cache.redi
             cluster = createCluster();
         } else {
             pool = createPool();
+        }
+    }
+
+    @Override
+    public ValueOperator getValueOperator(String key) {
+        return new JedisValueOperator(key, getCommands());
+    }
+
+    @Override
+    public HashOperator getHashOperator(String key) {
+        return new JedisHashOperator(key, getCommands());
+    }
+
+    @Override
+    public ListOperator getListOperator(String key) {
+        return new JedisListOperator(key, getCommands());
+    }
+
+    @Override
+    public ZSetOperator getZSetOperator(String key) {
+        return new JedisZSetOperator(key, getCommands());
+    }
+
+    private JedisCommands getCommands() {
+        if (properties.isCluster()) {
+            return getJedisClusterConnection();
+        } else {
+            return getJedisConnection();
         }
     }
 
@@ -112,7 +149,6 @@ public class RedisConnectionFactory implements io.github.ukuz.piccolo.cache.redi
         return cluster;
     }
 
-    @Override
     public Jedis getJedisConnection() {
         Jedis jedis = fetchJedisConnector();
         if (jedis != null) {
@@ -156,17 +192,14 @@ public class RedisConnectionFactory implements io.github.ukuz.piccolo.cache.redi
         }
     }
 
-    @Override
     public void setDatabase(int database) {
         this.database = database;
     }
 
-    @Override
     public boolean isCluster() {
         return properties.isCluster();
     }
 
-    @Override
     public boolean isSentinel() {
         return properties.isSentinel();
     }

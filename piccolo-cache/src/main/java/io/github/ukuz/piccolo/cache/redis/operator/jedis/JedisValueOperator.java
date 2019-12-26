@@ -15,8 +15,70 @@
  */
 package io.github.ukuz.piccolo.cache.redis.operator.jedis;
 
+import io.github.ukuz.piccolo.cache.redis.operator.ValueOperator;
+import redis.clients.jedis.JedisCommands;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author ukuz90
  */
-public class JedisValueOperator {
+public class JedisValueOperator extends JedisOperator implements ValueOperator<String> {
+
+    private final String key;
+
+    public JedisValueOperator(String key, JedisCommands jedisCommands) {
+        super(jedisCommands);
+        this.key = key;
+    }
+
+    @Override
+    public String set(String val) {
+        return call(commands -> commands.set(key, val));
+    }
+
+    @Override
+    public long setNx(String val) {
+        return call(commands -> commands.setnx(key, val));
+    }
+
+    @Override
+    public String setEx(String val, int seconds) {
+        return call(commands -> commands.setex(key, seconds, val));
+    }
+
+    @Override
+    public String psetEx(String val, long millis) {
+        return call(commands -> commands.psetex(key, millis, val));
+    }
+
+    @Override
+    public String get() {
+        return call(commands -> commands.get(key));
+    }
+
+    @Override
+    public long incr() {
+        return call(commands -> commands.incr(key));
+    }
+
+    @Override
+    public long incrBy(long increment) {
+        return call(commands -> commands.incrBy(key, increment));
+    }
+
+    @Override
+    public long decr() {
+        return call(commands -> commands.decr(key));
+    }
+
+    @Override
+    public long decrBy(long decrement) {
+        return call(commands -> commands.decrBy(key, decrement));
+    }
+
+    @Override
+    public long del() {
+        return call(commands -> commands.del(key));
+    }
 }

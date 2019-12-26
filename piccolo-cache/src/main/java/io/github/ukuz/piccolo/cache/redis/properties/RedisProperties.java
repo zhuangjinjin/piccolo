@@ -30,10 +30,17 @@ import java.util.Optional;
 @Data
 public class RedisProperties implements Properties {
 
+    public static final String CLI_JEDIS = "jedis";
+    public static final String CLI_REDISSON = "redisson";
+
     public static final String MODE_STANDALONE = "standalone";
     public static final String MODE_SENTINEL = "sentinel";
     public static final String MODE_CLUSTER = "cluster";
 
+    /**
+     * client (eg: jedis / redisson)
+     */
+    private String cli = CLI_JEDIS;
     /**
      * host (eg: ip1:port1,ip2:port2,...)
      */
@@ -57,6 +64,10 @@ public class RedisProperties implements Properties {
 
     public boolean isCluster() {
         return MODE_CLUSTER.equals(mode);
+    }
+
+    public boolean isStandalone() {
+        return MODE_STANDALONE.equals(mode);
     }
 
     /**
