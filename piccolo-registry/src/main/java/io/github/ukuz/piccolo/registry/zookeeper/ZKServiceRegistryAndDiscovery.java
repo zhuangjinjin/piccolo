@@ -23,6 +23,7 @@ import io.github.ukuz.piccolo.api.service.ServiceRegistryAndDiscovery;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceListener;
 import io.github.ukuz.piccolo.common.json.Jsons;
+import io.github.ukuz.piccolo.registry.NoAvailableServiceException;
 import io.github.ukuz.piccolo.registry.zookeeper.listener.ZooKeeperCacheListener;
 import io.github.ukuz.piccolo.registry.zookeeper.manager.ZooKeeperManager;
 import io.github.ukuz.piccolo.registry.zookeeper.properties.ZooKeeperProperties;
@@ -66,7 +67,7 @@ public class ZKServiceRegistryAndDiscovery extends AbstractService implements Se
         Assert.notEmptyString(serviceId, "serviceId must not empty");
         List<String> childrenKeys = zkManager.getDirectory().getChildrenKeys(serviceId);
         if (childrenKeys.isEmpty()) {
-            return Collections.emptyList();
+            throw new NoAvailableServiceException("can not found any available service " + serviceId);
         }
         return childrenKeys.stream()
                 .map(key -> serviceId + ZKPaths.PATH_SEPARATOR + key)

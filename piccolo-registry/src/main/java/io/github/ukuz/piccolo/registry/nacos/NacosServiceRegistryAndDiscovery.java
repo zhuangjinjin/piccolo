@@ -24,6 +24,7 @@ import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.api.service.ServiceRegistryAndDiscovery;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
 import io.github.ukuz.piccolo.api.service.discovery.ServiceListener;
+import io.github.ukuz.piccolo.registry.NoAvailableServiceException;
 import io.github.ukuz.piccolo.registry.nacos.listener.NacosCacheListener;
 import io.github.ukuz.piccolo.registry.nacos.manager.NacosManager;
 
@@ -49,7 +50,7 @@ public class NacosServiceRegistryAndDiscovery extends AbstractService implements
     public List<DefaultServiceInstance> lookup(String serviceId) {
         List<Instance> instanceList = nacosManager.getDirectory().getAllHealthyInstances(serviceId);
         if (instanceList.isEmpty()) {
-            return Collections.emptyList();
+            throw new NoAvailableServiceException("can not found any available service " + serviceId);
         }
         return instanceList.stream()
                 .map(NacosInstanceConverter::covert)
