@@ -88,12 +88,14 @@ public class LocalRouterManager extends EventObservable implements RouterManager
         SessionContext context = connection.getSessionContext();
         String userId = context.getUserId();
         if (StringUtil.isNullOrEmpty(userId)) {
+            logger.info("connection closed, userId is empty, context: {} conn: {}", context, connection);
             return;
         }
 
         byte clientType = context.getClientType();
         LocalRouter router = routers.getOrDefault(userId, EMPTY).get(clientType);
         if (router == null) {
+            logger.info("connection closed, can not found router, clientType: {}", clientType);
             return;
         }
         String connId = connection.getId();
