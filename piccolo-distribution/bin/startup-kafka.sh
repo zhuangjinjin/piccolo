@@ -21,12 +21,8 @@ KAFKA_FILE=$KAFKA_NAME.tgz
 KAFKA_ARCHIVE_URL=https://mirrors.tuna.tsinghua.edu.cn/apache/kafka/$KAFKA_VERSION/$KAFKA_FILE
 KAFKA_ARCHIVE_BACKUP_URL=https://downloads.apache.org/kafka/$KAFKA_VERSION/$KAFKA_FILE
 
-echo $KAFKA_ARCHIVE_URL
-
 export BASE_DIR=`cd $(dirname $0)/..;pwd`
 export KAFKA_DIR=${BASE_DIR}/kafka
-
-echo $BASE_DIR
 
 function check_kafka_installation {
     if [ -d $KAFKA_DIR ]; then
