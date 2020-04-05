@@ -52,6 +52,8 @@ export MODE="cluster"
 export FLAG="non-daemon"
 export JAVA_HOME
 export JAVA="$JAVA_HOME/bin/java"
+export METRIC_PORT=8086
+export METRIC_CONTEXT_PATH=/piccolo/actuator
 
 while getopts ":m:f:" opt
 do
@@ -90,7 +92,7 @@ if [ -f "$CONF" ]; then
     JAVA_OPT="$JAVA_OPT -Dpiccolo.server.conf=$CONF"
 fi
 
-JAVA_OPT="$JAVA_OPT -Djava.net.preferIPv4Stack=true -jar $BASE_DIR/lib/$SERVER.jar"
+JAVA_OPT="$JAVA_OPT -Dserver.port=$METRIC_PORT -Dmanagement.endpoints.web.basePath=$METRIC_CONTEXT_PATH -Djava.net.preferIPv4Stack=true  -jar $BASE_DIR/lib/$SERVER.jar"
 
 if [ ! -d "$BASE_DIR/logs" ]; then
     mkdir -p $BASE_DIR/logs

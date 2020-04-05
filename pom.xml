@@ -143,29 +143,16 @@
             <!-- netty -->
             <dependency>
                 <groupId>io.netty</groupId>
-                <artifactId>netty-transport</artifactId>
+                <artifactId>netty-bom</artifactId>
                 <version>${netty_version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <version>${netty_version}</version>
                 <classifier>${os.detected.classifier}</classifier>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>${netty_version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec</artifactId>
-                <version>${netty_version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-http</artifactId>
-                <version>${netty_version}</version>
             </dependency>
 
             <!-- zookeeper client -->
@@ -299,6 +286,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
 
         </dependencies>
     </dependencyManagement>
