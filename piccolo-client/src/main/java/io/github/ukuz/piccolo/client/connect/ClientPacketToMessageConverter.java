@@ -39,6 +39,8 @@ public class ClientPacketToMessageConverter implements PacketToMessageConverter 
                 return new HandshakeOkMessage(connection);
             case FAST_CONNECT:
                 return new FastConnectOkMessage(connection);
+            case OK:
+                return new OkMessage(connection);
             case HEARTBEAT:
                 return new HeartbeatMessage(connection);
             case ERROR:
