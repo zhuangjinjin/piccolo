@@ -47,6 +47,8 @@ public class ClientPacketToMessageConverter implements PacketToMessageConverter 
                 return new ErrorMessage(connection);
             case ID_GEN:
                 return new IdGenOkMessage(connection);
+            case DISPATCH:
+                return new DispatcherResponseMessage(connection);
             default:
                 LOGGER.error("packet covert failure, not found mapping cmd: {} packet: {} conn: {}", cmd, packet, connection);
                 break;
