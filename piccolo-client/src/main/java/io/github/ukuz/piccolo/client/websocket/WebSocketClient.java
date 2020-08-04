@@ -39,6 +39,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 

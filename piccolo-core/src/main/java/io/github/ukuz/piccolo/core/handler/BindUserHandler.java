@@ -84,6 +84,7 @@ public class BindUserHandler extends ChannelHandlerDelegateAdapter {
                     logger.info("bind user success, userId: {} conn: {}", msg.userId, connection);
                     return;
                 } else {
+                    //同一个设备换账号
                     unbind(connection, UnbindUserMessage.from(connection, msg));
                 }
             }
