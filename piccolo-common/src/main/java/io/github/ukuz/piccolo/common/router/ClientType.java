@@ -25,6 +25,7 @@ public enum ClientType {
     MOBILE(1, "android", "ios"),
     WEB(2, "web", "h5"),
     PC(3, "windows", "linux", "mac"),
+    UNIQUE(9),
     UNKNOWN(-1),
     ;
 

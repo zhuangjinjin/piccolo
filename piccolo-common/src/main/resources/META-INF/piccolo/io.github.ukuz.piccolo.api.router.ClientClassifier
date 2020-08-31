@@ -1,1 +1,2 @@
 default=io.github.ukuz.piccolo.common.router.DefaultClientClassifier
+unique=io.github.ukuz.piccolo.common.router.UniqueClientClassifier

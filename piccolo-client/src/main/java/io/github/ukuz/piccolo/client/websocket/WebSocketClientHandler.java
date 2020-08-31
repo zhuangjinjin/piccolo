@@ -38,9 +38,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private ChannelPromise handshakeFuture;
 
+    private BaseHandler handler;
+
     public WebSocketClientHandler(WebSocketClientHandshaker handshaker, NettyConnectionManager cxnxManager) {
         this.handshaker = handshaker;
         this.cxnxManager = cxnxManager;
+    }
+
+    public void setHandler(BaseHandler handler) {
+        this.handler = handler;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -92,6 +98,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             if (m instanceof HandshakeOkMessage) {
                 System.out.println("WebSocket Client received message: " + m);
             }
+            if (handler != null) {
+                handler.handle(m);
+            }
         });
 
     }
@@ -105,5 +114,14 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         }
 
         ctx.close();
+    }
+
+    public interface BaseHandler {
+        /**
+         * 处理消息
+         * @param msg
+         */
+        void handle(Object msg);
+
     }
 }

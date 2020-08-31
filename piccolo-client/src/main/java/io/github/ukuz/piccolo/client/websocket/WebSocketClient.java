@@ -15,15 +15,14 @@
  */
 package io.github.ukuz.piccolo.client.websocket;
 
-import io.github.ukuz.piccolo.api.config.Environment;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
+import io.github.ukuz.piccolo.common.message.BindUserMessage;
 import io.github.ukuz.piccolo.common.message.HandshakeMessage;
 import io.github.ukuz.piccolo.transport.codec.BinaryFrameDuplexCodec;
 import io.github.ukuz.piccolo.transport.codec.Codec;
 import io.github.ukuz.piccolo.transport.codec.MultiPacketCodec;
-import io.github.ukuz.piccolo.transport.connection.NettyConnection;
 import io.github.ukuz.piccolo.transport.connection.NettyConnectionManager;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -37,10 +36,10 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
-import io.netty.handler.codec.http.websocketx.WebSocketClientProtocolHandler;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -83,11 +82,16 @@ public class WebSocketClient  {
 
     }
 
-    public void start(URI uri) throws InterruptedException {
+    public void setClientHandler(WebSocketClientHandler.BaseHandler handler) {
+        this.handler.setHandler(handler);
+    }
+
+    public Connection start(URI uri) throws InterruptedException {
         Channel channel = client.connect(uri.getHost(), uri.getPort()).sync().channel();
         handler.handshakeFuture().sync();
-        Connection connection =  cxnxManager.getConnection(channel);
+        Connection connection = cxnxManager.getConnection(channel);
         handshake(connection);
+        return connection;
     }
 
     private void handshake(Connection connection) {
@@ -99,6 +103,13 @@ public class WebSocketClient  {
         msg.timestamp = System.currentTimeMillis();
         msg.minHeartbeat = 5;
         msg.maxHeartbeat = 10;
+        connection.sendAsync(msg);
+    }
+
+    public void bindUser(Connection connection, String userId) {
+        BindUserMessage msg = new BindUserMessage(connection);
+        msg.userId = userId;
+        msg.tags = "";
         connection.sendAsync(msg);
     }
 
