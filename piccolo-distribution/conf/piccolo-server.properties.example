@@ -16,6 +16,7 @@
 ############################# net setting #############################
 
 piccolo.net.ws-path=/piccolo
+piccolo.net.user-offline-on-connection-close=false
 
 piccolo.net.connect-server.bind-port=8088
 piccolo.net.connect-server.bind-ip=

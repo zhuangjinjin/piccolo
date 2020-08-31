@@ -31,6 +31,7 @@ public class NetProperties implements Properties {
     private String localIp;
     private String publicIp;
     private String wsPath;
+    private boolean userOfflineOnConnectionClose;
 
     private ServerNestedProperties connectServer;
     private ServerNestedProperties gatewayServer;

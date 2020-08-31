@@ -57,9 +57,12 @@ public class WebSocketServer extends NettyServer {
     private DefaultServiceInstance serviceInstance;
     private MonitorBytesHandler monitorBytesHandler;
     private MonitorQpsHandler monitorQpsHandler;
+    private ConnectionEventListener connectionEventListener;
 
     public WebSocketServer(PiccoloContext piccoloContext) {
         this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager());
+        this.connectionEventListener = new ConnectionEventListener(piccoloContext.getProperties(NetProperties.class));
+        this.connectionEventListener = new ConnectionEventListener(piccoloContext.getProperties(NetProperties.class));
     }
 
     public WebSocketServer(PiccoloContext piccoloContext, ChannelHandler channelHandler, ConnectionManager cxnxManager) {
