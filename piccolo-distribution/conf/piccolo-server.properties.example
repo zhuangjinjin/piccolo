@@ -204,3 +204,7 @@ piccolo.mq-topic.routes[0].replication-factor=1
 
 piccolo.security.public-key=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuQ+cJupe6e8Y2lwr0HkwLXtSH6rRTYspukmh97oNnDl8ZpTXggMza5YRFhBZB5I8QLz5I3s356kscJsc/lwiWUOph7laX8E7MsHQEg+oNTnuB7lMsDy+XLrjd8AAtagfDsryg7fFcqRDSRJBUl/+ZtRqbphtsFAd/p8DG5PA5RQIDAQAB
 piccolo.security.private-key=MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAK5D5wm6l7p7xjaXCvQeTAte1IfqtFNiym6SaH3ug2cOXxmlNeCAzNrlhEWEFkHkjxAvPkjezfnqSxwmxz+XCJZQ6mHuVpfwTsywdASD6g1Oe4HuUywPL5cuuN3wAC1qB8OyvKDt8VypENJEkFSX/5m1GpumG2wUB3+nwMbk8DlFAgMBAAECgYBLTnqsAJ+K7ewVMSaBogoYq81KQwnUMw/pwok3Sngsc9BzA6sJrn9YZPDJHbCEnyGXy+KtmOMICdCVhMh72WfS3anhS26HGVrG12SrV02Xo1g2BvsmfbP+IsxMnTJilKobALwv4CQyudOvgsUBVnz/OcEevPprjNV9SYaeco9aIQJBAO2WGptvql+Gwtb7to+QFn0P3QfYhAl6LG+z2ycUPuBVRvVQhnAWqzX+fyh8aDYE7ezyscsjpTHs7reBrZP55FkCQQC7xXWMMb2q8SpKLOt0SxO53+mR0Owm/Jo0OjGoZgIyoAqMfcBnWI58TAKMRvCXLlnTTqRjUr4vaCq2tB75I47NAkALPAzYCsi4qauu9MomMb8OfOCLzW448IEHay7Swz9R5lZrpTomNLw12mny5SccXtFNYhCMNYxLNxP2s3gcxjVJAkBltLzI5SBg+SP47X/Ti97xbTEshEeFjolQBL1lA2vpU/qiwnJ3B+aVuO4gYURr/vU0mYI9MlJFh1yrfcDRHct5AkB84qL70zKBeY/fLyVQIhFhZQbwD2shPKEboLcj6hw55lq89ZxeYSi2lhIxusopclEumpI8NYm821DIbddFoozH
+
+
+############################# id-gen setting #############################
+piccolo.id-gen.batch-size=32767

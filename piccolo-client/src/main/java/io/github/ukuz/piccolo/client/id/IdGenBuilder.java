@@ -35,7 +35,7 @@ public class IdGenBuilder {
     }
 
     public IdGenBuilder capacity(int capacity) {
-        Assert.isTrue(threshold > 0, "capacity must great than 0");
+        Assert.isTrue(capacity > 0, "capacity must great than 0");
         this.capacity = capacity;
         return this;
     }
