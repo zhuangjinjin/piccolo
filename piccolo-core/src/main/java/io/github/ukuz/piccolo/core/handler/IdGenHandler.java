@@ -23,6 +23,7 @@ import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandlerDelegateAdapter
 import io.github.ukuz.piccolo.api.id.IdGenException;
 import io.github.ukuz.piccolo.common.message.IdGenMessage;
 import io.github.ukuz.piccolo.common.message.IdGenOkMessage;
+import io.github.ukuz.piccolo.common.properties.IdGenProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +34,11 @@ public class IdGenHandler extends ChannelHandlerDelegateAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IdGenHandler.class);
 
+    private final IdGenProperties idGenProperties;
+
     public IdGenHandler(PiccoloContext piccoloContext, ChannelHandler handler) {
         super(piccoloContext, handler);
+        this.idGenProperties = piccoloContext.getProperties(IdGenProperties.class);
     }
 
     @Override
@@ -42,7 +46,10 @@ public class IdGenHandler extends ChannelHandlerDelegateAdapter {
         if (message instanceof IdGenMessage) {
             IdGenMessage msg = (IdGenMessage) message;
 
-            int batchSize = Math.max(Math.min(msg.batchSize, 10000), 1);
+            int batchSize = Math.max(msg.batchSize, 1);
+            if (idGenProperties.getBatchSize() > 0) {
+                batchSize = Math.min(batchSize, idGenProperties.getBatchSize());
+            }
             byte code = 0;
             long[] xid = new long[batchSize];
             int i = 0;
