@@ -18,6 +18,10 @@
 piccolo.net.ws-path=/piccolo
 piccolo.net.user-offline-on-connection-close=false
 
+piccolo.net.ws-ssl.enable=true
+piccolo.net.ws-ssl.crt-filename=
+piccolo.net.ws-ssl.key-filename=
+
 piccolo.net.connect-server.bind-port=8088
 piccolo.net.connect-server.bind-ip=
 piccolo.net.connect-server.register-ip=127.0.0.1
