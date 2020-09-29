@@ -24,7 +24,9 @@ import io.github.ukuz.piccolo.client.PiccoloClient;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.cache.CacheKeys;
 import io.github.ukuz.piccolo.common.message.push.KafkaOfflineMqMessage;
+import io.github.ukuz.piccolo.common.message.push.KafkaOnlineMqMessage;
 import io.github.ukuz.piccolo.common.message.push.OfflineMqMessage;
+import io.github.ukuz.piccolo.common.message.push.OnlineMqMessage;
 import io.github.ukuz.piccolo.mq.kafka.Topics;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -107,9 +109,22 @@ public class UserManager {
         return serverIps;
     }
 
+    /**
+     * 注册下线回调
+     * @param offlineHandler
+     */
     public void registerOfflineHandler(Consumer<OfflineMqMessage> offlineHandler) {
         Assert.notNull(offlineHandler, "offlineHandler must not be null");
         this.piccoloContext.getMQClient().subscribe(Topics.OFFLINE_MESSAGE.getTopic(), new OfflineMessageReceiver(offlineHandler));
+    }
+
+    /**
+     * 注册上线回调
+     * @param onlineHandler
+     */
+    public void registerOnlineHandler(Consumer<OnlineMqMessage> onlineHandler) {
+        Assert.notNull(onlineHandler, "onlineHandler must not be null");
+        this.piccoloContext.getMQClient().subscribe(Topics.ONLINE_MESSAGE.getTopic(), new OnlineMessageReceiver(onlineHandler));
     }
 
     private class OfflineMessageReceiver implements MQMessageReceiver<byte[]> {
@@ -128,6 +143,33 @@ public class UserManager {
             String uid = new String(message, StandardCharsets.UTF_8);
 
             KafkaOfflineMqMessage msg = new KafkaOfflineMqMessage();
+            TopicPartition topicPartition = (TopicPartition) attachment[0];
+            OffsetAndMetadata offsetAndMetadata = (OffsetAndMetadata) attachment[1];
+            msg.setUid(uid);
+            msg.setMqClient(UserManager.this.piccoloContext.getMQClient());
+            msg.setTopic(topicPartition.topic());
+            msg.setPartition(topicPartition.partition());
+            msg.setOffset(offsetAndMetadata.offset());
+            this.consumer.accept(msg);
+        }
+    }
+
+    private class OnlineMessageReceiver implements MQMessageReceiver<byte[]> {
+
+        private final Consumer<OnlineMqMessage> consumer;
+
+        public OnlineMessageReceiver(Consumer<OnlineMqMessage> consumer) {
+            this.consumer = consumer;
+        }
+
+        @Override
+        public void receive(String topic, byte[] message, Object... attachment) {
+            Assert.isTrue(attachment[0] instanceof TopicPartition, "attachment[0] must be TopicPartition");
+            Assert.isTrue(attachment[1] instanceof OffsetAndMetadata, "attachment[1] must be OffsetAndMetadata");
+
+            String uid = new String(message, StandardCharsets.UTF_8);
+
+            KafkaOnlineMqMessage msg = new KafkaOnlineMqMessage();
             TopicPartition topicPartition = (TopicPartition) attachment[0];
             OffsetAndMetadata offsetAndMetadata = (OffsetAndMetadata) attachment[1];
             msg.setUid(uid);
