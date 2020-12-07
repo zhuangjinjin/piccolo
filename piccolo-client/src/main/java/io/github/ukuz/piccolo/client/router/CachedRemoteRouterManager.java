@@ -61,4 +61,13 @@ public class CachedRemoteRouterManager extends RemoteRouterManager {
         }
         return cached;
     }
+
+    /**
+     * invalid userId's cache
+     * @param userId
+     */
+    public void invalidate(String userId) {
+        cache.invalidate(userId);
+    }
+
 }

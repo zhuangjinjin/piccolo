@@ -33,12 +33,21 @@ public class NetProperties implements Properties {
     private String wsPath;
     private boolean userOfflineOnConnectionClose;
 
+    private SslNestedProperties wsSsl;
+
     private ServerNestedProperties connectServer;
     private ServerNestedProperties gatewayServer;
     private ServerNestedProperties wsServer;
 
     private TrafficNestedProperties connectServerTraffic;
     private TrafficNestedProperties gatewayServerTraffic;
+
+    @Data
+    public class SslNestedProperties implements Properties {
+        private boolean enable;
+        private String crtFilename;
+        private String keyFilename;
+    }
 
     @Data
     public class ServerNestedProperties implements Properties {

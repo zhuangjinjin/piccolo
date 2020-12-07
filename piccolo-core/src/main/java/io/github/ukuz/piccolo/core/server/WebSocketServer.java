@@ -21,8 +21,8 @@ import io.github.ukuz.piccolo.api.connection.ConnectionManager;
 import io.github.ukuz.piccolo.api.exchange.handler.ChannelHandler;
 import io.github.ukuz.piccolo.api.exchange.support.PacketToMessageConverter;
 import io.github.ukuz.piccolo.api.external.common.Assert;
+import io.github.ukuz.piccolo.api.service.ServiceException;
 import io.github.ukuz.piccolo.api.service.discovery.DefaultServiceInstance;
-import io.github.ukuz.piccolo.api.service.discovery.ServiceInstance;
 import io.github.ukuz.piccolo.api.service.registry.Registration;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.ServiceNames;
@@ -45,7 +45,11 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 
+import javax.net.ssl.SSLException;
+import java.io.File;
 import java.net.InetSocketAddress;
 
 /**
@@ -58,6 +62,7 @@ public class WebSocketServer extends NettyServer {
     private MonitorBytesHandler monitorBytesHandler;
     private MonitorQpsHandler monitorQpsHandler;
     private ConnectionEventListener connectionEventListener;
+    private SslContext sslContext;
 
     public WebSocketServer(PiccoloContext piccoloContext) {
         this(piccoloContext, ChannelHandlers.newConnectChannelHandler(piccoloContext), new NettyConnectionManager());
@@ -75,6 +80,15 @@ public class WebSocketServer extends NettyServer {
         super(piccoloContext, channelHandler, cxnxManager);
         Assert.isTrue(port >= 0, "port was invalid port: " + port);
         address = StringUtils.hasText(host) ? new InetSocketAddress(host, port) : new InetSocketAddress(port);
+        if (piccoloContext.getProperties(NetProperties.class).getWsSsl().isEnable()) {
+            String crtFileName = piccoloContext.getProperties(NetProperties.class).getWsSsl().getCrtFilename();
+            String keyFileName = piccoloContext.getProperties(NetProperties.class).getWsSsl().getKeyFilename();
+            try {
+                sslContext = SslContextBuilder.forServer(new File(crtFileName), new File(keyFileName)).build();
+            } catch (SSLException e) {
+                throw new ServiceException(e);
+            }
+        }
     }
 
     @Override
@@ -106,6 +120,9 @@ public class WebSocketServer extends NettyServer {
     @Override
     protected void initPipeline(ChannelPipeline pipeline) {
         BinaryFrameDuplexCodec codec = new BinaryFrameDuplexCodec(cxnxManager, newCodec());
+        if (sslContext != null) {
+            pipeline.addLast(sslContext.newHandler(pipeline.channel().alloc()));
+        }
         //duplex
         pipeline.addLast(new HttpServerCodec());
         //inbound
