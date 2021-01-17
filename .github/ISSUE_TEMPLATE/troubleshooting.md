@@ -10,7 +10,7 @@ Please check and search existing [issues](https://github.com/zhuangjinjin/piccol
 - [ ] I have checked the [issues](https://github.com/zhuangjinjin/piccolo/issues) and found no answer.
 
 #### What version of piccolo are you using?
-master/0.1.0 etc.
+master/v0.1.0 etc.
 
 #### Describe your problem**
 A clear and concise description of what is not working.
