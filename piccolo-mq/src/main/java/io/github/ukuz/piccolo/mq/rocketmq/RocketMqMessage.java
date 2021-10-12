@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ukuz90
+ * Copyright 2021 ukuz90
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import io.github.ukuz.piccolo.mq.CommittableMqMessage;
 public abstract class RocketMqMessage extends CommittableMqMessage {
 
     private String topic;
-    private int partition;
-    private long offset;
 
     public String getTopic() {
         return topic;
@@ -33,22 +31,6 @@ public abstract class RocketMqMessage extends CommittableMqMessage {
 
     public void setTopic(String topic) {
         this.topic = topic;
-    }
-
-    public int getPartition() {
-        return partition;
-    }
-
-    public void setPartition(int partition) {
-        this.partition = partition;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
     }
 
     @Override

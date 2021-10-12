@@ -18,6 +18,7 @@ package io.github.ukuz.piccolo.mq.kafka;
 /**
  * @author ukuz90
  */
+
 public enum Topics {
     /**
      *

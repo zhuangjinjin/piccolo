@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ukuz90
+ * Copyright 2021 ukuz90
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,7 @@ import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
 import io.github.ukuz.piccolo.api.mq.MQTopic;
 import io.github.ukuz.piccolo.api.service.AbstractService;
 import io.github.ukuz.piccolo.api.service.ServiceException;
-import io.github.ukuz.piccolo.mq.kafka.KafkaMqMessage;
-import io.github.ukuz.piccolo.mq.kafka.manager.KafkaManager;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.TopicPartition;
+import io.github.ukuz.piccolo.mq.rocketmq.manager.RocketMQManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,12 +35,12 @@ import java.util.concurrent.CompletableFuture;
 public class RocketMQClient extends AbstractService implements MQClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RocketMQClient.class);
-    private KafkaManager kafkaManager;
+    private RocketMQManager rocketMQManager;
 
     @Override
     public void init(PiccoloContext context) throws ServiceException {
-        kafkaManager = new KafkaManager(context);
-        kafkaManager.init();
+        rocketMQManager = new RocketMQManager(context);
+        rocketMQManager.init();
     }
 
     @SuppressWarnings("unchecked")
@@ -56,17 +53,17 @@ public class RocketMQClient extends AbstractService implements MQClient {
 
     @Override
     public void destroy() throws ServiceException {
-        kafkaManager.destroy();
+        rocketMQManager.destroy();
     }
 
     @Override
     public void addTopicIfNeeded(MQTopic topic) {
-        kafkaManager.addTopicIfNeeded(topic);
+        rocketMQManager.addTopicIfNeeded(topic);
     }
 
     @Override
     public void subscribe(String topic, MQMessageReceiver receiver) {
-        kafkaManager.subscribe(topic, receiver);
+        rocketMQManager.subscribe(topic, receiver);
     }
 
     @Override
@@ -77,9 +74,9 @@ public class RocketMQClient extends AbstractService implements MQClient {
     @Override
     public void publish(String topic, String key, Object message) {
         if (message instanceof String) {
-            kafkaManager.publish(topic, key, ((String) message).getBytes(StandardCharsets.UTF_8));
+            rocketMQManager.publish(topic, key, ((String) message).getBytes(StandardCharsets.UTF_8));
         } else if (message instanceof byte[]) {
-            kafkaManager.publish(topic, key, message);
+            rocketMQManager.publish(topic, key, message);
         } else {
             LOGGER.warn("publish failure with a unsupported wire type, topic: {}, message: {}", topic, message);
         }
@@ -88,9 +85,8 @@ public class RocketMQClient extends AbstractService implements MQClient {
     @Override
     public void commitMessage(MQMessage message) {
         if (message instanceof RocketMqMessage) {
-            RocketMqMessage kafkaMqMessage = (RocketMqMessage)message;
-            kafkaManager.commitOffset(new TopicPartition(kafkaMqMessage.getTopic(), kafkaMqMessage.getPartition()),
-                    new OffsetAndMetadata(kafkaMqMessage.getOffset()));
+            RocketMqMessage rocketMqMessage = (RocketMqMessage)message;
+            rocketMQManager.commitOffset(rocketMqMessage);
         } else {
             LOGGER.error("commit unsupported wire type: {}", message);
         }

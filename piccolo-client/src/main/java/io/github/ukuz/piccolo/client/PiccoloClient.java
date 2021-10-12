@@ -37,7 +37,6 @@ import io.github.ukuz.piccolo.client.router.CachedRemoteRouterManager;
 import io.github.ukuz.piccolo.client.threadpool.ClientExecutorFactory;
 import io.github.ukuz.piccolo.common.event.EventBus;
 import io.github.ukuz.piccolo.common.properties.CoreProperties;
-import io.github.ukuz.piccolo.registry.zookeeper.ZKServiceRegistryAndDiscovery;
 
 /**
  * @author ukuz90
@@ -81,7 +80,8 @@ public class PiccoloClient implements PiccoloContext {
         //initialize eventBus
         EventBus.create(executorFactory.create(ExecutorFactory.EVENT_BUS, environment));
 
-        mqClient = SpiLoader.getLoader(MQClient.class).getExtension();
+        String mqChooser = StringUtils.hasText(core.getMq()) ? core.getMq() : MQClient.DEFAULT;
+        mqClient = SpiLoader.getLoader(MQClient.class).getExtension(mqChooser);
         mqClient.startAsync(this).join();
 
         cacheManager = SpiLoader.getLoader(CacheManager.class).getExtension();

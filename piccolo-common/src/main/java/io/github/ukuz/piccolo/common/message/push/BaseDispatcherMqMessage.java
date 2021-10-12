@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ukuz90
+ * Copyright 2021 ukuz90
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,49 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.ukuz.piccolo.mq.kafka;
+package io.github.ukuz.piccolo.common.message.push;
 
-import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.mq.CommittableMqMessage;
 
 /**
  * @author ukuz90
  */
-public abstract class KafkaMqMessage extends CommittableMqMessage {
+public class BaseDispatcherMqMessage extends CommittableMqMessage implements DispatcherMqMessage {
 
-    private String topic;
-    private int partition;
-    private long offset;
+    private byte[] payload;
+    private String uid;
 
-    public String getTopic() {
-        return topic;
+    @Override
+    public byte[] getPayload() {
+        return payload;
     }
 
-    public void setTopic(String topic) {
-        this.topic = topic;
+    @Override
+    public String getUid() {
+        return uid;
     }
 
-    public int getPartition() {
-        return partition;
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
     }
 
-    public void setPartition(int partition) {
-        this.partition = partition;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
-    public long getOffset() {
-        return offset;
+    @Override
+    protected void doEncode0() {
+        writeString(uid);
+        writeBytes(payload);
     }
 
-    public void setOffset(long offset) {
-        this.offset = offset;
+    @Override
+    protected void doDecode0() {
+        uid = readString();
+        payload = readBytes();
     }
 
     @Override
     public void completeConsume() {
-        Assert.notNull(mqClient, "mqClient must not be null");
         mqClient.commitMessage(this);
     }
-
 }
-
