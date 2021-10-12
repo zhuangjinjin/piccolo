@@ -28,11 +28,11 @@ import io.github.ukuz.piccolo.api.route.RouteLocator;
 import io.github.ukuz.piccolo.api.spi.SpiLoader;
 import io.github.ukuz.piccolo.common.message.DispatcherMessage;
 import io.github.ukuz.piccolo.common.message.ErrorMessage;
-import io.github.ukuz.piccolo.common.message.push.KafkaDispatcherMqMessage;
+import io.github.ukuz.piccolo.common.message.push.BaseDispatcherMqMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.github.ukuz.piccolo.mq.kafka.Topics.*;
+import static io.github.ukuz.piccolo.mq.kafka.Topics.DISPATCH_MESSAGE;
 
 /**
  * @author ukuz90
@@ -87,7 +87,7 @@ public class DispatcherHandler implements ChannelHandler {
                     String uid = connection.getSessionContext().getUserId();
                     String topic = (String) routeLocator.getRoute(msg.routeKey);
 
-                    KafkaDispatcherMqMessage mqMessage = new KafkaDispatcherMqMessage();
+                    BaseDispatcherMqMessage mqMessage = new BaseDispatcherMqMessage();
                     mqMessage.setXid(xid);
                     mqMessage.setMqClient(client);
                     mqMessage.setPayload(msg.payload);

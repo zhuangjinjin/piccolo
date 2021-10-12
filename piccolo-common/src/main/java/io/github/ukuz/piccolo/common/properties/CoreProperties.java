@@ -45,6 +45,11 @@ public class CoreProperties implements Properties {
     private String srd;
 
     /**
+     * kafka, rocketmq
+     */
+    private String mq;
+
+    /**
      * jedis, redisson
      */
     private String cache = "jedis";

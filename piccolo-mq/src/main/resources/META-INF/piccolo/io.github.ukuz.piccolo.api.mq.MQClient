@@ -1,1 +1,2 @@
 kafka=io.github.ukuz.piccolo.mq.kafka.KafkaMQClient
+rocketmq=io.github.ukuz.piccolo.mq.rocketmq.RocketMQClient

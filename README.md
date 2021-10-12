@@ -15,9 +15,10 @@ piccolo是一个长连接网关服务器。
 项目主要是基于Netty4.x开发的。
 
 * Jdk 8+
-* Netty 4.1.25
+* Netty 4.1.45
 * ZooKeeper 3.5.5
 * Kafka 2.0.0
+* RocketMQ 4.9.1
 * Nacos 1.1.3
 * Redis
 * Prometheus

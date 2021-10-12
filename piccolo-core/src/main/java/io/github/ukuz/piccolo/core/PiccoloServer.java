@@ -85,7 +85,8 @@ public class PiccoloServer implements PiccoloContext {
         String srdChooser = StringUtils.hasText(core.getSrd()) ? core.getSrd() : ServiceRegistryAndDiscovery.DEFAULT;
         srd = SpiLoader.getLoader(ServiceRegistryAndDiscovery.class).getExtension(srdChooser);
 
-        mqClient = SpiLoader.getLoader(MQClient.class).getExtension();
+        String mqChooser = StringUtils.hasText(core.getMq()) ? core.getMq() : MQClient.DEFAULT;
+        mqClient = SpiLoader.getLoader(MQClient.class).getExtension(mqChooser);
 
         String configCenterChooser = StringUtils.hasText(core.getConfigCenter()) ? core.getConfigCenter() : DynamicConfiguration.DEFAULT;
         configCenter = SpiLoader.getLoader(DynamicConfiguration.class).getExtension(configCenterChooser);
