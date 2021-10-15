@@ -15,6 +15,7 @@
  */
 package io.github.ukuz.piccolo.mq.rocketmq.consumer;
 
+import io.github.ukuz.piccolo.api.AsyncContext;
 import io.github.ukuz.piccolo.api.common.utils.StringUtils;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.mq.MQMessageReceiver;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author ukuz90
@@ -102,17 +104,17 @@ public class RocketMQConsumerWorker implements Runnable {
 
     private ConsumeConcurrentlyStatus processMessageExt(MessageExt messageExt) {
         try {
-            MQMessageReceiver.Ack ack = receiver.receiveAndAck(messageExt.getTopic(), messageExt.getBody());
-            return wrapConsumeConcurrentlyStatus(ack);
+            CompletableFuture<Boolean> future = new CompletableFuture<>();
+            AsyncContext.getContext().setArgument("future", future);
+            // sync invoke
+            receiver.receive(messageExt.getTopic(), messageExt.getBody());
+            future.wait(10000);
+            return future.isDone() ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS :
+                ConsumeConcurrentlyStatus.RECONSUME_LATER;
         } catch (Exception e) {
             LOGGER.error("consumer error log:{}",e);
             return ConsumeConcurrentlyStatus.RECONSUME_LATER;
         }
-    }
-
-    private ConsumeConcurrentlyStatus wrapConsumeConcurrentlyStatus(MQMessageReceiver.Ack ack) {
-        return ack == MQMessageReceiver.Ack.OK ? ConsumeConcurrentlyStatus.CONSUME_SUCCESS :
-            ConsumeConcurrentlyStatus.RECONSUME_LATER;
     }
 
     public void destroy() {

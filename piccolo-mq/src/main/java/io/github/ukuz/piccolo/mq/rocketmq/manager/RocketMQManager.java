@@ -92,5 +92,6 @@ public class RocketMQManager {
     }
 
     public void commitOffset(RocketMqMessage mqMessage) {
+        mqMessage.getFuture().complete(true);
     }
 }

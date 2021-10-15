@@ -15,8 +15,7 @@
  */
 package io.github.ukuz.piccolo.client.push;
 
-import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.*;
-
+import io.github.ukuz.piccolo.api.AsyncContext;
 import io.github.ukuz.piccolo.api.connection.Connection;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.api.id.IdGenException;
@@ -28,6 +27,8 @@ import io.github.ukuz.piccolo.client.id.IdGenBuilder;
 import io.github.ukuz.piccolo.common.ServiceNames;
 import io.github.ukuz.piccolo.common.message.PushMessage;
 import io.github.ukuz.piccolo.common.message.push.KafkaDispatcherMqMessage;
+import io.github.ukuz.piccolo.common.message.push.RocketMQDispatcherMqMessage;
+import io.github.ukuz.piccolo.common.properties.CoreProperties;
 import io.github.ukuz.piccolo.common.router.RemoteRouter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -36,12 +37,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
-import static io.github.ukuz.piccolo.mq.kafka.Topics.*;
+import static io.github.ukuz.piccolo.api.common.threadpool.ExecutorFactory.PUSH_CLIENT;
+import static io.github.ukuz.piccolo.mq.kafka.Topics.DISPATCH_MESSAGE;
 
 /**
  * @author ukuz90
@@ -154,6 +158,15 @@ public class PushClient implements AutoCloseable {
 
         @Override
         public void receive(String topic, byte[] message, Object... attachment) {
+            CoreProperties core = piccoloClient.getProperties(CoreProperties.class);
+            if (Objects.equals(core.getMq(), "kafka")) {
+                receiveFromKafka(message, attachment[0], attachment[1]);
+            } else {
+                receiveFromRocketMQ(message);
+            }
+        }
+
+        private void receiveFromKafka(byte[] message, Object... attachment) {
             Assert.isTrue(attachment[0] instanceof TopicPartition, "attachment[0] must be TopicPartition");
             Assert.isTrue(attachment[1] instanceof OffsetAndMetadata, "attachment[1] must be OffsetAndMetadata");
             TopicPartition topicPartition = (TopicPartition) attachment[0];
@@ -163,6 +176,17 @@ public class PushClient implements AutoCloseable {
             msg.setTopic(topicPartition.topic());
             msg.setPartition(topicPartition.partition());
             msg.setOffset(offsetAndMetadata.offset());
+            msg.decode(message);
+            dispatchHandlerExecutor.execute(() -> handler.onDispatch(msg));
+        }
+
+        @SuppressWarnings("uncheck")
+        private void receiveFromRocketMQ(byte[] message) {
+            CompletableFuture<Boolean> future =
+                (CompletableFuture<Boolean>)AsyncContext.getContext().getArgument("future");
+            RocketMQDispatcherMqMessage msg = new RocketMQDispatcherMqMessage();
+            msg.setMqClient(piccoloClient.getMQClient());
+            msg.setFuture(future);
             msg.decode(message);
             dispatchHandlerExecutor.execute(() -> handler.onDispatch(msg));
         }
