@@ -18,19 +18,21 @@ package io.github.ukuz.piccolo.mq.rocketmq;
 import io.github.ukuz.piccolo.api.external.common.Assert;
 import io.github.ukuz.piccolo.mq.CommittableMqMessage;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author ukuz90
  */
 public abstract class RocketMqMessage extends CommittableMqMessage {
 
-    private String topic;
+    private CompletableFuture<Boolean> future;
 
-    public String getTopic() {
-        return topic;
+    public CompletableFuture<Boolean> getFuture() {
+        return future;
     }
 
-    public void setTopic(String topic) {
-        this.topic = topic;
+    public void setFuture(CompletableFuture<Boolean> future) {
+        this.future = future;
     }
 
     @Override
@@ -38,6 +40,5 @@ public abstract class RocketMqMessage extends CommittableMqMessage {
         Assert.notNull(mqClient, "mqClient must not be null");
         mqClient.commitMessage(this);
     }
-
 }
 

@@ -28,13 +28,4 @@ public interface MQMessageReceiver<T> {
      */
     void receive(String topic, T message, Object... attachment);
 
-    default Ack receiveAndAck(String topic, T message, Object... attachment) {
-        return Ack.OK;
-    }
-
-    enum Ack {
-        OK,
-        NO
-    }
-
 }
