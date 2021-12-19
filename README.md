@@ -8,7 +8,7 @@ piccolo是一个长连接网关服务器。
 
 ## 架构图
 
- <img src="doc/architecture.png"/>
+ <img src="doc/architecture_v1.0.png"/>
 
 ## 技术
 
